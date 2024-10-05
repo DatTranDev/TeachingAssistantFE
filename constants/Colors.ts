@@ -26,5 +26,6 @@ export const colors = {
     tabIconSelected: tintColorDark,
   },
   gray_primary:'#676767',
-  blue_primary:'#268FF1'
+  blue_primary:'#268FF1',
+  text_gray:'#1F2937'
 };

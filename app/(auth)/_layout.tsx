@@ -10,6 +10,7 @@ const AuthLayout = (props: Props) => {
       <Stack>
         <Stack.Screen name='sign-in' options={{ headerShown: false }}/>
         <Stack.Screen name="sign-up" options={{ headerShown: false }} />
+        <Stack.Screen name='regisInfo' options={{ headerShown: false }}/>
       </Stack>
    </>
   )

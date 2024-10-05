@@ -8,6 +8,7 @@ import { TextInput } from 'react-native'
 import Feather from '@expo/vector-icons/Feather';
 import ButtonCustom from '@/components/ui/ButtonCustom'
 import { icons } from '@/constants/icons'
+import { Redirect,Link } from 'expo-router'
 
 
 type Props = {}
@@ -40,6 +41,7 @@ export default function SignIn({ }: Props) {
                                 secureTextEntry={visible}
                                 autoCorrect={false}
                                 value={pass}
+                                placeholder='.................'
                                 onChangeText={(p)=>setPass(p)}/>
                             <TouchableOpacity className="inline-block ml-1 mr-[2px]" onPress={() => setVisible(!visible)}>
                                 <Feather name={visible ? 'eye':'eye-off'} size={18} color="black" />
@@ -49,6 +51,7 @@ export default function SignIn({ }: Props) {
                     <TouchableOpacity>
                         <Text className="font-msemibold text-xs ml-[62%] mt-[2px] ">Quên mật khẩu ?</Text>
                     </TouchableOpacity>
+                    
                     <ButtonCustom content="Đăng nhập" handle={login} otherStyle="w-[85%] mt-[10%]"/>
                 </View>
                 <View className="flex-row items-center w-[85%] mt-[10%] ml-auto mr-auto">
@@ -63,9 +66,10 @@ export default function SignIn({ }: Props) {
                 </TouchableOpacity>
                 <View className="flex-row mx-auto mt-[5%]">
                     <Text>Chưa có tài khoản ?</Text>
-                    <TouchableOpacity>
-                        <Text className="ml-2 text-sm font-mbold first-letter">Đăng kí</Text>
-                    </TouchableOpacity>
+                    <Link href="/sign-up">
+
+                        <Text className="ml-2 text-sm font-mbold first-letter"> Đăng kí</Text>
+                    </Link>
                 </View>
             </ScrollView>
         </SafeAreaView>
