@@ -1,5 +1,5 @@
 import React,{useState,useEffect} from 'react'
-import {Text, View, SafeAreaView,TouchableOpacity,TextInput,ScrollView,Image} from 'react-native'
+import {Text, View, SafeAreaView,TouchableOpacity,TextInput,ScrollView,Image, Alert} from 'react-native'
 import InputLayout from '@/components/ui/inputLayout'
 import ButtonCustom from '@/components/ui/ButtonCustom'
 import { Link, useGlobalSearchParams } from 'expo-router'
@@ -7,6 +7,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { Picker } from '@react-native-picker/picker'
 import * as ImagePicker from 'expo-image-picker';
 import { images } from '@/constants/image'
+import { useRouter } from 'expo-router'
 
 type Props = {
     email:string,
@@ -20,9 +21,14 @@ export default function RegisInfo({}: Props) {
     // const [pass, setPass] = useState('')
     const [visible, setVisible] = useState(true)
     const [image, setImage] = useState<string | null>(null);
-    useEffect(() => {
-        console.log(email + " " + pass); // In ra email và pass mỗi khi chúng thay đổi
-      }, []); // useEffect sẽ chạy khi email hoặc pass thay đổi
+    const router = useRouter();
+    const [info,setInfo]=useState({
+      name:"",
+      userCode:"",
+      school:"",
+      avatar:'',
+      role:"student",
+  })
     
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -40,19 +46,29 @@ export default function RegisInfo({}: Props) {
     }
   };
   
-    const login = () => {
-
+    const signUp = () => {
+      if(info.name=='' || info.school=='' || info.userCode=='')
+      {
+        Alert.alert('Thông báo','Vui lòng nhập đủ thông tin để tiếp tục')
+      }
+      else
+      {
+        const jsonInfo= JSON.stringify(info)
+        console.log(jsonInfo)
+      
+      router.push({
+        pathname: '/(auth)/sign-up/signUp', // Chuyển sang màn hình success
+        params: {
+        jsonInfo  // Truyền giá trị email
+        },
+      });
+      }
+      
     }
     const loginGoogle=()=>{
 
     }
-    const [info,setInfo]=useState({
-        name:"",
-        ms:"",
-        school:"",
-        avatar:'',
-        role:"Sinh viên"
-    })
+    
   return (
     <SafeAreaView>
         <ScrollView className="h-[100vh] relative">
@@ -76,26 +92,26 @@ export default function RegisInfo({}: Props) {
                className="text-xs"
                selectedValue={info.role}
                onValueChange={(a)=>setInfo({...info,role:a})} >
-                <Picker.Item label="Sinh viên" value="Sinh viên" />
-                <Picker.Item label="Giảng viên" value="Giảng viên" />
+                <Picker.Item label="Sinh viên" value="student" />
+                <Picker.Item label="Giảng viên" value="teacher" />
               </Picker>
             </View>
           </View>
                         <InputLayout style='w-[85%] mt-[3%]'
                         title={info.role=="Sinh viên" ? "Mã số sinh viên":"Mã số giảng viên"}
                         placeHorder='22520266'
-                        value={info.ms}
-                        handle={(e) => setInfo({...info,ms:e})} />
+                        value={info.userCode}
+                        handle={(e) => setInfo({...info,userCode:e})} />
                         <InputLayout style='w-[85%] mt-[3%]'
                         title='Tên trường'
-                        placeHorder='Đạii học Công nghệ thông tin'
-                        value={info.name}
-                        handle={(e) => setInfo({...info,name:e})} />
+                        placeHorder='Đại học Công nghệ thông tin'
+                        value={info.school}
+                        handle={(e) => setInfo({...info,school:e})} />
 
                         
 
                         
-                    <ButtonCustom content="Hoàn tất đăng kí" handle={login} otherStyle="w-[85%] mt-[10%]"/>
+                    <ButtonCustom content="Tiếp tục" handle={signUp} otherStyle="w-[85%] mt-[10%]"/>
                 </View>
                
                 <View className="flex-row mx-auto mt-[6%]">
