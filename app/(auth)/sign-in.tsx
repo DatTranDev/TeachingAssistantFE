@@ -22,7 +22,9 @@ export default function SignIn({ }: Props) {
     const [loading, setLoading] = useState(false)
     const authContext = useContext(AuthContext);
     if (!authContext) {
-        throw new Error('AuthContext is undefined, make sure you are using AuthProvider');
+        Alert.alert("Thông báo", "Đã xảy ra lỗi")
+        return;
+        // throw new Error('AuthContext is undefined, make sure you are using AuthProvider');      
     }
 
     const { login } = authContext;
@@ -35,24 +37,33 @@ export default function SignIn({ }: Props) {
 
             }
             const url = "https://teachingassistant-service.onrender.com/api/v1/user/login";
-            const response = await postNoAuth({ url,data});
-            if (response) {
-                if (response.status == 404) {
-                    Alert.alert('Thông báo', 'Không tìm thấy người dùng')
-                }
-                if(response.status==401)
-                {
-                    Alert.alert('Thông báo','Bạn đã nhập sai mật khẩu')
-                }
-                if (response.status == 200) {
-                    const result = await response.json();
-                    await login(JSON.parse(result.user), result.accessToken, result.refreshToken)
+            const response = await postNoAuth({ url, data });
+            try {
+                if (response) {
+                    if (response.status == 404) {
+                        Alert.alert('Thông báo', 'Không tìm thấy người dùng')
+                    }
+                    if (response.status == 401) {
+                        Alert.alert('Thông báo', 'Bạn đã nhập sai mật khẩu')
+                    }
+                    if (response.status == 200) {
+
+                        const result = await response.data;
+                        await login(result.data, result.accessToken, result.refreshToken)
+                    }
                 }
             }
-            setLoading(false)
+            catch {
+                setLoading(false);
+                Alert.alert("Thông báo", "Đã xảy ra lỗi vui lòng thử lại sau !")
+            }
+            finally {
+                setLoading(false)
+            }
+
         }
-        else{
-            Alert.alert('Thông báo','Nhập email và mật khẩu để đăng nhập')
+        else {
+            Alert.alert('Thông báo', 'Nhập email và mật khẩu để đăng nhập')
         }
 
 

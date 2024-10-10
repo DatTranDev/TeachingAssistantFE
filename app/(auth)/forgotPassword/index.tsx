@@ -1,26 +1,86 @@
 import React,{useState} from 'react'
-import { SafeAreaView,View,Text,ScrollView,TouchableOpacity } from 'react-native'
+import { SafeAreaView,View,Text,ScrollView,TouchableOpacity, Alert } from 'react-native'
 import InputLayout from '@/components/ui/inputLayout';
 import ButtonCustom from '@/components/ui/ButtonCustom';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '@/constants/colors';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router'
+import postNoAuth from '@/utils/postNoAuth';
+import Loading from '@/components/ui/Loading';
+import { localHost } from '@/utils/localhost';
 type Props = {}
-
 export default function ForgotPassword({}: Props) {
   const [email,setEmail]=useState('');
+  const[loading,setLoading]=useState(false)
   const router = useRouter();
   const sendMail=async()=>{
-    router.push({
-      pathname: '/(auth)/forgotPassword/verify', // Chuyển sang màn hình success
-      params: {
-       email
-      },
-    });
+        if(email=='')
+        {
+          Alert.alert("Thông báo","Vui lòng nhập email")
+        }
+        else{
+          const url =`${localHost}/api/v1/service/sendEmail`
+          
+          const data={
+            email
+          }
+          console.log(data)
+          setLoading(true)
+          const response= await postNoAuth({url,data})
+          
+          try{
+            if(response)
+            {
+            
+              if(response.status==400)
+              {
+                const message= response.data
+                if(message=="Invalid email")
+                {
+                  Alert.alert('Thông báo','Email không hợp lệ')
+                  setLoading(false)
+                  return;
+                }else{
+                  Alert.alert('Thông báo','Đã xảy ra lỗi, vui lòng thử lại sau')
+                  setLoading(false)
+                  return;
+                }
+              }
+              if(response.status==404)
+              {
+               
+                Alert.alert("Thông báo","Email chưa được tạo tài khoản")
+                setLoading(false)
+                return;
+              }
+              if(response.status==200)
+              {
+                const result = await response.data;
+                router.push({
+                  pathname: '/(auth)/forgotPassword/verify', // Chuyển sang màn hình success
+                  params: {
+                   email,
+                   userCode:result.userCode,
+                  },
+                });
+              }
+            }
+          }catch{
+            Alert.alert('Thông báo','Đã xảy ra lỗi, vui lòng thử lại sau')
+            setLoading(false)
+            return;
+          }
+          finally{
+            setLoading(false)
+          }
+        }
+
+    
   }
   return (
     <SafeAreaView>
+      <Loading loading={loading}/>
       <ScrollView className="h-[100vh] relative">
                 <View>
                   <View className="mt-[30%] ml-[7%] flex-row items-center">

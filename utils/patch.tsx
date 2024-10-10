@@ -9,15 +9,15 @@ type Props = {
 
 }
 
-export default function postNoAuth({url,data,token}: Props) {
-    const post= async()=>{
+export default function patch({url,data,token}: Props) {
+    const patch= async()=>{
         console.log(JSON.stringify(data))
         if(!token)
         {
             token=''
         }
         try{
-          const response= await axios.post(url,data)
+          const response= await axios.patch(url,data)
           return response;
         }
         catch (error: unknown) {
@@ -35,29 +35,10 @@ export default function postNoAuth({url,data,token}: Props) {
             return null;
         }
       }
-        // try {
-        //     const response = await fetch(url, {
-        //         method: 'POST', 
-        //         headers: {
-        //           Accept: 'application/json',
-        //           'Content-Type': 'application/json',
-        //         },// Phương thức gửi dữ liệu là POST
-        //         body: JSON.stringify(data),
-        //       })
-        //     if (!response.ok) {
-        //       console.log(response)
-                
-        //       return response;
-        //     }
-            
-        //   } catch (error) {
-        //     console.log(error)
-        //     Alert.alert("Thông báo","Đã xả ra lỗi, vui lòng thử lại sau !" )
-        //     return null;
-        //   } 
+        
     }
   
-  return post()
+  return patch()
    
   
 }

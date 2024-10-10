@@ -61,14 +61,13 @@ export default function SignUp({ }: Props) {
         }
         else {
           if (response.status == 400) {
-            const message = await response.json();
+            const message = await response.data;
             Alert.alert('Thông báo', `${message.message}`)
           }
           else {
             if (response.status == 201) {
-              const data = await response.json();
-              const { user, accessToken, refreshToken } = data;
-              await login(user, accessToken, refreshToken);
+              const result = await response.data;
+                        await login(result.data, result.accessToken, result.refreshToken)
             }
             else {
               Alert.alert('Thông báo', 'Đã xảy ra lỗi')
@@ -132,7 +131,7 @@ export default function SignUp({ }: Props) {
 
             <Text className="font-msemibold ml-1 text-sm text-gray-800">Tôi đồng ý với các điều khoản sử dụng</Text>
           </View>
-          <ButtonCustom content="Tiếp tục" handle={register} otherStyle='mt-[10%]' />
+          <ButtonCustom content="Đăng kí" handle={register} otherStyle='mt-[10%]' />
           <View>
             <View className="flex-row items-center w-[85%] mt-[10%] ml-auto mr-auto">
               <View className="bg-slate-500 flex-1 h-[1px]"></View>

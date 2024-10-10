@@ -5,5 +5,5 @@ import  { useState, useEffect, useRef,useContext } from 'react';
 type Props = {}
 
 export default function index(){
-    return <Redirect href="/(auth)"/>
+    return <Redirect href="/(auth)/sign-in"/>
 }
