@@ -58,7 +58,7 @@ export default function ChangePassword({ }: Props) {
     }
 
     return (
-        <SafeAreaView>
+        <SafeAreaView className='bg-white flex-1'>
             <Loading loading={loading}/>
             <ScrollView className="h-[100vh] relative">
                 <View>

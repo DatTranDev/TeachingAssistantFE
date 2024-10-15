@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext,useEffect } from 'react'
 import { View, Text, TouchableOpacity, Image, Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ScrollView } from 'react-native'
@@ -8,7 +8,7 @@ import { TextInput } from 'react-native'
 import Feather from '@expo/vector-icons/Feather';
 import ButtonCustom from '@/components/ui/ButtonCustom'
 import { icons } from '@/constants/icons'
-import { Redirect, Link } from 'expo-router'
+import { Redirect, Link, router } from 'expo-router'
 import { AuthContext } from '@/context/AuthContext'
 import Loading from '@/components/ui/Loading'
 import postNoAuth from '@/utils/postNoAuth'
@@ -26,7 +26,18 @@ export default function SignIn({ }: Props) {
         return;
         // throw new Error('AuthContext is undefined, make sure you are using AuthProvider');      
     }
-
+    useEffect(()=>{
+        if(authContext.user)
+        {
+            console.log(authContext.user)
+            if(authContext.user.role=='student')
+            {
+                router.replace('/(student)/timetable')
+            }else{
+                router.replace('/(teacher)/timetable')
+            }
+        }
+    })
     const { login } = authContext;
     const handleLogin = async () => {
         if (email != '' && pass != '') {
@@ -50,9 +61,15 @@ export default function SignIn({ }: Props) {
 
                         const result = await response.data;
                         await login(result.data, result.accessToken, result.refreshToken)
+                        if(result.data.role=='student')
+                        {
+                            router.replace('/(student)/timetable')
+                        }else{
+                            router.replace('/(teacher)/timetable')
+                        }
                     }
                 }
-            }
+            }   
             catch {
                 setLoading(false);
                 Alert.alert("Thông báo", "Đã xảy ra lỗi vui lòng thử lại sau !")
@@ -72,7 +89,7 @@ export default function SignIn({ }: Props) {
 
     }
     return (
-        <SafeAreaView>
+        <SafeAreaView className='bg-white flex-1'>
             <Loading loading={loading} />
             <ScrollView className="h-[100vh] relative">
                 <View>

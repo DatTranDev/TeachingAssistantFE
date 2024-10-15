@@ -5,7 +5,8 @@ module.exports = {
     extend: {
       colors:{
         blue_primary:"#82BFF6",
-        gray_primary:"#767676"
+        gray_primary:"#767676",
+        gray_line:"#D6D4D4",
       },
       fontFamily:{
         mregular:["Montserrat-Regular","sans-serif"],

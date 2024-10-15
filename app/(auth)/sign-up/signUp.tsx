@@ -41,7 +41,7 @@ export default function SignUp({ }: Props) {
       Alert.alert('Thông báo', 'Xác nhận mật khẩu sai')
     }
     else {
-      setLoading(true);
+      // setLoading(true);
 
       const url = "https://teachingassistant-service.onrender.com/api/v1/user/register"
       const data = {
@@ -67,7 +67,7 @@ export default function SignUp({ }: Props) {
           else {
             if (response.status == 201) {
               const result = await response.data;
-                        await login(result.data, result.accessToken, result.refreshToken)
+                        await login(result.user, result.accessToken, result.refreshToken)
             }
             else {
               Alert.alert('Thông báo', 'Đã xảy ra lỗi')
@@ -83,7 +83,7 @@ export default function SignUp({ }: Props) {
 
   }
   return (
-    <SafeAreaView>
+    <SafeAreaView  className='bg-white flex-1'>
       <Loading loading={loading}/>
       <ScrollView>
         <View>

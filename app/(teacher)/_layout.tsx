@@ -9,7 +9,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-export default function TabLayout() {
+export default function TeacherLayout() {
   const colorScheme = useColorScheme();
 
   return (
@@ -37,9 +37,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="classroom"
+        name="teach"
         options={{
-          title: 'Explore',
+          title: 'Giảng dạy',
           tabBarIcon: ({ color, focused }) => (
             <>
               <View >

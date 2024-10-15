@@ -70,7 +70,7 @@ export default function RegisInfo({}: Props) {
     }
     
   return (
-    <SafeAreaView>
+    <SafeAreaView className='bg-white flex-1'>
         <ScrollView className="h-[100vh] relative">
                 <View>
                     <Text className="text-blue_primary text-[28px] font-msemibold mt-[20%] ml-[7.5%]">Đăng kí thông tin</Text>
@@ -79,7 +79,6 @@ export default function RegisInfo({}: Props) {
                         <Image className="overflow-hidden w-20 h-20 rounded-full"  resizeMode="cover"  source={image ? { uri: image } : images.avatarDefault}></Image>
                     </View>
                     </TouchableOpacity>
-                    
                     <InputLayout style='w-[85%] mt-[5%]'
                         title='Họ và tên'
                         placeHorder='Nguyễn Văn A'
