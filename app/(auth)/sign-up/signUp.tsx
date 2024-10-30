@@ -5,7 +5,7 @@ import Feather from '@expo/vector-icons/Feather';
 import { Picker } from '@react-native-picker/picker';
 import ButtonCustom from '@/components/ui/ButtonCustom';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { colors } from '@/constants/colors';
+import { colors } from '@/constants/Colors';
 import { icons } from '@/constants/icons';
 import { Link, useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';

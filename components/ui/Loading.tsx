@@ -1,6 +1,6 @@
 import React from 'react'
 import {View, ActivityIndicator} from 'react-native'
-import { colors } from '@/constants/colors'
+import { colors } from '@/constants/Colors'
 import { Modal } from 'react-native'
 type Props = {
     loading:boolean
