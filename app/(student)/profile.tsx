@@ -50,8 +50,8 @@ export default function Profile({ }: Props) {
         </View>
 
         <TouchableOpacity onPress={logout} className='flex-row mt-5 items-center mx-auto pr-2'>
-           <MaterialCommunityIcons name="logout" size={24} color="rgb(239 68 68)" />
-          <Text className='text-xl ml-2 text-red-500'>Đăng xuất</Text>
+           <MaterialCommunityIcons name="logout" size={24} color="rgb(254 53 53)" />
+          <Text className='text-xl ml-2 text-red'>Đăng xuất</Text>
         </TouchableOpacity>
         </View>
         

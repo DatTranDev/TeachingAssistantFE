@@ -39,7 +39,7 @@ router.push('/(studentDetail)/classDetail/addClass')
         <ScrollView className='mt-4'>
           <TouchableOpacity onPress={clickClass}>
           <View className='border-y-[1px] border-slate-200 mb-2 pl-[4%] pr-2 py-2 w-[94%] mx-auto rounded-xl bg-white'>
-            <Text className='text-green-500 font-medium ml-[2px] mt-[-4px] mb-1'>Đang diễn ra</Text>
+            <Text className='text-green font-medium ml-[2px] mt-[-4px] mb-1'>Đang diễn ra</Text>
             <View className='flex-row items-center ml-[2px]'>
               <FontAwesome5 name="book" size={22} color="black" />
               <Text className='text-base ml-3 font-semibold'>SE310.P12 </Text>

@@ -7,6 +7,9 @@ module.exports = {
         blue_primary:"#82BFF6",
         gray_primary:"#767676",
         gray_line:"#D6D4D4",
+        red:'#FE3535',
+        green:'#21EB35',
+        orange:'#F8AB15'
       },
       fontFamily:{
         mregular:["Montserrat-Regular","sans-serif"],
