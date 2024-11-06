@@ -57,7 +57,7 @@ export default function RegisInfo({}: Props) {
         console.log(jsonInfo)
       
       router.push({
-        pathname: '/(auth)/sign-up/signUp', // Chuyển sang màn hình success
+        pathname: '/sign-up', // Chuyển sang màn hình success
         params: {
         jsonInfo  // Truyền giá trị email
         },

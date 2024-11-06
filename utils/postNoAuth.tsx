@@ -11,7 +11,7 @@ type Props = {
 
 export default function postNoAuth({url,data,token}: Props) {
     const post= async()=>{
-        console.log(JSON.stringify(data))
+        
         if(!token)
         {
             token=''

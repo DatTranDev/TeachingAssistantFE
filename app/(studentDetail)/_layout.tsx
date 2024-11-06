@@ -13,8 +13,9 @@ export default function StudentDetailLayout({}: Props) {
         <Stack.Screen name='classDetail/rollCall' options={{headerShown: false,}}/>
         <Stack.Screen name='classDetail/review' options={{headerShown: false,}}/>
         <Stack.Screen name='classDetail/detailReview' options={{headerShown: false,}}/>
-        
-        
+        <Stack.Screen name='classDetail/listRoom' options={{headerShown: false,}}/>
+        <Stack.Screen name='classDetail/generalRoom' options={{headerShown: false,}}/>
+        <Stack.Screen name='classDetail/channelRoom' options={{headerShown: false,}}/>
     </Stack>
   )
 }

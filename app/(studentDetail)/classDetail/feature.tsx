@@ -22,7 +22,15 @@ export default function Feature({ }: Props) {
     router.push({
       pathname: '/(studentDetail)/classDetail/review', 
       params: {
-      
+        
+      },
+    });
+  }
+  const chat= async()=>{
+    router.push({
+      pathname: '/classDetail/listRoom', 
+      params: {
+        subjectId:'67286dfc54d8d07d039c19b8'
       },
     });
   }
@@ -45,7 +53,7 @@ export default function Feature({ }: Props) {
           <Text className='text-base font-msemibold ml-4 mr-auto'>Điểm danh</Text>
           <FontAwesome6 name="exclamation" size={22} color="#FE3535" />
         </TouchableOpacity>
-        <TouchableOpacity  className='flex-row items-center bg-white w-[94%] mx-auto px-[6%] py-4 rounded-2xl mt-3'>
+        <TouchableOpacity onPress={chat}  className='flex-row items-center bg-white w-[94%] mx-auto px-[6%] py-4 rounded-2xl mt-3'>
           <Ionicons name="chatbubble-ellipses-outline" size={24} color="black" />
           <Text className='text-base font-msemibold ml-4 mr-auto'>Trao đổi</Text>
         </TouchableOpacity>
