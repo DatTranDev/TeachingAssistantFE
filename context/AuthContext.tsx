@@ -2,6 +2,7 @@ import React,{createContext,useState,useEffect,ReactNode} from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { User,createUserFromApi } from '@/utils/userInterface';
 import { useRouter } from 'expo-router';
+import { authEventEmitter } from '@/utils/authEventEmitter';
 
 type Props = {
     children: ReactNode;
@@ -22,7 +23,6 @@ export const AuthProvider = ({ children }:Props) => {
     const [accessToken, setAccessToken]= useState<string|null>(null)
     const [refreshToken, setRefreshToken]= useState<string|null>(null)
     useEffect(()=>{
-      
         const loadUser=async()=>{
             try {
               const userData = await AsyncStorage.getItem('user');
@@ -39,6 +39,19 @@ export const AuthProvider = ({ children }:Props) => {
             }
           };
           loadUser();
+          // Lắng nghe sự kiện cập nhật accessToken từ bên ngoài
+    const updateAccessTokenListener = (token: string) => {
+      setAccessToken(token);
+      AsyncStorage.setItem('accessToken', token);
+    };
+
+    authEventEmitter.on('updateAccessToken', updateAccessTokenListener);
+    authEventEmitter.on('logoutEndSession', logout);
+
+    return () => {
+      authEventEmitter.off('updateAccessToken', updateAccessTokenListener);
+      authEventEmitter.off('logoutEndSession', logout);
+    };
          
     },[])
     const login = async (userData: any, accessTokenData:string,refreshTokenData:string) => {
@@ -58,7 +71,6 @@ export const AuthProvider = ({ children }:Props) => {
       };
     
       const logout = async () => {
-        console.log('a')
         setUser(null);
         await AsyncStorage.removeItem('user');
         await AsyncStorage.removeItem('accessToken');
