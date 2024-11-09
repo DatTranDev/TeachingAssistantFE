@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, TouchableOpacity, Text } from 'react-native'
 type Props = {content:string,
-  handle:()=>void,
+  handle?:()=>void,
   otherStyle?:string,
   icon?:any
 }

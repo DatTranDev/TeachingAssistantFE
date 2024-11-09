@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthProvider } from '@/context/AuthContext';
+import { SocketProvider } from '@/context/SocketContext';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -33,13 +34,15 @@ export default function RootLayout() {
 
   return (
     <AuthProvider >
-      <Stack >
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name='(auth)' options={{ headerShown: false }}/>
-        <Stack.Screen name="(student)" options={{ headerShown: false }} />
-        <Stack.Screen name="(teacher)" options={{ headerShown: false }} />
-        <Stack.Screen name="(studentDetail)" options={{ headerShown: false }} />
-      </Stack>
+      <SocketProvider>
+        <Stack >
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name='(auth)' options={{ headerShown: false }}/>
+          <Stack.Screen name="(student)" options={{ headerShown: false }} />
+          <Stack.Screen name="(teacher)" options={{ headerShown: false }} />
+          <Stack.Screen name="(studentDetail)" options={{ headerShown: false }} />
+        </Stack>
+      </SocketProvider>
     </AuthProvider>
   );
 }

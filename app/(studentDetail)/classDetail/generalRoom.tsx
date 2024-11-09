@@ -22,6 +22,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
 import { AuthContext } from '@/context/AuthContext'
+import { SocketContext } from '@/context/SocketContext'
 import get from '@/utils/get';
 import Loading from '@/components/ui/Loading';
 import Feather from '@expo/vector-icons/Feather';
@@ -49,6 +50,7 @@ type FormatName={
 }
 export default function GeneralRoom() {
   const authContext = useContext(AuthContext);
+  const socketContext = useContext(SocketContext);
   const router = useRouter()
   if (!authContext) {
     return;
@@ -74,6 +76,32 @@ export default function GeneralRoom() {
     setRefreshing(true);
     handleLoadMore().then(() => setRefreshing(false));
   };
+  //Connect to socket
+  useEffect(() => {
+    if (socketContext) {
+      console.log('socket: ', socketContext.socket.id);
+      const { socket } = socketContext;
+      if (socket) {
+        socket.emit('joinSubject', { userID: user?.id,subjectID: subjectId });
+        socket.on('receiveSubjectMessage', (message: Question) => {
+          if(message.studentId!=user?.id)
+            setQuestionList((prevList) => [...prevList, message]);
+          scrollViewRef.current?.scrollToEnd({ animated: true });
+        });
+      }
+    }
+    return () => {
+      if (socketContext) {
+        const { socket } = socketContext;
+        if (socket) {
+          socket.emit('leaveSubject', { userID: user?.id,subjectID: subjectId });
+          socket.off('receiveSubjectMessage');
+        }
+      }
+    };
+  }, [socketContext]);
+
+
   useEffect(() => {
     setPage(0);
   }, [isFocused])
@@ -257,7 +285,9 @@ export default function GeneralRoom() {
       if(response)
       {
         console.log(response)
-       
+        if(socketContext?.socket){
+          socketContext.socket.emit('sendMessageToSubject', {subjectID:subjectId, message:msg, senderID:user.id});
+        }
         if(response.status!=201)
         {
           const msgList = questionList.filter((value) => value._id !== idMsg)

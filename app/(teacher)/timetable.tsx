@@ -65,7 +65,6 @@ export default function Timetable({ }: Props) {
     }
     const token = authContext.refreshToken
     const response = await post({ url, data, token })
-    console.log(response?.data)
 
   }
   return (

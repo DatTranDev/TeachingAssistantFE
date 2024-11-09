@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { View, Text, ScrollView, RefreshControl, TouchableOpacity, Image, KeyboardAvoidingView, TextInput, Modal, Linking, ActivityIndicator, Alert, Keyboard } from 'react-native';
 
-import { Question } from '@/components/student/question';
-
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 import { useNavigation, useIsFocused, useFocusEffect } from '@react-navigation/native';
@@ -12,6 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
 import { AuthContext } from '@/context/AuthContext'
+import { SocketContext } from '@/context/SocketContext';
 import get from '@/utils/get';
 import Loading from '@/components/ui/Loading';
 import Feather from '@expo/vector-icons/Feather';
@@ -19,10 +18,10 @@ import { EvilIcons, FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { localHost } from '@/utils/localhost';
 import ButtonCustom from '@/components/ui/ButtonCustom';
 import Post from '@/components/student/chat/post';
-import { colors } from '@/constants/colors';
+import { colors } from '@/constants/Colors';
 
 
-export type Question = {
+export type Post = {
   _id: string,
   channelId: string;
   creator: string;
@@ -52,14 +51,15 @@ type FormatName = {
 }
 export default function ChannelRoom() {
   const authContext = useContext(AuthContext);
+  const socketContext = useContext(SocketContext);
   const router = useRouter()
   if (!authContext) {
     return;
   }
   const { user, accessToken } = authContext;
-  const { channelId, name } = useLocalSearchParams();
+  const { channelId, name, subjectId } = useLocalSearchParams();
   const scrollViewRef = useRef<ScrollView>(null);
-  const [questionList, setQuestionList] = useState<Question[]>([]);
+  const [PostList, setPostList] = useState<Post[]>([]);
   const [isLoading, setLoading] = useState(true);
   const [isUploading, setUploading] = useState(false);
   const isFocused = useIsFocused();
@@ -80,7 +80,30 @@ export default function ChannelRoom() {
   useEffect(() => {
     setPage(0);
   }, [isFocused])
-
+  //Connect to socket
+  useEffect(() => {
+    if (socketContext) {
+      const { socket } = socketContext;
+      console.log('socket id in post screen: ', socket?.id);
+      if (socket) {
+        socket.emit('joinSubjectChannel', { userID: user?.id,subjectID: subjectId, channelID: channelId });
+        socket.on('receiveChannelMessage', (message: Post) => {
+          if(message.creator!==user?.id)
+          setPostList((prevList) => [...prevList, message]);
+          scrollViewRef.current?.scrollToEnd({ animated: true });
+        });
+      }
+    }
+    return () => {
+      if (socketContext) {
+        const { socket } = socketContext;
+        if (socket) {
+          socket.emit('leaveSubjectChannel', { userID: user?.id,subjectID: subjectId, channelID: channelId });
+          socket.off('receiveChannelMessage');
+        }
+      }
+    };
+  }, [socketContext]);
   const formatTimePost = (time: Date) => {
     const hours = Math.floor(time.getHours());
     const minutes = Math.floor(time.getMinutes());
@@ -99,7 +122,7 @@ export default function ChannelRoom() {
 
   const renderPost = () => {
     const list: JSX.Element[] = [];
-    const totalMessages = questionList.length;
+    const totalMessages = PostList.length;
 
     if (totalMessages === 0) {
       return (
@@ -113,29 +136,29 @@ export default function ChannelRoom() {
 
     for (let i = start; i < totalMessages; i++) {
       let sender = '';
-      const currentQuestion = questionList[i];
-      const time = new Date(currentQuestion.createdAt);
+      const currentPost = PostList[i];
+      const time = new Date(currentPost.createdAt);
 
       // Hiển thị ngày nếu cần
       if (i > 0) {
-        const previousQuestionTime = new Date(questionList[i - 1].createdAt);
-        if (previousQuestionTime.getDate() !== time.getDate()) {
+        const previousPostTime = new Date(PostList[i - 1].createdAt);
+        if (previousPostTime.getDate() !== time.getDate()) {
           list.push(
-            <Text key={formatDateTime(currentQuestion.createdAt)} className="bg-[#BBB3B3] rounded-[10px] py-[3px] max-w-[200px] font-semibold text-[10px] mt-[15px] mb-[15px] mx-auto text-white px-[7px]">
-              {formatDateTime(currentQuestion.createdAt)}
+            <Text key={formatDateTime(currentPost.createdAt)} className="bg-[#BBB3B3] rounded-[10px] py-[3px] max-w-[200px] font-semibold text-[10px] mt-[15px] mb-[15px] mx-auto text-white px-[7px]">
+              {formatDateTime(currentPost.createdAt)}
             </Text>
           );
         }
       }
       list.push(
         <Post
-          key={currentQuestion._id}
-          Content={currentQuestion.content}
+          key={currentPost._id}
+          Content={currentPost.content}
           Time={formatTimePost(time)}
-          Avatar={currentQuestion.user.avatar}
-          Title={currentQuestion.title}
-          UserCode={currentQuestion.user.userCode}
-          Name={currentQuestion.user.name}
+          Avatar={currentPost.user.avatar}
+          Title={currentPost.title}
+          UserCode={currentPost.user.userCode}
+          Name={currentPost.user.name}
 
         />
       );
@@ -151,7 +174,7 @@ export default function ChannelRoom() {
     if (response) {
       if (response.status == 200) {
         const list = await response.data;
-        setQuestionList(list.posts)
+        setPostList(list.posts)
 
       } else {
         Alert.alert("Thông báo", "Đã xảy ra lỗi");
@@ -189,7 +212,7 @@ export default function ChannelRoom() {
     const idMsg = generateID()
 
     if (user) {
-      const msg: Question = {
+      const msg: Post = {
         _id: idMsg,
         channelId: `${channelId}`,
         creator: `${user?.id}`,
@@ -213,7 +236,7 @@ export default function ChannelRoom() {
 
       }
 
-      setQuestionList((prevList) => [...prevList, msg])
+      setPostList((prevList) => [...prevList, msg])
 
       const url = `${localHost}/api/v1/channel/post/add`;
 
@@ -221,11 +244,13 @@ export default function ChannelRoom() {
 
       if (response) {
         console.log(response)
-
+        if(socketContext?.socket){
+          socketContext.socket.emit('sendMessageToChannel', {subjectID:subjectId, channelID: channelId, message:msg, senderID:user.id});
+        }
         if (response.status != 201) {
-          const msgList = questionList.filter((value) => value._id !== idMsg)
+          const msgList = PostList.filter((value) => value._id !== idMsg)
 
-          setQuestionList(msgList)
+          setPostList(msgList)
 
           Alert.alert(
             'Thông báo',

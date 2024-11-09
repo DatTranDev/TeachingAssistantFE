@@ -10,7 +10,7 @@ import * as MediaLibrary from 'expo-media-library';
 
 import { useNavigation,useIsFocused, useFocusEffect } from '@react-navigation/native';
 import { images } from '@/constants/image';
-import { colors } from '@/constants/colors';
+import { colors } from '@/constants/Colors';
 
 type props={
       Content:string,

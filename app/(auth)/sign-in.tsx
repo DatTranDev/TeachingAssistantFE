@@ -12,6 +12,9 @@ import { Redirect, Link, router } from 'expo-router'
 import { AuthContext } from '@/context/AuthContext'
 import Loading from '@/components/ui/Loading'
 import postNoAuth from '@/utils/postNoAuth'
+import { io } from 'socket.io-client'
+import { localHost } from '@/utils/localhost';
+import { SocketContext, useSocketContext } from '@/context/SocketContext'
 
 type Props = {}
 
@@ -21,11 +24,13 @@ export default function SignIn({ }: Props) {
     const [visible, setVisible] = useState(true)
     const [loading, setLoading] = useState(false)
     const authContext = useContext(AuthContext);
-    if (!authContext) {
+    const socketContext = useContext(SocketContext);
+    if (!authContext||!socketContext?.socket) {
         Alert.alert("Thông báo", "Đã xảy ra lỗi")
         return;
-        // throw new Error('AuthContext is undefined, make sure you are using AuthProvider');      
+        // throw new Error('AuthContext&&Socket is undefined, make sure you are using AuthProvider');      
     }
+   
     useEffect(()=>{
         if(authContext.user)
         {
@@ -38,6 +43,7 @@ export default function SignIn({ }: Props) {
             }
         }
     })
+
     const { login } = authContext;
     const handleLogin = async () => {
         if (email != '' && pass != '') {

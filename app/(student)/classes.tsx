@@ -1,6 +1,5 @@
 import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView } from 'react-native'
 import React from 'react'
-import ClassLayout from '@/components/(classroom)/_layout'
 import { Link, Redirect } from 'expo-router'
 import Entypo from '@expo/vector-icons/Entypo';
 import ButtonCustom from '@/components/ui/ButtonCustom';

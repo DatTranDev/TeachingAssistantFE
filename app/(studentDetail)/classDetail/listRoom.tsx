@@ -24,7 +24,8 @@ export default function listRoom({ }: Props) {
                   pathname: '/classDetail/channelRoom',
                   params: {
                         channelId: "672b182036089adb06b8e4c3",
-                        name:"Nhóm 1"
+                        name:"Nhóm 1",
+                        subjectId:`${subjectId}`
                       }, // Chuyển sang màn hình success
             });
       }
