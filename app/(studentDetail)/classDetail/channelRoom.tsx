@@ -245,7 +245,16 @@ export default function ChannelRoom() {
       if (response) {
         console.log(response)
         if(socketContext?.socket){
-          socketContext.socket.emit('sendMessageToChannel', {subjectID:subjectId, channelID: channelId, message:msg, senderID:user.id});
+          const dataMsg = {
+            title: "Lớp.....",//VD: Nhóm 1 - Phương pháp phát triển phần mềm hướng đối tượng
+            body: msg.content,//Nội dung tin nhắn
+            type: 'message',//Loại tin nhắn
+            senderId: user.id,//ID người gửi
+            sender: user.name,//Tên người gửi
+            subject: "Lớp.....",//VD: Nhóm 1 - Phương pháp phát triển phần mềm hướng đối tượng
+            room: "Phòng"//Phòng học
+          }
+          socketContext.socket.emit('sendMessageToChannel', {subjectID:subjectId, channelID: channelId, message:msg, dataMsg:dataMsg});
         }
         if (response.status != 201) {
           const msgList = PostList.filter((value) => value._id !== idMsg)

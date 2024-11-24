@@ -12,6 +12,9 @@ import { Redirect, Link, router } from 'expo-router'
 import { AuthContext } from '@/context/AuthContext'
 import Loading from '@/components/ui/Loading'
 import postNoAuth from '@/utils/postNoAuth'
+import post from '@/utils/post'
+import get from '@/utils/get'
+import messaging from '@react-native-firebase/messaging';
 import { io } from 'socket.io-client'
 import { localHost } from '@/utils/localhost';
 import { SocketContext, useSocketContext } from '@/context/SocketContext'
@@ -45,6 +48,47 @@ export default function SignIn({ }: Props) {
     })
 
     const { login } = authContext;
+    const registerFCMToken = async (acessToken: string, userId: string) => {
+        const urlGetSubject = `${localHost}/api/v1/subject/findByUserId/${userId}`;
+        const response = await get({ url: urlGetSubject, token: acessToken });
+        let topics = [];
+        if (response) {
+            if (response.status == 200) {
+                const result = await response.data;
+                const subjects = result.subjects;
+                topics = subjects.map((subject: any) => {
+                    return subject._id;
+                })
+            }
+            else {
+                Alert.alert('Thông báo', 'Đã xảy ra lỗi, vui lòng thử lại sau !')
+                return false
+            }
+        }
+        const url = `${localHost}/api/v1/firebase/subscribeToTopics`;
+        let token = '';
+        try{
+            token = await messaging().getToken();
+            const data = {
+                token: token,
+                topics: topics
+            }
+            const response = await post({ url, data, token: acessToken });
+            if (response) {
+                if (response.status == 200) {
+                    console.log('Subscribe to topics successfully')
+                }
+                else {
+                    Alert.alert('Thông báo', 'Đã xảy ra lỗi đăng ký dịch vụ thông báo')
+                    return false
+                }
+            }
+        }catch(e){
+            Alert.alert('Thông báo','Cài đặt thông báo để nhận thông báo từ ứng dụng');
+            return false;
+        }
+        return true;
+    }  
     const handleLogin = async () => {
         if (email != '' && pass != '') {
             setLoading(true);
@@ -53,7 +97,7 @@ export default function SignIn({ }: Props) {
                 password: pass
 
             }
-            const url = "https://teachingassistant-service.onrender.com/api/v1/user/login";
+            const url = `${localHost}/api/v1/user/login`;
             const response = await postNoAuth({ url, data });
             try {
                 if (response) {
@@ -64,9 +108,13 @@ export default function SignIn({ }: Props) {
                         Alert.alert('Thông báo', 'Bạn đã nhập sai mật khẩu')
                     }
                     if (response.status == 200) {
-
                         const result = await response.data;
-                        await login(result.data, result.accessToken, result.refreshToken)
+                        const FCMregister = await registerFCMToken(result.accessToken, result.data.id);
+                        if(!FCMregister){
+                            setLoading(false);
+                            return;
+                        }
+                        await login(result.data, result.accessToken, result.refreshToken);
                         if(result.data.role=='student')
                         {
                             router.replace('/(student)/timetable')
@@ -76,8 +124,9 @@ export default function SignIn({ }: Props) {
                     }
                 }
             }   
-            catch {
+            catch(e) {
                 setLoading(false);
+                console.log(e)
                 Alert.alert("Thông báo", "Đã xảy ra lỗi vui lòng thử lại sau !")
             }
             finally {

@@ -286,7 +286,16 @@ export default function GeneralRoom() {
       {
         console.log(response)
         if(socketContext?.socket){
-          socketContext.socket.emit('sendMessageToSubject', {subjectID:subjectId, message:msg, senderID:user.id});
+          const dataMsg = {
+            title: "Lớp.....",//Tên môn học
+            body: Type=='text'? msg.content: "Gửi một ảnh",//Nội dung tin nhắn
+            type: 'message',//Loại tin nhắn
+            senderId: user.id,//ID người gửi
+            sender: user.name,//Tên người gửi
+            subject: "Lớp.....",//Tên môn học
+            room: "Phòng"//Phòng học
+          }
+          socketContext.socket.emit('sendMessageToSubject', {subjectID:subjectId, message:msg, dataMsg:dataMsg});
         }
         if(response.status!=201)
         {
