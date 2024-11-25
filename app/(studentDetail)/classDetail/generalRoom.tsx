@@ -106,7 +106,6 @@ export default function GeneralRoom() {
     setPage(0);
   }, [isFocused])
   useEffect(() => {
-
     loadQuestion();
   }, []);
   useEffect(() => {
@@ -412,11 +411,6 @@ export default function GeneralRoom() {
           <Ionicons name="chevron-back" size={24} color="black" style={{marginRight:'auto', marginTop:3}} />
           </TouchableOpacity >
           <Text className="font-semibold text-xl mx-auto" numberOfLines={1} ellipsizeMode="tail">Kênh chung</Text>
-
-          {/* <TouchableOpacity onPress={() => navigation.navigate('chatRoom/redirectInformation', { id:idFriend, idChat: subjectId })}>
-              <Image source={icons.info_orange} style={{ height: 32, width: 32, marginLeft: 5 }} />
-            </TouchableOpacity> */}
-
         </View>
         <LinearGradient style={{ height: 1.2, backgroundColor: '#F7F7F7' }}
           colors={["#C0BDBD", "#ffffff"]}>

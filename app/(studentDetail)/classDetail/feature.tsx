@@ -5,24 +5,30 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Foundation from '@expo/vector-icons/Foundation';
 import { useRouter } from 'expo-router';
-
+import { useLocalSearchParams } from 'expo-router';
+import { colors } from '@/constants/colors';
 type Props = {}
 
 export default function Feature({ }: Props) {
   const router = useRouter()
+  const { subjectId,name,code } = useLocalSearchParams();
   const rollCall=async()=>{
     router.push({
-      pathname: '/(studentDetail)/classDetail/rollCall', 
+      pathname: '/classDetail/rollCall', 
       params: {
-      
+        subjectId:subjectId,
+        name:name,
+        code:code
       },
     });
   }
   const review=async()=>{
     router.push({
-      pathname: '/(studentDetail)/classDetail/review', 
+      pathname: '/classDetail/review', 
       params: {
-        
+        subjectId:subjectId,
+        name:name,
+        code:code
       },
     });
   }
@@ -30,20 +36,22 @@ export default function Feature({ }: Props) {
     router.push({
       pathname: '/classDetail/listRoom', 
       params: {
-        subjectId:'67286dfc54d8d07d039c19b8'
+        subjectId:subjectId,
+        name:name,
+        code:code
       },
     });
   }
   return (
     <SafeAreaView>
-      <View className=' pb-[3.5%]  border-b-[1px] border-gray-200 flex-row  pt-[13%] px-[4%] items-center '>
+      <View className=' pb-[3.5%]  border-b-[1px] border-gray-200 flex-row  pt-[13%] px-[4%] items-center bg-blue_primary '>
         <TouchableOpacity onPress={router.back}>
-          <Ionicons name="chevron-back-sharp" size={24} color="black" />
+          <Ionicons name="chevron-back-sharp" size={24} color="white" />
         </TouchableOpacity>
 
-        <Text className='mx-auto text-[18px] font-msemibold uppercase'>SE310.P12</Text>
+        <Text className='mx-auto text-[18px] font-msemibold uppercase text-white'>{code}</Text>
         <TouchableOpacity>
-          <MaterialIcons name="exit-to-app" size={24} color="#FE3535" />
+          <MaterialIcons name="exit-to-app" size={24} color="white" />
         </TouchableOpacity>
 
       </View>

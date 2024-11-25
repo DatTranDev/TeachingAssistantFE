@@ -3,7 +3,7 @@ import { SafeAreaView, View, Text, ScrollView, TouchableOpacity,Alert } from 're
 import InputLayout from '@/components/ui/inputLayout';
 import ButtonCustom from '@/components/ui/ButtonCustom';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { colors } from '@/constants/Colors';
+import { colors } from '@/constants/colors';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter, Link,useLocalSearchParams } from 'expo-router'
 import postNoAuth from '@/utils/postNoAuth';

@@ -13,8 +13,6 @@ type Props = {
 export default function get({url,token}: Props) {
   let start=0;
     const get = async ()=>{
-        console.log(url)
-        console.log(token)
         if(!token)
         {
             Alert.alert('Thông báo','Đã xảy ra lỗi')
@@ -26,12 +24,9 @@ export default function get({url,token}: Props) {
               Authorization: `Bearer ${token}`,
             }
             },)
-           console.log(response)
             return response; 
 
         }catch (error: unknown) {
-            // Kiểm tra xem lỗi có phải là một đối tượng và có thuộc tính `response`
-           console.log(error)
             if (axios.isAxiosError(error)) {
               if (error.response) {
                 if(error.response.status==401 && start==0)

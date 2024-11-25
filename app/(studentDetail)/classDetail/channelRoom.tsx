@@ -18,7 +18,7 @@ import { EvilIcons, FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { localHost } from '@/utils/localhost';
 import ButtonCustom from '@/components/ui/ButtonCustom';
 import Post from '@/components/student/chat/post';
-import { colors } from '@/constants/Colors';
+import { colors } from '@/constants/colors';
 
 
 export type Post = {
@@ -126,8 +126,8 @@ export default function ChannelRoom() {
 
     if (totalMessages === 0) {
       return (
-        <Text style={{ marginHorizontal: "auto", marginVertical: "auto", fontSize: 18, color: "#FF9400", marginTop: "80%" }}>
-          Gửi bài tập nhóm tại đây!
+        <Text className='text-blue_primary' style={{ marginHorizontal: "auto", marginVertical: "auto", fontSize: 18, marginTop: "80%" }}>
+          Gửi bài tập nhóm tại đây !
         </Text>
       );
     }
@@ -315,11 +315,6 @@ export default function ChannelRoom() {
             <Ionicons name="chevron-back" size={24} color="black" style={{ marginRight: 'auto', marginTop: 3 }} />
           </TouchableOpacity >
           <Text className="font-semibold text-xl mx-auto" numberOfLines={1} ellipsizeMode="tail">{name}</Text>
-
-          {/* <TouchableOpacity onPress={() => navigation.navigate('chatRoom/redirectInformation', { id:idFriend, idChat: channelId })}>
-              <Image source={icons.info_orange} style={{ height: 32, width: 32, marginLeft: 5 }} />
-            </TouchableOpacity> */}
-
         </View>
         <LinearGradient style={{ height: 1.2, backgroundColor: '#F7F7F7' }}
           colors={["#C0BDBD", "#ffffff"]}>
