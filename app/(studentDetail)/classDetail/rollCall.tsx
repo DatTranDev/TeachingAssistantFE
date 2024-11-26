@@ -124,7 +124,7 @@ export default function RollCall({ }: Props) {
             <ScrollView className='mt-3'>
                 {attends.map((item,index)=>(
                     !item.status?
-                    <TouchableOpacity onPress={()=>clickRollCall(item)} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
+                    <TouchableOpacity key={index} onPress={()=>clickRollCall(item)} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
                         <View className='mx-auto items-center justify-center'>
                         <Text>Thứ 6, 18/05/2024</Text>
                         <Text className='text-[#FE3535] text-base font-mmedium mt-1'>Chưa điểm danh</Text>
@@ -133,7 +133,7 @@ export default function RollCall({ }: Props) {
                     </TouchableOpacity>
                     :
                    
-                    <TouchableOpacity onPress={()=>clickRollCall(item)} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
+                    <TouchableOpacity key={index} onPress={()=>clickRollCall(item)} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
                         <View className='mx-auto items-center justify-center'>
                             <Text>Thứ 6, 18/05/2024</Text>
                             <Text className='text-green text-base font-mmedium mt-1'>Đã điểm danh</Text>

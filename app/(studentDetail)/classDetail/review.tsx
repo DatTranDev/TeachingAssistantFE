@@ -46,7 +46,7 @@ export default function Review({ }: Props) {
             const res= await get({url:url,token:accessToken})
             const url2=`${localHost}/api/v1/subject/${subjectId}/user/${user?.id}/reviews`
             const res2= await get({url:url2,token:accessToken})
-            
+            console.log(res2)
             if(res && res.status==200 && res2 && res2.status==200){
                 const listAttend=res.data.cAttends;
                 const listReview=res2.data.reviews;

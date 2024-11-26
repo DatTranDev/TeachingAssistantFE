@@ -64,11 +64,11 @@ export default function DetailReview({}: Props) {
     return formattedDate;
   }
   const getData=async()=>{
+    setLoading(true)
     const url= `${localHost}/api/v1/review/findByCAttend/${attendId}`
     const res=await get({url:url,token:accessToken})
     if(res&&res.status==200){
       setData(res.data.reviews)
-      console.log(res.data.reviews)
       // Tính trung bình các thuộc tính
       if (res.data.reviews.length > 0) {
         const avg = {
@@ -101,6 +101,7 @@ export default function DetailReview({}: Props) {
     if(res&&res.status==201){
       setVisible(false)
       Alert.alert("Thông báo","Đánh giá thành công")
+      await getData();
     }else{
       Alert.alert("Thông báo","Đã xảy ra lỗi")
     }
