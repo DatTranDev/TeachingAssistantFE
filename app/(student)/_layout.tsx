@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
-import { colors } from '@/constants/Colors';
+import { colors } from '@/constants/colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { icons } from '@/constants/icons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';

@@ -18,7 +18,7 @@ import { EvilIcons, FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { localHost } from '@/utils/localhost';
 import ButtonCustom from '@/components/ui/ButtonCustom';
 import Post from '@/components/student/chat/post';
-import { colors } from '@/constants/Colors';
+import { colors } from '@/constants/colors';
 
 
 export type Post = {
