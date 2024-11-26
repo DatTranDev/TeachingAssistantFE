@@ -57,7 +57,7 @@ export default function ChannelRoom() {
     return;
   }
   const { user, accessToken } = authContext;
-  const { channelId, name, subjectId } = useLocalSearchParams();
+  const { channelId, name, subjectId, subjectName } = useLocalSearchParams();
   const scrollViewRef = useRef<ScrollView>(null);
   const [PostList, setPostList] = useState<Post[]>([]);
   const [isLoading, setLoading] = useState(true);
@@ -126,8 +126,8 @@ export default function ChannelRoom() {
 
     if (totalMessages === 0) {
       return (
-        <Text style={{ marginHorizontal: "auto", marginVertical: "auto", fontSize: 18, color: "#FF9400", marginTop: "80%" }}>
-          Gửi bài tập nhóm tại đây!
+        <Text className='text-blue_primary' style={{ marginHorizontal: "auto", marginVertical: "auto", fontSize: 18, marginTop: "80%" }}>
+          Gửi bài tập nhóm tại đây !
         </Text>
       );
     }
@@ -246,13 +246,13 @@ export default function ChannelRoom() {
         console.log(response)
         if(socketContext?.socket){
           const dataMsg = {
-            title: "Lớp.....",//VD: Nhóm 1 - Phương pháp phát triển phần mềm hướng đối tượng
-            body: msg.content,//Nội dung tin nhắn
+            title: `${name} - ${subjectName}`,//VD: Nhóm 1 - Phương pháp phát triển phần mềm hướng đối tượng
+            body: msg.title,//Nội dung tin nhắn
             type: 'message',//Loại tin nhắn
             senderId: user.id,//ID người gửi
             sender: user.name,//Tên người gửi
-            subject: "Lớp.....",//VD: Nhóm 1 - Phương pháp phát triển phần mềm hướng đối tượng
-            room: "Phòng"//Phòng học
+            subject: `${name} - ${subjectName}`,//VD: Nhóm 1 - Phương pháp phát triển phần mềm hướng đối tượng
+            room: ""//Phòng học
           }
           socketContext.socket.emit('sendMessageToChannel', {subjectID:subjectId, channelID: channelId, message:msg, dataMsg:dataMsg});
         }
@@ -324,11 +324,6 @@ export default function ChannelRoom() {
             <Ionicons name="chevron-back" size={24} color="black" style={{ marginRight: 'auto', marginTop: 3 }} />
           </TouchableOpacity >
           <Text className="font-semibold text-xl mx-auto" numberOfLines={1} ellipsizeMode="tail">{name}</Text>
-
-          {/* <TouchableOpacity onPress={() => navigation.navigate('chatRoom/redirectInformation', { id:idFriend, idChat: channelId })}>
-              <Image source={icons.info_orange} style={{ height: 32, width: 32, marginLeft: 5 }} />
-            </TouchableOpacity> */}
-
         </View>
         <LinearGradient style={{ height: 1.2, backgroundColor: '#F7F7F7' }}
           colors={["#C0BDBD", "#ffffff"]}>

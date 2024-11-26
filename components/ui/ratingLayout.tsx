@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, Text,TouchableOpacity } from 'react-native'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
 }
 
 export default function RatingLayout({ rating, size, style, readOnly, changeRating,color }: Props) {
-    if (!rating || !readOnly) {
+    if (!rating) {
         rating = 0;
     }
     if(!color)
@@ -19,6 +19,9 @@ export default function RatingLayout({ rating, size, style, readOnly, changeRati
         color='#82BFF6'
     }
     const [star,setStar]= useState(rating)
+    useEffect(() => {
+        setStar(rating);
+    }, [rating]);
     const layout = () => {
         const list = []
        

@@ -57,7 +57,7 @@ export default function GeneralRoom() {
   }
   const { user,accessToken } = authContext;
   const [listFormat,setListFormat]=useState<FormatName[]>([])
-  const { subjectId } = useLocalSearchParams();
+  const { subjectId, name } = useLocalSearchParams();
   const [numberName,setNumberName]=useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
   const [message, setMessage] = useState('');
@@ -106,7 +106,6 @@ export default function GeneralRoom() {
     setPage(0);
   }, [isFocused])
   useEffect(() => {
-
     loadQuestion();
   }, []);
   useEffect(() => {
@@ -287,13 +286,13 @@ export default function GeneralRoom() {
         console.log(response)
         if(socketContext?.socket){
           const dataMsg = {
-            title: "Lớp.....",//Tên môn học
-            body: Type=='text'? msg.content: "Gửi một ảnh",//Nội dung tin nhắn
+            title: `${name}`,//Tên môn học
+            body: Type=='text'? msg.content: "Đã gửi một ảnh",//Nội dung tin nhắn
             type: 'message',//Loại tin nhắn
             senderId: user.id,//ID người gửi
-            sender: user.name,//Tên người gửi
-            subject: "Lớp.....",//Tên môn học
-            room: "Phòng"//Phòng học
+            sender: "Ẩn danh",//Tên người gửi
+            subject: `${name}`,//Tên môn học
+            room: ""//Phòng học
           }
           socketContext.socket.emit('sendMessageToSubject', {subjectID:subjectId, message:msg, dataMsg:dataMsg});
         }
@@ -421,11 +420,6 @@ export default function GeneralRoom() {
           <Ionicons name="chevron-back" size={24} color="black" style={{marginRight:'auto', marginTop:3}} />
           </TouchableOpacity >
           <Text className="font-semibold text-xl mx-auto" numberOfLines={1} ellipsizeMode="tail">Kênh chung</Text>
-
-          {/* <TouchableOpacity onPress={() => navigation.navigate('chatRoom/redirectInformation', { id:idFriend, idChat: subjectId })}>
-              <Image source={icons.info_orange} style={{ height: 32, width: 32, marginLeft: 5 }} />
-            </TouchableOpacity> */}
-
         </View>
         <LinearGradient style={{ height: 1.2, backgroundColor: '#F7F7F7' }}
           colors={["#C0BDBD", "#ffffff"]}>

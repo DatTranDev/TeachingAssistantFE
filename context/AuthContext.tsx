@@ -3,7 +3,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { User,createUserFromApi } from '@/utils/userInterface';
 import { useRouter } from 'expo-router';
 import { authEventEmitter } from '@/utils/authEventEmitter';
-
+import { Alert } from 'react-native';
+import { localHost } from '@/utils/localhost';
+import  get  from '@/utils/get';
+import post  from '@/utils/post';
+import messaging from '@react-native-firebase/messaging';
 type Props = {
     children: ReactNode;
 }
@@ -19,68 +23,113 @@ type Props = {
   export const AuthContext= createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }:Props) => {
   const router= useRouter()
-    const [user,setUser]= useState<User | null>(null)
-    const [accessToken, setAccessToken]= useState<string|null>(null)
-    const [refreshToken, setRefreshToken]= useState<string|null>(null)
-    useEffect(()=>{
-        const loadUser=async()=>{
-            try {
-              const userData = await AsyncStorage.getItem('user');
-              const accessTokenData= await AsyncStorage.getItem('accessToken');
-              const refreshTokenData= await AsyncStorage.getItem('refreshToken');
-              
-              if (userData && accessTokenData) {
-                setUser(JSON.parse(userData));
-                setAccessToken(accessTokenData);
-                setRefreshToken(refreshTokenData)
-              }
-            } catch (e) {
-              console.log(e);
+  const [user,setUser]= useState<User | null>(null)
+  const [accessToken, setAccessToken]= useState<string|null>(null)
+  const [refreshToken, setRefreshToken]= useState<string|null>(null)
+  useEffect(()=>{
+      const loadUser=async()=>{
+          try {
+            const userData = await AsyncStorage.getItem('user');
+            const accessTokenData= await AsyncStorage.getItem('accessToken');
+            const refreshTokenData= await AsyncStorage.getItem('refreshToken');
+            
+            if (userData && accessTokenData) {
+              setUser(JSON.parse(userData));
+              setAccessToken(accessTokenData);
+              setRefreshToken(refreshTokenData)
             }
-          };
-          loadUser();
-          // Lắng nghe sự kiện cập nhật accessToken từ bên ngoài
-    const updateAccessTokenListener = (token: string) => {
-      setAccessToken(token);
-      AsyncStorage.setItem('accessToken', token);
-    };
+          } catch (e) {
+            console.log(e);
+          }
+        };
+        loadUser();
+        // Lắng nghe sự kiện cập nhật accessToken từ bên ngoài
+  const updateAccessTokenListener = (token: string) => {
+    setAccessToken(token);
+    AsyncStorage.setItem('accessToken', token);
+  };
 
-    authEventEmitter.on('updateAccessToken', updateAccessTokenListener);
-    authEventEmitter.on('logoutEndSession', logout);
+  authEventEmitter.on('updateAccessToken', updateAccessTokenListener);
+  authEventEmitter.on('logoutEndSession', logout);
 
-    return () => {
-      authEventEmitter.off('updateAccessToken', updateAccessTokenListener);
-      authEventEmitter.off('logoutEndSession', logout);
-    };
-         
-    },[])
-    const login = async (userData: any, accessTokenData:string,refreshTokenData:string) => {
-      
-      const userTranfer= createUserFromApi(userData)
-        setUser(userTranfer);
-        setAccessToken(accessTokenData);
-        setRefreshToken(refreshTokenData)
-       
-        await AsyncStorage.setItem('user', JSON.stringify(userTranfer));
-  
-        await AsyncStorage.setItem('accessToken', accessTokenData)
+  return () => {
+    authEventEmitter.off('updateAccessToken', updateAccessTokenListener);
+    authEventEmitter.off('logoutEndSession', logout);
+  };
         
-        await AsyncStorage.setItem('refreshToken', refreshTokenData)
-       
-       
-      };
+  },[])
+  const unsubscribeFromTopics = async (acessToken: string|null, userId: string|undefined) => {
+    const urlGetSubject = `${localHost}/api/v1/subject/findByUserId/${userId}`;
+    const response = await get({ url: urlGetSubject, token: acessToken });
+    let topics = [];
+    if (response) {
+        if (response.status == 200) {
+            const result = await response.data;
+            const subjects = result.subjects;
+            topics = subjects.map((subject: any) => {
+                return subject._id;
+            })
+        }
+        else {
+            Alert.alert('Thông báo', 'Đã xảy ra lỗi khi hủy thông báo, vui lòng thử lại sau !')
+            return false
+        }
+    }
+    const url = `${localHost}/api/v1/firebase/unsubscribeFromTopics`;
+    let token = '';
+    try{
+        token = await messaging().getToken();
+        const data = {
+            token: token,
+            topics: topics
+        }
+        const response = await post({ url, data, token: acessToken });
+        if (response) {
+            if (response.status == 200) {
+                console.log('Unsubscribe from topics successfully')
+            }
+            else {
+                Alert.alert('Thông báo', 'Đã xảy ra lỗi hủy đăng ký dịch vụ thông báo')
+                return false
+            }
+        }
+    }catch(e){
+        Alert.alert('Thông báo','Đã xảy ra lỗi, vui lòng thử lại sau !');
+        return false;
+    }
+    return true;
+  }
+  const login = async (userData: any, accessTokenData:string,refreshTokenData:string) => {
     
-      const logout = async () => {
-        setUser(null);
-        await AsyncStorage.removeItem('user');
-        await AsyncStorage.removeItem('accessToken');
-        await AsyncStorage.removeItem('refreshToken');
-        router.replace('/(auth)/sign-in')
-      };
-      return(
-        <AuthContext.Provider value={{user,login,logout,accessToken,refreshToken}}>
-            {children}
-        </AuthContext.Provider>
-      )
+    const userTranfer= createUserFromApi(userData)
+      setUser(userTranfer);
+      setAccessToken(accessTokenData);
+      setRefreshToken(refreshTokenData)
+      
+      await AsyncStorage.setItem('user', JSON.stringify(userTranfer));
+
+      await AsyncStorage.setItem('accessToken', accessTokenData)
+      
+      await AsyncStorage.setItem('refreshToken', refreshTokenData)
+      
+      
+    };
+  
+  const logout = async () => {
+    const result = await unsubscribeFromTopics(accessToken,user?.id)
+    if(!result){
+      return;
+    }
+    setUser(null);
+    await AsyncStorage.removeItem('user');
+    await AsyncStorage.removeItem('accessToken');
+    await AsyncStorage.removeItem('refreshToken');
+    router.replace('/(auth)/sign-in')
+  };
+  return(
+    <AuthContext.Provider value={{user,login,logout,accessToken,refreshToken}}>
+        {children}
+    </AuthContext.Provider>
+    )
 
 }
