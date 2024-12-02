@@ -51,7 +51,8 @@ export default function listRoom({ }: Props) {
             router.push({
                   pathname: '/classDetail/generalRoom',
                   params: {
-                        subjectId:`${subjectId}`
+                        subjectId:`${subjectId}`,
+                        name:`${name}`,
                       },
             });
       }

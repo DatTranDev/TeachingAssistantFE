@@ -57,7 +57,7 @@ export default function ChannelRoom() {
     return;
   }
   const { user, accessToken } = authContext;
-  const { channelId, name, subjectId } = useLocalSearchParams();
+  const { channelId, name, subjectId, subjectName } = useLocalSearchParams();
   const scrollViewRef = useRef<ScrollView>(null);
   const [PostList, setPostList] = useState<Post[]>([]);
   const [isLoading, setLoading] = useState(true);
@@ -244,7 +244,16 @@ export default function ChannelRoom() {
       if (response) {
         console.log(response)
         if(socketContext?.socket){
-          socketContext.socket.emit('sendMessageToChannel', {subjectID:subjectId, channelID: channelId, message:msg, senderID:user.id});
+          const dataMsg = {
+            title: `${name} - ${subjectName}`,//VD: Nhóm 1 - Phương pháp phát triển phần mềm hướng đối tượng
+            body: msg.title,//Nội dung tin nhắn
+            type: 'message',//Loại tin nhắn
+            senderId: user.id,//ID người gửi
+            sender: user.name,//Tên người gửi
+            subject: `${name} - ${subjectName}`,//VD: Nhóm 1 - Phương pháp phát triển phần mềm hướng đối tượng
+            room: ""//Phòng học
+          }
+          socketContext.socket.emit('sendMessageToChannel', {subjectID:subjectId, channelID: channelId, message:msg, dataMsg:dataMsg});
         }
         if (response.status != 201) {
           const msgList = PostList.filter((value) => value._id !== idMsg)

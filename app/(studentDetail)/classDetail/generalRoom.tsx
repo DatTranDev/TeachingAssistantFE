@@ -47,7 +47,7 @@ export default function GeneralRoom() {
   }
   const { user,accessToken } = authContext;
   const [listFormat,setListFormat]=useState<FormatName[]>([])
-  const { subjectId } = useLocalSearchParams();
+  const { subjectId, name } = useLocalSearchParams();
   const [numberName,setNumberName]=useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
   const [message, setMessage] = useState('');
@@ -276,7 +276,16 @@ export default function GeneralRoom() {
       if(response)
       {
         if(socketContext?.socket){
-          socketContext.socket.emit('sendMessageToSubject', {subjectID:subjectId, message:msg, senderID:user.id});
+          const dataMsg = {
+            title: `${name}`,//Tên môn học
+            body: Type=='text'? msg.content: "Đã gửi một ảnh",//Nội dung tin nhắn
+            type: 'message',//Loại tin nhắn
+            senderId: user.id,//ID người gửi
+            sender: "Ẩn danh",//Tên người gửi
+            subject: `${name}`,//Tên môn học
+            room: ""//Phòng học
+          }
+          socketContext.socket.emit('sendMessageToSubject', {subjectID:subjectId, message:msg, dataMsg:dataMsg});
         }
         if(response.status!=201)
         {

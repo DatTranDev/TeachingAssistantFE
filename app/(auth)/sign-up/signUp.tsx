@@ -12,6 +12,7 @@ import { useLocalSearchParams } from 'expo-router';
 import postNoAuth from '@/utils/postNoAuth';
 import { AuthContext } from '@/context/AuthContext';
 import Loading from '@/components/ui/Loading';
+import { localHost } from '@/utils/localhost';
 type Props = {}
 
 export default function SignUp({ }: Props) {
@@ -43,7 +44,7 @@ export default function SignUp({ }: Props) {
     else {
       // setLoading(true);
 
-      const url = "https://teachingassistant-service.onrender.com/api/v1/user/register"
+      const url = `${localHost}/api/v1/user/register`
       const data = {
         name: info.name,
         email: email,
