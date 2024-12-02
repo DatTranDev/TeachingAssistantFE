@@ -9,10 +9,13 @@ import { localHost } from '@/utils/localhost';
 import { AuthContext } from '@/context/AuthContext';
 import get from '@/utils/get';
 import Loading from '@/components/ui/Loading';
-export type Channel={
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import Feather from '@expo/vector-icons/Feather';
+import { formatNoWeekday } from '@/utils/formatDate';
+export type Attend={
       id:string,
-      name:string,
-      subjectId:string
+      sessionNumber:number,
+      date:string,
 }
 type Props = {}
 
@@ -26,14 +29,14 @@ export default function listRoom({ }: Props) {
       const {user,accessToken}= authContext;
       const { subjectId,code,name } = useLocalSearchParams();
       const [loading,setLoading]= useState(false)
-      const [listChannel,setListChannel]= useState<Channel[]>([])
+      const [listAttend,setListAttend]= useState<Attend[]>([])
       const getChannel= async()=>{
             setLoading(true)
-            const url=`${localHost}/api/v1/channel/findBySubject/${subjectId}`
+            const url=`${localHost}/api/v1/cAttend/findBySubject/${subjectId}`
             const res= await get({url,token:accessToken})
-            if(res && res.status===200)
+            if(res && res.status==200)
             {
-                  setListChannel(res.data.channels)
+                  setListAttend(res.data.cAttends.reverse())
             }
             else
             {
@@ -52,12 +55,13 @@ export default function listRoom({ }: Props) {
                       },
             });
       }
-      const goToChannel = (channel:Channel) => {
+      const goToChannel = (attend:Attend) => {
             router.push({
-                  pathname: '/classDetail/channelRoom',
+                  pathname: '/classDetail/discussionRoom',
                   params: {
-                        channelId: channel.id,
-                        name:channel.name,
+                        cAttendId: attend.id,
+                        sessionNumber:attend.sessionNumber,
+                        date:attend.date,
                         subjectId:`${subjectId}`
                       },
             });
@@ -71,7 +75,7 @@ export default function listRoom({ }: Props) {
                 </TouchableOpacity>
                 <View className='mx-auto items-center pr-6'>
                     <Text className='text-[18px] font-msemibold uppercase text-white'>{code}</Text>
-                    <Text className='mt-[-3px] text-white font-mmedium'>Trao đổi</Text>
+                    <Text className='mt-[-3px] text-white font-mmedium'>Thảo luận</Text>
                 </View>
             </View>
                   <View>
@@ -79,11 +83,11 @@ export default function listRoom({ }: Props) {
                         <Ionicons name="chatbubble-ellipses-outline" size={24} color="black" />
                               <Text className='text-base font-msemibold ml-4 mr-auto'>Kênh chung</Text>
                         </TouchableOpacity>
-                        {listChannel.map((channel,index)=>{
+                        {listAttend.map((channel,index)=>{
                               return(
                                     <TouchableOpacity key={index} onPress={()=>goToChannel(channel)} className='flex-row items-center bg-white w-[94%] mx-auto px-[6%] py-4 rounded-2xl mt-3'>
-                                          <Ionicons name="people-outline" size={25} color="black" />
-                                          <Text className='text-base font-msemibold ml-4 mr-auto'>{channel.name}</Text>
+                                          <Feather name="book" size={24} color="black" />
+                                          <Text className='text-base font-msemibold ml-4 mr-auto'>Buổi {channel.sessionNumber} - {formatNoWeekday(channel.date)}</Text>
                                     </TouchableOpacity>
                               )
                         })}

@@ -163,7 +163,6 @@ export default function ChannelRoom() {
         />
       );
     }
-
     return list;
   };
 

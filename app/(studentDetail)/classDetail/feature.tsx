@@ -7,6 +7,7 @@ import Foundation from '@expo/vector-icons/Foundation';
 import { useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
 import { colors } from '@/constants/colors';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 type Props = {}
 
 export default function Feature({ }: Props) {
@@ -42,6 +43,16 @@ export default function Feature({ }: Props) {
       },
     });
   }
+  const document=async()=>{
+    router.push({
+      pathname: '/classDetail/document', 
+      params: {
+        subjectId:subjectId,
+        name:name,
+        code:code
+      },
+    });
+  }
   return (
     <SafeAreaView>
       <View className=' pb-[3.5%]  border-b-[1px] border-gray-200 flex-row  pt-[13%] px-[4%] items-center bg-blue_primary '>
@@ -68,6 +79,10 @@ export default function Feature({ }: Props) {
         <TouchableOpacity onPress={review} className='flex-row items-center bg-white w-[94%] mx-auto px-[7%] py-4 rounded-2xl mt-3'>
           <Foundation name="clipboard-pencil" size={24} color="black" />
           <Text className='text-base font-msemibold ml-4 mr-auto'>Đánh giá</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={document} className='flex-row items-center bg-white w-[94%] mx-auto px-[7%] py-4 rounded-2xl mt-3'>
+        <MaterialCommunityIcons name="file-document-outline" size={24} color="black" />
+          <Text className='text-base font-msemibold ml-4 mr-auto'>Tài liệu</Text>
         </TouchableOpacity>
 
       </View>

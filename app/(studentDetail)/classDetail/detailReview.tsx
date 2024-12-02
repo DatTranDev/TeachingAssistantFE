@@ -83,6 +83,7 @@ export default function DetailReview({}: Props) {
         setAvgReview(avg)
       }
     }
+    setLoading(false)
   }
   const sendReview=async()=>{
     setLoading(true)

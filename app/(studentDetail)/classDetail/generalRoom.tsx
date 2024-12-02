@@ -6,17 +6,7 @@ import { Question } from '@/components/student/question';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import mime from 'react-native-mime-types';
-import { useRoute } from '@react-navigation/native';
-import LoadingOverlay from '@/components/student/chat/loadingOverlay';
-
 import { useNavigation, useIsFocused, useFocusEffect } from '@react-navigation/native';
-// import { useSession } from '../../../context/AuthContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-// import LoadingOverlay from '../loadingOverlay';
-// import CheckRefreshToken from '../../../utils/checkrefreshtoken';
-// import GetData from '../../../utils/getdata';
-// import PostData from '../../../utils/postdata';
-// import HandleSessionExpired from '../../../utils/handlesession';
 import post from '@/utils/post';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -179,7 +169,6 @@ export default function GeneralRoom() {
       }
   
       sender = currentQuestion.studentId === user?.id ? "My message" : "";
-  
       // Xử lý ẩn danh
       if(!sender)
       {
@@ -199,8 +188,12 @@ export default function GeneralRoom() {
   
       // Xử lý hiển thị câu hỏi
       const isSameSender = i+1 < totalMessages && currentQuestion.studentId === questionList[i + 1].studentId &&(time.getDate() ==new Date(questionList[i+1].createdAt).getDate()) ;
-      
-      const shouldDisplayTime = i < totalMessages - 1 && checkTimeDifference(time, new Date(questionList[i + 1].createdAt));
+      let shouldDisplayTime = i < totalMessages - 1 && checkTimeDifference(time, new Date(questionList[i + 1].createdAt));
+      //Tin nhắn cuối cùng luôn hiển thị thời gian
+      if(i==totalMessages-1)
+      {
+        shouldDisplayTime = true;
+      }
   
       list.push(
         <Question
@@ -234,7 +227,6 @@ export default function GeneralRoom() {
   }
 
   const generateID = () => {
-   
     const codeInit = "qwertyuiopasdfghjklzxcvbnm1234567890"
     let code = ""
     for (let i = 0; i < 10; i++) {
@@ -283,7 +275,6 @@ export default function GeneralRoom() {
      
       if(response)
       {
-        console.log(response)
         if(socketContext?.socket){
           socketContext.socket.emit('sendMessageToSubject', {subjectID:subjectId, message:msg, senderID:user.id});
         }

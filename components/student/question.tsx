@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Image,  TextInput, Modal, Ale
 import { registerRootComponent } from 'expo';
 import { icons } from '@/constants/icons'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, Octicons } from '@expo/vector-icons';
 
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
@@ -42,21 +42,17 @@ export const Question = ({Content,User,Avatar,Time,Type}:props) => {
                 transparent={true}
                 onRequestClose={closeModal}
             >
-                <View style={{ width: '100%', height: '100%', backgroundColor: 'rgba(217, 217, 217, 0.95)' }}>
-                    <View style={{flexDirection:'row', marginLeft: 'auto',marginRight:"2%",marginTop:"1%"}}>
-                    <TouchableOpacity className='ml-auto mr-[6px] mt-[1px]'  onPress={downloadImage}>
-                    <MaterialCommunityIcons name="download-outline" size={31} color="black"  />
-                        {/* <Image source={icons.download} style={{ width: 28, height: 28, marginLeft: 'auto', marginRight:5,marginTop:"12%" }} /> */}
+                <View className='relative p-0 m-0 w-full h-full' style={{ backgroundColor: 'rgba(0,0,0,0.8)' }}>
+                <View className='flex-row absolute top-2 right-3 z-50'>
+                    <TouchableOpacity className='ml-auto mr-[6px] bg-gray-300/60 rounded-full w-[32px] h-[32px] items-center justify-center'  onPress={downloadImage}>
+                    <Octicons name="download" size={23} color={colors.blue_primary} />
                     </TouchableOpacity>
-                        <TouchableOpacity className="ml-auto"  onPress={closeModal}>
-                        <AntDesign name="close" size={32} color="black"  />
-                        {/* <Image source={icons.close} style={{ width: 35, height: 35, marginLeft: 'auto' }} /> */}
+                    <TouchableOpacity className="ml-auto bg-gray-300/60 rounded-full w-[32px] h-[32px] items-center justify-center"  onPress={closeModal}>
+                        <AntDesign name="close" size={23} color="red"  />
                     </TouchableOpacity>
                     </View>
-                    
-                    <View style={{ width: '90%', height: '90%', marginLeft: '5%', marginTop: '3%' }}>
-
-                        <Image source={{ uri: Content }} style={{ width: '100%', height: '100%', resizeMode: 'contain' }} />
+                    <View className='w-full h-[85%] my-auto' >
+                        <Image className='w-full h-full' source={{ uri: Content }} style={{ resizeMode: 'contain' }} />
                     </View>
                 </View>
 

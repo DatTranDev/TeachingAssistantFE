@@ -35,7 +35,6 @@ export default function Review({ }: Props) {
         // const vietnameseWeekdays = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
         // const weekday = vietnameseWeekdays[date.getDay()];
         // Chuyển đổi ngày tháng năm sang định dạng yêu cầu
-        console.log(date)
         const formattedDate = `${date.toLocaleDateString('vi-VN', options)}`;
         return formattedDate;
       }
@@ -83,17 +82,17 @@ export default function Review({ }: Props) {
                 </View>
             </View>
             <ScrollView className='mt-6'>
-            {listReview.map((item)=>{
+            {listReview.map((item,index)=>{
                         return(
                             !item.reviewed?
-                            <TouchableOpacity onPress={()=>clickReview(item.attendId,item.date)} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
+                            <TouchableOpacity key={index} onPress={()=>clickReview(item.attendId,item.date)} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
                                 <View className='mx-auto items-center justify-center'>
                                     <Text>{formatDate(item.date)}</Text>
                                     <Text className='text-[#FE3535] text-base font-mmedium mt-1'>Chưa đánh giá</Text>
                                 </View>
                             </TouchableOpacity>
                             :
-                            <TouchableOpacity onPress={()=>clickReview(item.attendId,item.date)} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
+                            <TouchableOpacity key={index} onPress={()=>clickReview(item.attendId,item.date)} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
                                 <View className='mx-auto items-center justify-center'>
                                 <Text>{formatDate(item.date)}</Text>
                                     <Text className='text-green text-base font-mmedium mt-1'>Đã đánh giá</Text>
