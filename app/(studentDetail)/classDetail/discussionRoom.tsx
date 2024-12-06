@@ -240,6 +240,18 @@ export default function DiscussionRoom() {
          if (response) {
             if (response.status == 201) {
                discussion.id = response.data.discussion.id;
+               if(socketContext?.socket){
+                  const dataMsg = {
+                    title: `Câu hỏi mới`,//Tên môn học
+                    body:  `${titlePost}`,//Nội dung tin nhắn
+                    type: 'message',//Loại tin nhắn
+                    senderId: user.id,//ID người gửi
+                    sender: "Ẩn danh",//Tên người gửi
+                    subject: `Câu hỏi mới`,//Tên môn học
+                    room: ""//Phòng học
+                  }
+                  socketContext.socket.emit('sendMessageToSubject', {subjectID:cAttendId, message:discussion, dataMsg:dataMsg});
+                }
                setPostList(prevList => [...prevList, discussion]);
                closeModal();
             } else {
@@ -303,6 +315,30 @@ export default function DiscussionRoom() {
    useEffect(() => {
       loadPost();
    }, []);
+   //Connect to socket
+  useEffect(() => {
+  if (socketContext) {
+    console.log('socket: ', socketContext.socket.id);
+    const { socket } = socketContext;
+    if (socket) {
+      socket.emit('joinSubject', { userID: user?.id,subjectID: cAttendId });
+      socket.on('receiveSubjectMessage', (message: Discussion) => {
+        if(message.creator.id!=user?.id)
+          setPostList((prevList) => [...prevList, message]);
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      });
+    }
+  }
+  return () => {
+    if (socketContext) {
+      const { socket } = socketContext;
+      if (socket) {
+        socket.emit('leaveSubject', { userID: user?.id,subjectID: cAttendId });
+        socket.off('receiveSubjectMessage');
+      }
+    }
+  };
+  }, [socketContext]);
    const closeModal = () => {
       setContentPost("");
       setTitlePost("");
