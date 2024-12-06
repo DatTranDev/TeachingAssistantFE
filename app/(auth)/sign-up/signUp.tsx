@@ -13,6 +13,7 @@ import postNoAuth from '@/utils/postNoAuth';
 import { AuthContext } from '@/context/AuthContext';
 import Loading from '@/components/ui/Loading';
 import { localHost } from '@/utils/localhost';
+import { uploadImage } from '@/utils/uploadImgae';
 type Props = {}
 
 export default function SignUp({ }: Props) {
@@ -43,14 +44,16 @@ export default function SignUp({ }: Props) {
     }
     else {
       // setLoading(true);
-
-      const url = `${localHost}/api/v1/user/register`
-      const data = {
+      const image = await uploadImage(info.avatar)
+      if(image)
+      {
+        const url = `${localHost}/api/v1/user/register`
+        const data = {
         name: info.name,
         email: email,
         password: pass,
         role: info.role,
-        avatar: '',
+        avatar: image,
         school: info.school,
         userCode: info.userCode
       }
@@ -68,18 +71,18 @@ export default function SignUp({ }: Props) {
           else {
             if (response.status == 201) {
               const result = await response.data;
-                        await login(result.user, result.accessToken, result.refreshToken)
+                  await login(result.user, result.accessToken, result.refreshToken)
             }
             else {
               Alert.alert('Thông báo', 'Đã xảy ra lỗi')
             }
+            }
           }
         }
+        setLoading(false)
       }
-      setLoading(false)
     }
   }
-  
   const regisGoogle = () => {
 
   }

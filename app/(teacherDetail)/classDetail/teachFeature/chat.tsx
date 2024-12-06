@@ -36,6 +36,7 @@ import Loading from '@/components/ui/Loading';
 import Feather from '@expo/vector-icons/Feather';
 import { EvilIcons, FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { localHost } from '@/utils/localhost';
+import { ChatContainer } from '@/components/teacher/chat';
 
 export type Question = {
   _id: string;
@@ -47,6 +48,8 @@ export type Question = {
     role: string;
     avatar: string;
     id: string;
+    email: string;
+    school: string;
   };
   createdAt: string;
   type: string;
@@ -60,7 +63,7 @@ type FormatName = {
   id: string;
   number: number;
 };
-export default function GeneralRoom() {
+export default function Chat() {
   const authContext = useContext(AuthContext);
   const socketContext = useContext(SocketContext);
   const router = useRouter();
@@ -259,13 +262,16 @@ export default function GeneralRoom() {
       }
 
       list.push(
-        <Question
+        <ChatContainer  
           key={currentQuestion._id}
+          Id={currentQuestion._id}
           User={sender}
           Content={currentQuestion.content}
           Time={shouldDisplayTime ? formatTimeQuestion(time) : ''}
           Avatar={isSameSender ? 'no' : sender && user ? user?.avatar : ''}
           Type={currentQuestion.type}
+          Sender={currentQuestion.studentId}
+          handleDeleteChat={handleDeleteChat}
         />
       );
     }
@@ -275,7 +281,7 @@ export default function GeneralRoom() {
 
   const loadQuestion = async () => {
     setLoading(true);
-    const url = `${localHost}/api/v1/question/findBySubject/${subjectId}`;
+    const url = `${localHost}/api/v1/question/findBySubject/${subjectId}?page=1&limit=10000`;
     const response = await get({ url: url, token: accessToken });
     if (response) {
       if (response.status == 200) {
@@ -287,6 +293,10 @@ export default function GeneralRoom() {
     }
     setLoading(false);
   };
+  const handleDeleteChat = (Id: string) => {
+    const msgList = questionList.filter(value => value._id != Id);
+    setQuestionList(msgList);
+  }
 
   const generateID = () => {
     const codeInit = 'qwertyuiopasdfghjklzxcvbnm1234567890';
@@ -297,6 +307,7 @@ export default function GeneralRoom() {
     }
     return code;
   };
+
   const sendQuestion = async (Type: string, Content: string) => {
     if (!Content || Content == '') {
       Content = message;
@@ -323,7 +334,9 @@ export default function GeneralRoom() {
           userCode: user.userCode,
           role: user.role,
           avatar: user.avatar,
-          id: user.id
+          id: user.id,
+          email: user.email,
+          school: user.school
         },
         createdAt: `${new Date().toISOString()}`,
         type: Type,
@@ -360,9 +373,15 @@ export default function GeneralRoom() {
             dataMsg: dataMsg
           });
         }
+        if (response.status == 201) {
+          let newMsg = msg;
+          newMsg._id = response.data.question.id;
+           const msgList = questionList.filter(value => value._id != idMsg);
+           msgList.push(newMsg);
+          setQuestionList(msgList);
+        }
         if (response.status != 201) {
           const msgList = questionList.filter(value => value._id !== idMsg);
-
           setQuestionList(msgList);
 
           Alert.alert('Alert', 'Message could not be sent');

@@ -53,6 +53,7 @@ export default function listRoom({ }: Props) {
                   params: {
                         subjectId:`${subjectId}`,
                         name:`${name}`,
+                        code:`${code}`
                       },
             });
       }

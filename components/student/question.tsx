@@ -11,6 +11,7 @@ import * as MediaLibrary from 'expo-media-library';
 import { useNavigation,useIsFocused, useFocusEffect } from '@react-navigation/native';
 import { images } from '@/constants/image';
 import { colors } from '@/constants/colors';
+import { downloadImage } from "@/utils/downloadImage";
 
 type props={
       Content:string,
@@ -44,7 +45,7 @@ export const Question = ({Content,User,Avatar,Time,Type}:props) => {
             >
                 <View className='relative p-0 m-0 w-full h-full' style={{ backgroundColor: 'rgba(0,0,0,0.8)' }}>
                 <View className='flex-row absolute top-2 right-3 z-50'>
-                    <TouchableOpacity className='ml-auto mr-[6px] bg-gray-300/60 rounded-full w-[32px] h-[32px] items-center justify-center'  onPress={downloadImage}>
+                    <TouchableOpacity className='ml-auto mr-[6px] bg-gray-300/60 rounded-full w-[32px] h-[32px] items-center justify-center'  onPress={()=>downloadImage(Content)}>
                     <Octicons name="download" size={23} color={colors.blue_primary} />
                     </TouchableOpacity>
                     <TouchableOpacity className="ml-auto bg-gray-300/60 rounded-full w-[32px] h-[32px] items-center justify-center"  onPress={closeModal}>
@@ -59,71 +60,7 @@ export const Question = ({Content,User,Avatar,Time,Type}:props) => {
             </Modal>
         )
     }
-    const getFileExtensionFromMimeType = (mimeType:string) => {
-      switch (mimeType) {
-        case 'image/jpeg':
-          return 'jpg';
-        case 'image/png':
-          return 'png';
-        case 'image/gif':
-          return 'gif';
-        default:
-          return '';
-      }
-    };
-    const downloadImage = async () => {
-        const { status } = await MediaLibrary.requestPermissionsAsync();
-        if (status !== 'granted') {
-          Alert.alert('Permission denied', 'Unable to access media library');
-          return;
-        }
-        //?????
-        const imageUrl=Content;
-        const currentTime = new Date();
-        const timestamp = currentTime.getTime();
-        const fileName=''+timestamp;
-        try {
-            // Yêu cầu quyền truy cập thư viện phương tiện
-            const { status } = await MediaLibrary.requestPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert('Permission denied', 'Unable to access media library');
-              return;
-            }
-        
-            // Tải xuống tệp tạm thời để lấy loại MIME
-            const downloadResumable = FileSystem.createDownloadResumable(imageUrl, `${FileSystem.documentDirectory}${fileName}`);
-        
-            const downloadResult = await downloadResumable.downloadAsync();
-
-if (downloadResult) {
-  const { uri, headers } = downloadResult;
-  // Now you can use uri and headers safely
-  const mimeType = headers['content-type'];
-            const extension = getFileExtensionFromMimeType(mimeType);
-        
-            if (!extension) {
-                Alert.alert("Lỗi", "Không thể tải ảnh");
-                return;
-            }
-        
-            const finalUri = `${FileSystem.documentDirectory}${fileName}.${extension}`;
-            await FileSystem.moveAsync({
-              from: uri,
-              to: finalUri,
-            });
-        
-            // Lưu hình ảnh vào thư viện phương tiện
-            const asset = await MediaLibrary.createAssetAsync(finalUri);
-            await MediaLibrary.createAlbumAsync('Download', asset, false);
-            Alert.alert("Tải thành công", "Đã lưu vào thư viện");
-} else {
-    Alert.alert("Lỗi", "Không thể tải ảnh");
-}
-            
-          } catch (error) {
-            Alert.alert("Lỗi", "Không thể tải ảnh");
-          }
-      };
+    
 
 
     //Self-messages
@@ -188,8 +125,9 @@ if (downloadResult) {
                 <View className="flex-row mt-0 w-[70%]">
                     <View className="rounded-[30px] ml-0 w-[25px] h-[25px] overflow-hidden mt-auto">
 
-                        <Image resizeMode='cover' source={(Avatar == 'no') ? ('') : ((Avatar == "" || !Avatar) ? (images.avatarDefault) : { uri: Avatar })}
-                            className="w-full h-full" />
+                        {Avatar!='no'&&
+                        <Image resizeMode='cover' source={((Avatar == "" || !Avatar) ? (images.avatarDefault) : { uri: Avatar })}
+                            className="w-full h-full" />}
                     </View>
                     {contentType}
 

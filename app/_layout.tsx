@@ -41,6 +41,7 @@ export default function RootLayout() {
           <Stack.Screen name="(student)" options={{ headerShown: false }} />
           <Stack.Screen name="(teacher)" options={{ headerShown: false }} />
           <Stack.Screen name="(studentDetail)" options={{ headerShown: false }} />
+          <Stack.Screen name="(teacherDetail)" options={{ headerShown: false }} />
         </Stack>
       </SocketProvider>
     </AuthProvider>

@@ -26,7 +26,7 @@ export default function RegisInfo({}: Props) {
       name:"",
       userCode:"",
       school:"",
-      avatar:'',
+      avatar:"",
       role:"student",
   })
     
@@ -39,10 +39,9 @@ export default function RegisInfo({}: Props) {
       quality: 1,
     });
 
-    console.log(result);
-
     if (!result.canceled) {
       setImage(result.assets[0].uri);
+      setInfo({...info,avatar:result.assets[0].uri})
     }
   };
   
@@ -54,13 +53,11 @@ export default function RegisInfo({}: Props) {
       else
       {
         const jsonInfo= JSON.stringify(info)
-        console.log(jsonInfo)
-      
       router.push({
-        pathname: '/sign-up', // Chuyển sang màn hình success
-        params: {
-        jsonInfo  // Truyền giá trị email
-        },
+         pathname: "/(auth)/sign-up/signUp", // Chuyển sang màn hình success
+         params: {
+            jsonInfo // Truyền giá trị email
+         }
       });
       }
       
@@ -106,10 +103,6 @@ export default function RegisInfo({}: Props) {
                         placeHorder='Đại học Công nghệ thông tin'
                         value={info.school}
                         handle={(e) => setInfo({...info,school:e})} />
-
-                        
-
-                        
                     <ButtonCustom content="Tiếp tục" handle={signUp} otherStyle="w-[85%] mt-[10%]"/>
                 </View>
                

@@ -72,7 +72,6 @@ export default function RollCall({ }: Props) {
             Alert.alert('Thông báo', 'Cần cấp quyền truy cập vị trí để điểm danh');
             return;
         }
-
         let currentLocation = await Location.getCurrentPositionAsync({});
         setLocation({
             latitude: currentLocation.coords.latitude,

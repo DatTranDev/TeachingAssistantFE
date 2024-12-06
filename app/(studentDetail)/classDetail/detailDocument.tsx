@@ -205,7 +205,7 @@ export default function DetailDocument({}: Props) {
               <View
                 key={index} 
                 className="w-[95%] flex-row items-center bg-white mx-auto px-3 py-3 mt-3 rounded-md shadow-lg">
-                <View className="flex-row items-center pr-9">
+                <View className="flex-row items-center pr-9 w-[85%]">
                   <Image
                     source={icons[item.logo as keyof typeof icons]}
                     className="w-9 h-9"/>

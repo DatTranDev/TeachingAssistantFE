@@ -28,18 +28,18 @@ export default function refreshAccessToken() {
                                     return data.access_token;
                               }
                               else{
-                                    Alert.alert("Thông báo","Phiên đăng nhập của bạn đã hết hạn, vui lòng đăng nhập lại")
                                     await logoutEndSession();
+                                    Alert.alert("Thông báo","Phiên đăng nhập của bạn đã hết hạn, vui lòng đăng nhập lại")
                                     return false;
                               }
                         }else{
-                              Alert.alert("Thông báo","Phiên đăng nhập của bạn đã hết hạn, vui lòng đăng nhập lại")
                               await logoutEndSession();
+                              Alert.alert("Thông báo","Phiên đăng nhập của bạn đã hết hạn, vui lòng đăng nhập lại")
                               return false;
                         }
               }catch{
-                  Alert.alert("Thông báo","Phiên đăng nhập của bạn đã hết hạn, vui lòng đăng nhập lại")
                   await logoutEndSession();
+                  Alert.alert("Thông báo","Phiên đăng nhập của bạn đã hết hạn, vui lòng đăng nhập lại")
                   return false;
               }
             

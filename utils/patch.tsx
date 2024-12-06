@@ -11,13 +11,20 @@ type Props = {
 
 export default function patch({url,data,token}: Props) {
     const patch= async()=>{
-        console.log(JSON.stringify(data))
+      const headers: Record<string, string> = {
+        'Authorization': `Bearer ${token}`,
+      };
+    
+      // Chỉ thêm Content-Type khi data là FormData
+      if (data instanceof FormData) {
+        headers['Content-Type'] = 'multipart/form-data';
+      }
         if(!token)
         {
             token=''
         }
         try{
-          const response= await axios.patch(url,data)
+          const response= await axios.patch(url,data,{headers})
           return response;
         }
         catch (error: unknown) {

@@ -51,7 +51,7 @@ export type Document = {
   logo: string;
 };
 
-export default function Document({}: Props) {
+export default function Document({ }: Props) {
   const authContext = useContext(AuthContext);
   const socketContext = useContext(SocketContext);
   const router = useRouter();
@@ -59,7 +59,7 @@ export default function Document({}: Props) {
     return;
   }
   const { user, accessToken } = authContext;
-  const { attendId, date } = useLocalSearchParams();
+  const { attendId, date, code } = useLocalSearchParams();
   const [isLoading, setLoading] = useState(false);
   const [isUploading, setUploading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -70,16 +70,17 @@ export default function Document({}: Props) {
   async function fetchData() {
     setLoading(true);
     const res = await get({
-      url: `${localHost}/api/v1/document/findByCAttend/6748b09109b6bf536f26c1b6`,
+      url: `${localHost}/api/v1/document/findByCAttend/${attendId}`,
       token: accessToken,
     });
     if (res && res.status == 200) {
       const documents = res.data.documents.map((item: any) => {
         let logo = "document";
-        if (item.type) {
-          if (item.type.includes("doc")) logo = "doc";
-          if (item.type.includes("pdf")) logo = "pdf";
-          if (item.type.includes("ppt")) logo = "ppt";
+        const extension = mime.extension(item.type);
+        if (extension) {
+          if (extension.includes("doc")) logo = "doc";
+          if (extension.includes("pdf")) logo = "pdf";
+          if (extension.includes("ppt")) logo = "ppt";
         }
         return {
           id: item.id,
@@ -90,7 +91,7 @@ export default function Document({}: Props) {
         };
       });
       setDocuments(documents.reverse());
-    } 
+    }
     else {
       Alert.alert("Thông báo", "Đã xảy ra lỗi");
     }
@@ -99,7 +100,7 @@ export default function Document({}: Props) {
   const handleDeleteFile = (index: number) => {
     setFileUpload(fileUpload.filter((_, i) => i !== index));
   };
- 
+
   const onRefresh = async () => {
     setRefreshing(true);
     fetchData().then(() => setRefreshing(false));
@@ -115,16 +116,14 @@ export default function Document({}: Props) {
     const extension = fileUri.split(".").pop();
     if (extension) {
       const type = mime.lookup(extension);
-      console.log(type);
       // console.log(fileUri)
       formData.append("file", {
         name: nameUpload,
         type: type,
         uri: fileUri,
       } as any);
-      const url = `${localHost}/api/v1/upload/file?type=${type}&cAttendId=6748b09109b6bf536f26c1b6&name=${name}`;
+      const url = `${localHost}/api/v1/upload/file?type=${type}&cAttendId=${attendId}&name=${name}`;
       const res = await post({ url: url, data: formData, token: accessToken });
-      console.log(res);
       if (res && res.status == 200) {
         return name;
       }
@@ -168,7 +167,7 @@ export default function Document({}: Props) {
   };
   const handleAddDocument = async () => {
     if (fileUpload.length > 0) {
-      setLoading(true);
+      setUploading(true);
       try {
         // Sử dụng Promise.all để đợi tất cả file upload xong
         const uploadPromises = fileUpload.map((item) =>
@@ -182,6 +181,7 @@ export default function Document({}: Props) {
         if (uploaded.length > 0) {
           const content = uploaded.join(", ");
           Alert.alert("Thông báo", `Tài liệu đã được tải lên: ${content}`);
+          fetchData();
           handleCloseModal();
         } else {
           Alert.alert("Thông báo", "Tài liệu không được tải lên");
@@ -189,7 +189,7 @@ export default function Document({}: Props) {
       } catch (error) {
         Alert.alert("Lỗi", "Có lỗi xảy ra khi tải tài liệu");
       } finally {
-        setLoading(false);
+        setUploading(false);
       }
     }
   };
@@ -228,13 +228,10 @@ export default function Document({}: Props) {
 
   const downloadFile = async (doc: Document) => {
     try {
-     
       const filename = doc.name;
       const fileUri = `${FileSystem.documentDirectory}${filename}`;
-      console.log(fileUri);
       // Kiểm tra file đã tồn tại chưa
       const fileInfo = await FileSystem.getInfoAsync(fileUri);
-      console.log(fileInfo);
       if (fileInfo.exists) {
         // Nếu file đã tồn tại, hỏi người dùng có muốn tải lại không
         Alert.alert(
@@ -262,7 +259,7 @@ export default function Document({}: Props) {
       }
 
       async function downloadNewFile() {
-        setLoading(true);
+        setUploading(true);
         const downloadResumable = FileSystem.createDownloadResumable(
           doc.downloadUrl,
           fileUri,
@@ -277,13 +274,13 @@ export default function Document({}: Props) {
         } catch (e) {
           Alert.alert('Lỗi', 'Không thể tải tài liệu');
         } finally {
-          setLoading(false);
+          setUploading(false);
         }
       }
 
     } catch (error) {
       Alert.alert('Lỗi', 'Đã xảy ra lỗi khi tải tài liệu');
-      setLoading(false);
+      setUploading(false);
     }
   };
 
@@ -398,29 +395,29 @@ export default function Document({}: Props) {
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
           >
-            {documents.map((item, index) => (
+            {documents.length > 0 ? documents.map((item, index) => (
               <Pressable
-                key={index} 
+                key={index}
                 onLongPress={() => handleLongPress(item)}
                 className="w-[95%] flex-row items-center bg-white mx-auto px-3 py-3 mt-3 rounded-md shadow-lg">
-                <View className="flex-row items-center pr-9">
+                <View className="flex-row items-center pr-9 w-[85%]">
                   <Image
                     source={icons[item.logo as keyof typeof icons]}
-                    className="w-9 h-9"/>
+                    className="w-9 h-9" />
                   <Text
                     numberOfLines={1}
-                    ellipsizeMode="tail" 
+                    ellipsizeMode="tail"
                     className="font-msemibold ml-1">
                     {item.name}
                   </Text>
                 </View>
-                <TouchableOpacity 
+                <TouchableOpacity
                   className="ml-auto mr-1"
                   onPress={() => downloadFile(item)}>
                   <AntDesign name="clouddownloado" size={28} color={colors.blue_primary} />
                 </TouchableOpacity>
               </Pressable>
-            ))}
+            )) : <Text className="text-center text-base font-mregular mt-[50%] text-blue_primary">Chưa có tài liệu nào được thêm</Text>}
             <View className="h-16"></View>
           </ScrollView>
         )}

@@ -15,7 +15,6 @@ import { useRouter } from "expo-router";
 import deleteApi from "@/utils/delete";
 import { Reaction } from "@/app/(studentDetail)/classDetail/discussionRoom";
 import patch from "@/utils/patch";
-import { downloadImage } from "@/utils/downloadImage";
 
 type Props = {
    Title: string;
@@ -33,6 +32,8 @@ type Props = {
       role: string;
       avatar: string;
       id: string;
+      email: string;
+      school: string;
    };
    handleDeletePost: (Id: string) => void;
 };
@@ -41,7 +42,7 @@ type ReactionShow = {
    count: number;
 };
 
-export default function DiscussionPost({
+export default function postDiscussionTeacher({
    Content,
    Title,
    Time,
@@ -62,10 +63,9 @@ export default function DiscussionPost({
    const [selectedImage, setSelectedImage] = useState("");
    const [modalVisible, setModalVisible] = useState(false);
    const [reactionModalVisible, setReactionModalVisible] = useState(false);
-   const [myReaction, setMyReaction] = useState<Reaction | null>(
-      reactions.find(item => item.userId.id == myId) || null
-   );
+   const [infoModalVisible, setInfoModalVisible] = useState(false);
    const [reaction, setReaction] = useState<ReactionShow[]>([]);
+   const [reply, setReply] = useState(isResolved);
    const resetReaction = () => {
       const reactionCount = reactions.reduce((acc: any, item: Reaction) => {
          acc[item.type] = (acc[item.type] || 0) + 1;
@@ -89,68 +89,11 @@ export default function DiscussionPost({
          console.error("Không thể tải ảnh:", error);
       }
    };
-   const addReaction = async (type: number) => {
-      console.log(accessToken);
-      if (myReaction) {
-         if (type != myReaction.type) {
-            const res = await patch({
-               url: `${localHost}/api/v1/discussion/reaction/update/${myReaction.id}`,
-               data: { type: type },
-               token: accessToken
-            });
-            if (res) {
-               console.log(res);
-               if (res.status == 200) {
-                  reactions.forEach(item => {
-                     if (item.id == myReaction.id) {
-                        item.type = type;
-                     }
-                  });
-                  resetReaction();
-                  setMyReaction({ ...myReaction, type: type });
-               } else {
-                  Alert.alert("Thất bại", "Không thể cập nhật phản hồi");
-               }
-            }
-         }
-      } else {
-         const res = await post({
-            url: `${localHost}/api/v1/discussion/reaction/add`,
-            data: { userId: myId, discussionId: Id, type: type },
+   const deletePost = async () => {
+         const res = await deleteApi({
+            url: `${localHost}/api/v1/discussion/delete/${Id}`,
             token: accessToken
          });
-         if (res) {
-            if (res.status == 201) {
-               let newReaction: Reaction = {
-                  type: type,
-                  id: res.data.reaction.id,
-                  userId: {
-                     id: myId || "",
-                     name: user?.name || "",
-                     userCode: user?.userCode || "",
-                     avatar: user?.avatar || ""
-                  }
-               };
-               setMyReaction(newReaction);
-               setReaction(prev => {
-                  const existingReaction = prev.find(item => item.type === type);
-                  if (existingReaction) {
-                     return prev.map(item => (item.type === type ? { ...item, count: item.count + 1 } : item));
-                  } else {
-                     return [...prev, { type: type, count: 1 }];
-                  }
-               });
-            } else {
-               Alert.alert("Thất bại", "Không thể thêm phản hồi");
-            }
-         }
-      }
-
-      setReactionModalVisible(false);
-   };
-   const deletePost = async () => {
-      if (myId == Creator.id) {
-         const res = await deleteApi({ url: `${localHost}/api/v1/discussion/delete/${Id}`, token: accessToken });
          if (res) {
             if (res.status == 200) {
                setReactionModalVisible(false);
@@ -160,11 +103,30 @@ export default function DiscussionPost({
          } else {
             Alert.alert("Thất bại", "Không thể xóa bài đăng");
          }
+   };
+   const replyPost = async () => {
+      if (!isResolved) {
+         const res = await patch({
+            url: `${localHost}/api/v1/discussion/update/${Id}`,
+            token: accessToken,
+            data: {
+               isResolved: true
+            }
+         });
+         if (res) {
+            if (res.status == 200) {
+               isResolved = true;
+               setReply(true);
+            } else {
+               Alert.alert("Thất bại", "Không thể trả lời bài đăng");
+            }
+         }
       }
    };
 
    return (
       <View className="w-full ">
+         {/* modal phản hồi */}
          <Modal
             animationType="fade"
             transparent={true}
@@ -174,56 +136,89 @@ export default function DiscussionPost({
                className="flex-1 justify-center items-center"
                style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
                onPress={() => setReactionModalVisible(false)}>
-               {isResolved && (
-                  <View className="bg-white py-3 px-4 rounded-xl">
-                     <View className="flex-row gap-3">
-                        <TouchableOpacity
-                           onPress={() => addReaction(1)}
-                           className={`p-1 ${myReaction?.type == 1 ? "bg-gray-300/50 rounded-lg" : ""}`}>
-                           <Image source={icons.react1} className="w-[30px] h-[30px]" />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                           onPress={() => addReaction(2)}
-                           className={`p-1 ${myReaction?.type == 2 ? "bg-gray-300 rounded-md" : ""}`}>
-                           <Image source={icons.react2} className="w-[30px] h-[30px]" />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                           onPress={() => addReaction(3)}
-                           className={`p-1 ${myReaction?.type == 3 ? "bg-gray-300 rounded-md" : ""}`}>
-                           <Image source={icons.react3} className="w-[30px] h-[30px]" />
-                        </TouchableOpacity>
-                     </View>
-                  </View>
-               )}
-               {myId == Creator.id && (
-                  <View className="mt-2 bg-white  items-center p-2 rounded-xl">
-                     <TouchableOpacity onPress={deletePost} className="items-center">
-                        <Feather name="trash" size={25} color="red" />
-                        <Text className="text-[16px] mt-1">Xóa bài đăng</Text>
-                     </TouchableOpacity>
-                  </View>
-               )}
+               <View className="mt-2 bg-white items-center py-2 rounded-lg flex-row px-1">
+                  <TouchableOpacity
+                     onPress={() => {
+                        setReactionModalVisible(false);
+                        replyPost();
+                     }}
+                     className="items-center mx-3">
+                     <Feather name="check-circle" size={24} color="green" />
+                     <Text className="text-[14px] mt-[2px] text-gray_primary">Trả lời</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                     onPress={() => {
+                        setInfoModalVisible(true);
+                        setReactionModalVisible(false);
+                     }}
+                     className="items-center mx-3">
+                     <MaterialCommunityIcons name="card-account-details-outline" size={24} color="orange" />
+                     <Text className="text-[14px] mt-[2px] text-gray_primary">Hiển thị</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={deletePost} className="items-center mx-3">
+                     <Feather name="trash" size={24} color="red" />
+                     <Text className="text-[14px] mt-[2px] text-gray_primary">Xóa bài</Text>
+                  </TouchableOpacity>
+               </View>
             </TouchableOpacity>
          </Modal>
-
+         {/* modal thông tin*/}
+         <Modal
+            animationType="fade"
+            transparent={true}
+            visible={infoModalVisible}
+            onRequestClose={() => setInfoModalVisible(false)}>
+            <TouchableOpacity
+               className="flex-1 justify-center items-center"
+               style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
+               onPress={() => setInfoModalVisible(false)}>
+               <View className="bg-white mt-[25%]  py-5 rounded-2xl mx-3">
+                  <View className="items-center justify-center ">
+                     <View className=" border-blue_primary border-[2px] rounded-full p-[1px]">
+                        <Image
+                           className="overflow-hidden w-20 h-20 rounded-full "
+                           resizeMode="cover"
+                           source={
+                              Creator.avatar
+                                 ? {
+                                      uri: Creator.avatar
+                                   }
+                                 : images.avatarDefault
+                           }
+                        />
+                     </View>
+                     <Text className="text-[16px] font-medium mt-1">{Creator.name}</Text>
+                     <Text className="text-sm">
+                        {Creator.userCode} | {Creator.role == "student" ? "Sinh viên" : "Giảng viên"}
+                     </Text>
+                  </View>
+                  <View className="mt-4">
+                     <View className="flex-row items-center pl-[5%] border-b-[1px] mx-4 pb-1 border-gray_line">
+                        <MaterialCommunityIcons name="email-outline" size={24} color="black" />
+                        <Text numberOfLines={1} ellipsizeMode="tail" className="text-base ml-[5%] pr-3">
+                           {Creator.email}
+                        </Text>
+                     </View>
+                     <View className="flex-row items-center pl-[5%] border-b-[1px] mx-4 pb-1 mt-3 border-gray_line">
+                        <MaterialCommunityIcons name="school-outline" size={25} color="black" />
+                        <Text className="text-base ml-[5%]">{Creator.school}</Text>
+                     </View>
+                  </View>
+                  <TouchableOpacity className="flex-row mt-5 items-center mx-auto pr-2">
+                     <MaterialCommunityIcons name="logout" size={24} color="rgb(254 53 53)" />
+                     <Text className="text-xl ml-2 text-red">Mời khỏi lớp</Text>
+                  </TouchableOpacity>
+               </View>
+            </TouchableOpacity>
+         </Modal>
          <Pressable
             onPress={() => {
-               if (isResolved || myId == Creator.id) setReactionModalVisible(true);
+               setReactionModalVisible(true);
             }}
             className="w-[95%] bg-white mx-auto px-3 py-4 mt-5 rounded-md shadow-lg relative">
             <View className="flex-row mt-0 items-center">
                <View className="rounded-[30px] ml-0 w-[25px] h-[25px] overflow-hidden mt-auto">
-                  <Image
-                     resizeMode="cover"
-                     source={
-                        Creator.id == myId
-                           ? Creator.avatar == "" || !Creator.avatar
-                              ? images.avatarDefault
-                              : { uri: Creator.avatar }
-                           : images.avatarDefault
-                     }
-                     className="w-full h-full"
-                  />
+                  <Image resizeMode="cover" source={images.avatarDefault} className="w-full h-full" />
                </View>
                <Text className="text-blue_primary ml-2 text-[15px]">{nameAnonymous}</Text>
                <Text className="ml-2 text-[12px] text-center font-mregular mt-[1px] text-gray_primary">{Time}</Text>
@@ -254,23 +249,26 @@ export default function DiscussionPost({
                   </View>
                ))}
             </View>
-            {isResolved && (
+            {reply && (
                <View className="absolute px-2 py-1 bottom-[-12px] right-0 bg-white border border-gray-200 rounded-md shadow-lg flex-row items-center">
                   <Text className=" text-[#34eb75]  rounded-md mr-1">Đã trả lời</Text>
                   <Feather name="check" size={20} color="#34eb75" />
                </View>
             )}
-
             <Modal
                animationType="fade"
                transparent={true}
                visible={modalVisible}
                onRequestClose={() => setModalVisible(false)}>
-               <View className="relative p-0 m-0 w-full h-full" style={{ backgroundColor: "rgba(0,0,0,0.8)" }}>
+               <View
+                  className="relative p-0 m-0 w-full h-full"
+                  style={{
+                     backgroundColor: "rgba(0,0,0,0.8)"
+                  }}>
                   <View className="flex-row absolute top-2 right-3 z-50">
                      <TouchableOpacity
                         className="ml-auto mr-[6px] bg-gray-300/60 rounded-full w-[32px] h-[32px] items-center justify-center"
-                        onPress={() => downloadImage(selectedImage)}>
+                        onPress={() => handleDownload(selectedImage)}>
                         <Octicons name="download" size={23} color={colors.blue_primary} />
                      </TouchableOpacity>
                      <TouchableOpacity
@@ -284,7 +282,9 @@ export default function DiscussionPost({
                      <Image
                         className="w-full h-full"
                         source={{ uri: selectedImage }}
-                        style={{ resizeMode: "contain" }}
+                        style={{
+                           resizeMode: "contain"
+                        }}
                      />
                   </View>
                </View>

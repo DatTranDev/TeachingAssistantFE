@@ -3,11 +3,10 @@ import { Alert } from 'react-native'
 import axios from 'axios'
 
 type Props = {
-    url:string,
-    data:Record<string, unknown>,
-    token?:string | null
-
-}
+   url: string;
+   data: FormData | Record<string, unknown>;
+   token?: string | null;
+};
 
 export default function postNoAuth({url,data,token}: Props) {
     const post= async()=>{
