@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { View, Text, SafeAreaView, TouchableOpacity, ScrollView, Alert } from 'react-native'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -8,11 +8,14 @@ import { AuthContext } from '@/context/AuthContext';
 import { localHost } from '@/utils/localhost';
 import { useLocalSearchParams } from 'expo-router';
 import get from '@/utils/get';
+import { formatNoWeekday } from '@/utils/formatDate';
+import { useFocusEffect } from '@react-navigation/native';
 type Props = {}
 export type Review={
     attendId:string,
     date:string,
-    reviewed:boolean
+    reviewed:boolean,
+    sessionNumber:number
 }
 export default function Review({ }: Props) {
     const authContext = useContext(AuthContext);  
@@ -23,7 +26,7 @@ export default function Review({ }: Props) {
     const {accessToken,user}=authContext;
     const [listReview,setListReview]=useState<Review[]>([])
     const router=useRouter()
-    const {subjectId}=useLocalSearchParams()
+    const {subjectId,name,code}=useLocalSearchParams()
     function formatDate(dateString: string) {
         const options: Intl.DateTimeFormatOptions = {
           weekday: 'long', // Thứ trong tuần
@@ -38,28 +41,31 @@ export default function Review({ }: Props) {
         const formattedDate = `${date.toLocaleDateString('vi-VN', options)}`;
         return formattedDate;
       }
-      
-    useEffect(()=>{
-        async function getData () {
-            const url=`${localHost}/api/v1/cAttend/findBySubject/${subjectId}`
-            const res= await get({url:url,token:accessToken})
-            const url2=`${localHost}/api/v1/subject/${subjectId}/user/${user?.id}/reviews`
-            const res2= await get({url:url2,token:accessToken})
-            console.log(res2)
-            if(res && res.status==200 && res2 && res2.status==200){
-                const listAttend=res.data.cAttends;
-                const listReview=res2.data.reviews;
-                const data= listAttend.map((item:any)=>({
-                    attendId:item.id,
-                    date:item.date,
-                    reviewed:listReview.find((review:any)=>review.cAttendId.id==item.id)
-                }))
-                setListReview(data)
-            }
-                        
-            }
+      async function getData() {
+        const url = `${localHost}/api/v1/cAttend/findBySubject/${subjectId}`;
+        const res = await get({ url: url, token: accessToken });
+        const url2 = `${localHost}/api/v1/subject/${subjectId}/user/${user?.id}/reviews`;
+        const res2 = await get({ url: url2, token: accessToken });
+        console.log(res2);
+        if (res && res.status == 200 && res2 && res2.status == 200) {
+          const listAttend = res.data.cAttends;
+          const listReview = res2.data.reviews;
+          const data = listAttend.map((item: any) => ({
+            attendId: item.id,
+            date: item.date,
+            reviewed: listReview.find(
+              (review: any) => review.cAttendId.id == item.id
+            ),
+            sessionNumber: item.sessionNumber
+          }));
+          setListReview(data);
+        }
+      }
+    useFocusEffect(
+        useCallback(()=>{
             getData()
-    },[])
+        },[])
+    )
     const clickReview=(attendId:string,date:string)=>{
         router.push({
             pathname: '/(studentDetail)/classDetail/detailReview', 
@@ -71,36 +77,49 @@ export default function Review({ }: Props) {
     }
 
     return (
-        <SafeAreaView className='flex-1'>
-            <View className=' pb-[1.5%]  border-b-[1px] border-gray-200 flex-row  pt-[12%] px-[4%] items-center mr-6 '>
-                <TouchableOpacity onPress={router.back}>
-                    <Ionicons name="chevron-back-sharp" size={24} color="black" />
-                </TouchableOpacity>
-                <View className='mx-auto items-center'>
-                    <Text className='text-[18px] font-msemibold uppercase'>SE310.P12</Text>
-                    <Text className='mt-[-3px]'>Đánh giá</Text>
+      <SafeAreaView className='flex-1'>
+        <View className=' shadow-md  pb-[1.8%] bg-blue_primary flex-row  pt-[12%] px-[4%] items-center '>
+          <TouchableOpacity onPress={router.back}>
+            <Ionicons name='chevron-back-sharp' size={24} color='white' />
+          </TouchableOpacity>
+          <View className='mx-auto items-center pr-6'>
+            <Text className='text-[18px] font-msemibold uppercase text-white'>
+              {code}
+            </Text>
+            <Text className='mt-[-3px] text-white font-mmedium'>
+              Đánh giá
+            </Text>
+          </View>
+        </View>
+        <ScrollView className='mt-6'>
+          {listReview.map((item, index) => {
+            return !item.reviewed ? (
+              <TouchableOpacity
+                key={index}
+                onPress={() => clickReview(item.attendId, item.date)}
+                className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
+                <View className='mx-auto items-center justify-center'>
+                  <Text> Buổi {item.sessionNumber} - {formatNoWeekday(item.date)}</Text>
+                  <Text className='text-[#FE3535] text-base font-mmedium mt-1'>
+                    Chưa đánh giá
+                  </Text>
                 </View>
-            </View>
-            <ScrollView className='mt-6'>
-            {listReview.map((item,index)=>{
-                        return(
-                            !item.reviewed?
-                            <TouchableOpacity key={index} onPress={()=>clickReview(item.attendId,item.date)} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
-                                <View className='mx-auto items-center justify-center'>
-                                    <Text>{formatDate(item.date)}</Text>
-                                    <Text className='text-[#FE3535] text-base font-mmedium mt-1'>Chưa đánh giá</Text>
-                                </View>
-                            </TouchableOpacity>
-                            :
-                            <TouchableOpacity key={index} onPress={()=>clickReview(item.attendId,item.date)} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
-                                <View className='mx-auto items-center justify-center'>
-                                <Text>{formatDate(item.date)}</Text>
-                                    <Text className='text-green text-base font-mmedium mt-1'>Đã đánh giá</Text>
-                                </View>
-                            </TouchableOpacity>
-                        )
-                    })}
-                {/* <TouchableOpacity onPress={()=>clickReview()} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                key={index}
+                onPress={() => clickReview(item.attendId, item.date)}
+                className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
+                <View className='mx-auto items-center justify-center'>
+                  <Text> Buổi {item.sessionNumber} - {formatNoWeekday(item.date)}</Text>
+                  <Text className='text-green text-base font-mmedium mt-1'>
+                    Đã đánh giá
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+          {/* <TouchableOpacity onPress={()=>clickReview()} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
                     
                     <View className='mx-auto items-center justify-center'>
                         <Text>Thứ 6, 18/05/2024</Text>
@@ -120,8 +139,7 @@ export default function Review({ }: Props) {
                         <Text className='text-orange text-base font-mmedium mt-1'>Hết hạn đánh giá</Text>
                     </View>
                 </TouchableOpacity> */}
-
-            </ScrollView>
-        </SafeAreaView>
-    )
+        </ScrollView>
+      </SafeAreaView>
+    );
 }

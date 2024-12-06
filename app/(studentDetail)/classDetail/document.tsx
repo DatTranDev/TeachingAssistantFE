@@ -10,10 +10,11 @@ import { localHost } from "@/utils/localhost";
 import get from "@/utils/get";
 
 type Props = {};
-export type Document={
-      attendId:string,
-      date:string,
-  }
+export type Document = {
+  attendId: string;
+  date: string;
+  sessionNumber: number;
+};
 
 export default function Document({}: Props) {
   const router = useRouter();
@@ -26,13 +27,17 @@ export default function Document({}: Props) {
   const [listDocument,setListDocument] = useState<Document[]>([])
   useEffect(()=>{
     async function fetchData(){
-      console.log(`${localHost}/api/v1/cAttend/findBySubject/${subjectId}`)
       const res = await get({
         url:`${localHost}/api/v1/cAttend/findBySubject/${subjectId}`,
         token:accessToken
       })
       if(res && res.status == 200){
-        setListDocument(res.data.cAttends.reverse())
+        const data:Document[] = res.data.cAttends.reverse().map((item:any)=>({
+          attendId:item.id,
+          date:item.date,
+          sessionNumber:item.sessionNumber
+        }))
+        setListDocument(data)
       }
     }
     fetchData()
@@ -52,38 +57,46 @@ export default function Document({}: Props) {
       const formattedDate = `${date.toLocaleDateString('vi-VN', options)}`;
       return formattedDate;
     }
-    function clickDocument(attendId:string,date:string){
+    function clickDocument(attendId:string,date:string,sessionNumber:number){
       router.push({
             pathname: '/(studentDetail)/classDetail/detailDocument', 
             params: {
                 attendId:attendId,
-                date:date
+                date:date,
+                sessionNumber:sessionNumber
             },
           });
     }
 
   return (
-    <SafeAreaView className="h-full">
-      <View className=" shadow-md  pb-[1.5%] bg-blue_primary flex-row  pt-[12%] px-[4%] items-center ">
+    <SafeAreaView className='h-full'>
+      <View className=' shadow-md  pb-[1.5%] bg-blue_primary flex-row  pt-[12%] px-[4%] items-center '>
         <TouchableOpacity onPress={router.back}>
-          <Ionicons name="chevron-back-sharp" size={24} color="white" />
+          <Ionicons name='chevron-back-sharp' size={24} color='white' />
         </TouchableOpacity>
-        <View className="mx-auto items-center pr-6">
-          <Text className="text-[18px] font-msemibold uppercase text-white">
+        <View className='mx-auto items-center pr-6'>
+          <Text className='text-[18px] font-msemibold uppercase text-white'>
             {code}
           </Text>
-          <Text className="mt-[-3px] text-white font-mmedium">Tài liệu</Text>
+          <Text className='mt-[-3px] text-white font-mmedium'>Tài liệu</Text>
         </View>
       </View>
-      <ScrollView className="h-full">
-        <View className="mt-4"></View>
-        {listDocument.map((item,index)=>(
-                <TouchableOpacity key={index} onPress={()=>{clickDocument(item.attendId,item.date)}} className='flex-row bg-white w-[92%] mx-auto py-3 rounded-xl shadow-md items-center justify-end px-5 mb-3'>
-                                <View className='mx-auto items-center justify-center'>
-                                {/* <Text>{item.quantity} tài liệu</Text> */}
-                              <Text className='text-base font-msemibold text-blue_primary'>{formatDate(item.date)}</Text>
-                                </View>
-                </TouchableOpacity>
+      <ScrollView className='h-full'>
+        <View className='mt-4'></View>
+        {listDocument.map((item, index) => (
+          <TouchableOpacity
+            key={index}
+            onPress={() => clickDocument(item.attendId, item.date,item.sessionNumber)}
+            className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
+            <View className='mx-auto items-center justify-center'>
+              <Text className='text-black text-sm font-mmedium '>
+                Buổi {item.sessionNumber}
+              </Text>
+              <Text className='text-black text-base font-msemibold mt-1'>
+                {formatDate(item.date)}
+              </Text>
+            </View>
+          </TouchableOpacity>
         ))}
       </ScrollView>
     </SafeAreaView>

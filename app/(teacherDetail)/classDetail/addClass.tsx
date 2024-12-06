@@ -1,5 +1,5 @@
 import React, {useContext} from 'react'
-import { SafeAreaView, View , Text,TextInput, ScrollView, Alert} from 'react-native'
+import { SafeAreaView, View , Text,TextInput, ScrollView, Alert,TouchableOpacity} from 'react-native'
 import InputLayout from '@/components/ui/inputLayout'
 import { Picker } from '@react-native-picker/picker';
 import ButtonCustom from '@/components/ui/ButtonCustom';
@@ -7,6 +7,8 @@ import { AuthContext } from '@/context/AuthContext';
 import post from '@/utils/post';
 import { localHost } from '@/utils/localhost';
 import Loading from '@/components/ui/Loading';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 type Props = {}
 
 type Session = {
@@ -23,6 +25,7 @@ export default function AddClass({}: Props) {
     Alert.alert("Thông báo", "Đã xảy ra lỗi")
     return;
   }
+  const router=useRouter()
   const [name, setName] = React.useState('');
   const [code, setCode] = React.useState('');
   const [numberOfSesion, setNumberOfSesion] = React.useState(1);
@@ -136,8 +139,17 @@ export default function AddClass({}: Props) {
   }, [numberOfSesion]);
 
   return (
-      <SafeAreaView className='px-8'>
-          <Loading loading={loading} />
+      <SafeAreaView className='flex-1'>
+        <Loading loading={loading} />
+        <View className=' shadow-md bg-blue_primary flex-row pt-[12%] px-[4%] pb-[3.5%] items-center '>
+          <TouchableOpacity onPress={router.back}>
+            <Ionicons name='chevron-back-sharp' size={24} color='white' />
+          </TouchableOpacity>
+          <Text className='mx-auto text-[18px] font-msemibold text-white uppercase pr-6'>
+              Thêm lớp học
+            </Text>
+        </View>
+        <View className='px-8'>
           <InputLayout
             style='w-[100%] mt-8'
             title={'Tên lớp học'}
@@ -250,12 +262,13 @@ export default function AddClass({}: Props) {
             }
           </ScrollView>
           <ButtonCustom 
-            otherStyle='mt-8'
+            otherStyle='mt-5'
             content='Tạo lớp học'
             handle={handleSubmit}
             >
-
           </ButtonCustom>
+        </View>
+         
       </SafeAreaView>
   )
 }

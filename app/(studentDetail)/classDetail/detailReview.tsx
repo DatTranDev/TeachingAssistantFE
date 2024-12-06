@@ -24,6 +24,7 @@ import { AuthContext } from "@/context/AuthContext";
 import get from "@/utils/get";
 import post from "@/utils/post";
 import Loading from "@/components/ui/Loading";
+import { formatNoWeekday } from "@/utils/formatDate";
 
 type Props = {};
 
@@ -114,186 +115,202 @@ export default function DetailReview({}: Props) {
   const router = useRouter();
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView className="flex-1">
-        <Loading loading={loading}/>
+      <SafeAreaView className='flex-1'>
+        <Loading loading={loading} />
         <Modal
           visible={visible}
-          className="flex-1"
+          className='flex-1'
           transparent={true}
-          animationType="fade"
-        >
+          animationType='fade'>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <View
-              className="flex-1 justify-center items-center z-50 relative"
-              style={{ backgroundColor: "rgba(170, 170, 170, 0.8)" }}
-            >
+              className='flex-1 justify-center items-center z-50 relative'
+              style={{ backgroundColor: 'rgba(170, 170, 170, 0.8)' }}>
               <TouchableOpacity
                 onPress={() => setVisible(false)}
-                className="ml-auto mr-[3%] mt-[-8px] mb-1"
-              >
-                <FontAwesome name="close" size={28} color="black" />
+                className='ml-auto mr-[3%] mt-[-8px] mb-1'>
+                <FontAwesome name='close' size={28} color='black' />
               </TouchableOpacity>
-              <View className="bg-white w-[90%] px-[6%] pt-3 pb-4 rounded-lg">
-                  <Text className="text-base font-msemibold mb-3 text-center ">
+              <View className='bg-white w-[90%] px-[6%] pt-3 pb-4 rounded-lg'>
+                <Text className='text-base font-msemibold mb-3 text-center '>
                   Đánh giá buổi học {formatDate(String(date))}
                 </Text>
-                <View className="flex-row items-center">
-                  <Text className="text-base font-mregular mr-2">Tài liệu</Text>
+                <View className='flex-row items-center'>
+                  <Text className='text-base font-mregular mr-2'>Tài liệu</Text>
                   <RatingLayout
                     size={23}
                     rating={review.documentScore}
-                    style={"gap-[6px]"}
-                    changeRating={(e) => setReview({...review,documentScore:e})}
+                    style={'gap-[6px]'}
+                    changeRating={e =>
+                      setReview({ ...review, documentScore: e })
+                    }
                     readOnly={false}
                   />
                 </View>
-                <View className="flex-row items-center">
-                  <Text className="text-base font-mregular mt-2 mr-2">
+                <View className='flex-row items-center'>
+                  <Text className='text-base font-mregular mt-2 mr-2'>
                     Không khí lớp học
                   </Text>
                   <RatingLayout
                     rating={review.atmosphereScore}
                     size={23}
-                    style={"gap-[6px] mt-1"}
-                    changeRating={(e) => setReview({...review,atmosphereScore:e})}
+                    style={'gap-[6px] mt-1'}
+                    changeRating={e =>
+                      setReview({ ...review, atmosphereScore: e })
+                    }
                     readOnly={false}
                   />
                 </View>
-                <View className="flex-row items-center">
-                  <Text className="text-base font-mregular mt-2 mr-2">
+                <View className='flex-row items-center'>
+                  <Text className='text-base font-mregular mt-2 mr-2'>
                     Phương pháp dạy
                   </Text>
                   <RatingLayout
                     rating={review.teachingMethodScore}
                     size={23}
-                    style={"gap-[6px] mt-1"}
-                    changeRating={(e) => setReview({...review,teachingMethodScore:e})}
+                    style={'gap-[6px] mt-1'}
+                    changeRating={e =>
+                      setReview({ ...review, teachingMethodScore: e })
+                    }
                     readOnly={false}
                   />
                 </View>
-                <View className="flex-row items-center">
-                  <Text className="text-base font-mregular mt-2 mr-2">
+                <View className='flex-row items-center'>
+                  <Text className='text-base font-mregular mt-2 mr-2'>
                     Mức độ hiểu bài
                   </Text>
                   <SliderCustom
                     minValue={0}
                     maxValue={100}
                     initialValue={review.understandPercent}
-                    onValueChange={(e)=>setReview({...review,understandPercent:e})}
+                    onValueChange={e =>
+                      setReview({ ...review, understandPercent: e })
+                    }
                     readonly={false}
-                    style="pt-3 w-32"
+                    style='pt-3 w-32'
                   />
                 </View>
-                <View className="flex-row items-center">
-                  <Text className="text-base font-mregular mt-2 mr-2">
+                <View className='flex-row items-center'>
+                  <Text className='text-base font-mregular mt-2 mr-2'>
                     Mức độ hữu ích
                   </Text>
                   <SliderCustom
                     minValue={0}
                     maxValue={100}
                     initialValue={review.usefulPercent}
-                    onValueChange={(e)=>setReview({...review,usefulPercent:e})}
+                    onValueChange={e =>
+                      setReview({ ...review, usefulPercent: e })
+                    }
                     readonly={false}
-                    style="pt-3 w-32"
+                    style='pt-3 w-32'
                   />
                 </View>
 
-                <Text className="text-base font-mregular  mt-2 ">Góp ý</Text>
-                <View className="w-full bg-[#F5F5F5] mt-3 py-2 px-3 rounded-md">
+                <Text className='text-base font-mregular  mt-2 '>Góp ý</Text>
+                <View className='w-full bg-[#F5F5F5] mt-3 py-2 px-3 rounded-md'>
                   <TextInput
-                    className="text-base leading-[22px] h-[100px]"
+                    className='text-base leading-[22px] h-[100px]'
                     multiline={true}
-                    textAlignVertical="top"
+                    textAlignVertical='top'
                     numberOfLines={5}
                     value={review.thinking}
-                    onChangeText={(e)=>setReview({...review,thinking:e})}
+                    onChangeText={e => setReview({ ...review, thinking: e })}
                   />
                 </View>
                 <ButtonCustom
-                  handle={()=>sendReview()}
-                  content="Gửi đánh giá"
-                  otherStyle="mt-4 w-[60%]"
+                  handle={() => sendReview()}
+                  content='Gửi đánh giá'
+                  otherStyle='mt-4 w-[60%]'
                 />
               </View>
             </View>
           </GestureHandlerRootView>
         </Modal>
-        <View className=" pb-[1.5%]  border-b-[1px] border-gray-200 flex-row  pt-[12%] px-[4%] items-center mr-6 ">
+        <View className=' shadow-md  pb-[2%] bg-blue_primary flex-row  pt-[12%] px-[4%] items-center '>
           <TouchableOpacity onPress={router.back}>
-            <Ionicons name="chevron-back-sharp" size={24} color="black" />
+            <Ionicons name='chevron-back-sharp' size={24} color='white' />
           </TouchableOpacity>
-          <View className="mx-auto items-center">
-            <Text className="text-[18px] font-msemibold uppercase">
-              Đánh giá
+          <View className='mx-auto items-center pr-6'>
+            <Text className='text-[18px] font-msemibold uppercase text-white'>
+                Đánh giá
             </Text>
-            <Text className="mt-[-3px]">{formatDate(String(date))}</Text>
+            <Text className='mt-[-3px] text-white font-mmedium'>
+              {formatNoWeekday(date)}
+            </Text>
           </View>
         </View>
 
-        <View className=" bg-white w-[84%] pl-[4%] mx-auto rounded-2xl pt-1 pb-2 gap-y-1 mt-[5%]">
-          <Text className="mt-[-6px] mb-[2px] text-blue_primary text-center">
+        <View className=' bg-white w-[84%] pl-[4%] mx-auto rounded-2xl pt-1 pb-2 gap-y-1 mt-[5%]'>
+          <Text className='mt-[-6px] mb-[2px] text-blue_primary text-center'>
             {avgReview.totalReview} đánh giá
           </Text>
-          <View className="flex-row items-center">
-            <Text className="text-base font-mregular mr-2">Tài liệu</Text>
+          <View className='flex-row items-center'>
+            <Text className='text-base font-mregular mr-2'>Tài liệu</Text>
             <RatingLayout
               rating={avgReview.documentScore}
               size={20}
-              style={"gap-[6px]"}
+              style={'gap-[6px]'}
               readOnly={true}
             />
           </View>
-          <View className="flex-row items-center">
-            <Text className="text-base font-mregular mr-2">Không khí lớp học</Text>
+          <View className='flex-row items-center'>
+            <Text className='text-base font-mregular mr-2'>
+              Không khí lớp học
+            </Text>
             <RatingLayout
               rating={avgReview.atmosphereScore}
               size={20}
-              style={"gap-[6px]"}
+              style={'gap-[6px]'}
               readOnly={true}
             />
           </View>
-          <View className="flex-row items-center">
-            <Text className="text-base font-mregular mr-2">Phương pháp dạy</Text>
+          <View className='flex-row items-center'>
+            <Text className='text-base font-mregular mr-2'>
+              Phương pháp dạy
+            </Text>
             <RatingLayout
               rating={avgReview.teachingMethodScore}
               size={20}
-              style={"gap-[6px]"}
+              style={'gap-[6px]'}
               readOnly={true}
             />
           </View>
-          <View className="flex-row items-center">
-            <Text className="text-base font-mregular mr-2">Độ hữu ích</Text>
+          <View className='flex-row items-center'>
+            <Text className='text-base font-mregular mr-2'>Độ hữu ích</Text>
             <SliderCustom
               minValue={0}
               maxValue={100}
               initialValue={avgReview.usefulPercent}
               readonly={true}
-              style="mt-[2px]"
+              style='mt-[2px]'
             />
           </View>
-          <View className="flex-row items-center">
-            <Text className="text-base font-mregular mr-2">Mức độ hiểu bài</Text>
+          <View className='flex-row items-center'>
+            <Text className='text-base font-mregular mr-2'>
+              Mức độ hiểu bài
+            </Text>
             <SliderCustom
               minValue={0}
               maxValue={100}
               initialValue={avgReview.understandPercent}
               readonly={true}
-              style="mt-[2px]"
+              style='mt-[2px]'
             />
           </View>
         </View>
-        <Text className="ml-[8%] text-base font-msemibold mt-2">Góp ý</Text>
-        <ScrollView className="mt-4">
-        {data.map((item:any,index:number)=>(
-          <View key={index} className="bg-white w-[84%] mx-auto px-4 py-2 rounded-[10px] border-[1px] border-gray_line mb-2 rounded-tl-[4px] rounded-br-[4px]">
-            <Text className="text-base">{item.thinking}</Text>
-          </View>
-        ))}
-          
+        <Text className='ml-[8%] text-base font-msemibold mt-2'>Góp ý</Text>
+        <ScrollView className='mt-4'>
+          {data.map((item: any, index: number) => (
+            <View
+              key={index}
+              className='bg-white w-[84%] mx-auto px-4 py-2 rounded-[10px] border-[1px] border-gray_line mb-2 rounded-tl-[4px] rounded-br-[4px]'>
+              <Text className='text-base'>{item.thinking}</Text>
+            </View>
+          ))}
         </ScrollView>
         <ButtonCustom
-          content="Đánh giá buổi học"
-          otherStyle="my-3 w-[84%]"
+          content='Đánh giá buổi học'
+          otherStyle='my-3 w-[84%]'
           handle={() => setVisible(true)}
         />
       </SafeAreaView>

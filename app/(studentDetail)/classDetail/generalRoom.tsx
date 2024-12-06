@@ -36,6 +36,7 @@ import Loading from '@/components/ui/Loading';
 import Feather from '@expo/vector-icons/Feather';
 import { EvilIcons, FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { localHost } from '@/utils/localhost';
+import { colors } from '@/constants/colors';
 
 export type Question = {
   _id: string;
@@ -490,7 +491,7 @@ export default function GeneralRoom() {
               justifyContent: 'center',
               alignItems: 'center'
             }}>
-            <ActivityIndicator size='large' color='#FF9557' animating={true} />
+            <ActivityIndicator size='large' color={colors.blue_primary} animating={true} />
           </View>
         ) : (
           <ScrollView

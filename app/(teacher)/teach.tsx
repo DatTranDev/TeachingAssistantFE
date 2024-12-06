@@ -11,6 +11,7 @@ import { useRouter } from 'expo-router';
 import { ClassSession } from './timetable';
 import { localHost } from '@/utils/localhost';
 import { AuthContext } from '@/context/AuthContext';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 type Props = {}
@@ -37,7 +38,7 @@ export default function Classes(props: Props) {
   const router= useRouter();
   const [listSub,setListSub]= useState<Subject[]>([])
   const addClass = () => {
-  router.push('/(studentDetail)/classDetail/addClass')
+  router.push('/(teacherDetail)/classDetail/addClass')
   }
   const clickClass=(sub:Subject)=>{
     router.push({
@@ -124,6 +125,11 @@ export default function Classes(props: Props) {
   useEffect(()=>{
     getSub()
   },[])
+  useFocusEffect(
+    React.useCallback(() => {
+      getSub();
+    }, [])
+  );
   return (
     <SafeAreaView className='flex-1'>
       <View className='bg-blue_primary pb-[3.5%]  border-b-[1px] border-gray-200 '>
@@ -136,7 +142,6 @@ export default function Classes(props: Props) {
             <Text className="text-[16px] text-white font-semibold ml-1">Thêm lớp học</Text>
           </View>
         </TouchableOpacity>
-        
       </View>
       {/* list */}
       <ScrollView className='mt-4'>

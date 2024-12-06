@@ -63,21 +63,23 @@ export default function DetailDocument({}: Props) {
   const [isLoading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   async function fetchData() {
     setLoading(true);
     console.log(accessToken);
     const res = await get({
-      url: `${localHost}/api/v1/document/findByCAttend/6748b09109b6bf536f26c1b6`,
+      url: `${localHost}/api/v1/document/findByCAttend/${attendId}`,
       token: accessToken,
     });
     if (res && res.status == 200) {
       const documents = res.data.documents.map((item: any) => {
         let logo = "document";
-        if (item.type) {
-          if (item.type.includes("doc")) logo = "doc";
-          if (item.type.includes("pdf")) logo = "pdf";
-          if (item.type.includes("ppt")) logo = "ppt";
+        const extension = mime.extension(item.type);
+        if (extension) {
+          if (extension.includes('doc')) logo = 'doc';
+          if (extension.includes('pdf')) logo = 'pdf';
+          if (extension.includes('ppt')) logo = 'ppt';
         }
         return {
           id: item.id,
@@ -139,7 +141,7 @@ export default function DetailDocument({}: Props) {
       }
 
       async function downloadNewFile() {
-        setLoading(true);
+        setIsDownloading(true);
         const downloadResumable = FileSystem.createDownloadResumable(
           doc.downloadUrl,
           fileUri,
@@ -154,19 +156,20 @@ export default function DetailDocument({}: Props) {
         } catch (e) {
           Alert.alert('Lỗi', 'Không thể tải tài liệu');
         } finally {
-          setLoading(false);
+          setIsDownloading(false);
         }
       }
 
     } catch (error) {
       Alert.alert('Lỗi', 'Đã xảy ra lỗi khi tải tài liệu');
-      setLoading(false);
+      setIsDownloading(false);
     }
   };
 
   return (
     <SafeAreaView className="flex-1">
-      <View className=" shadow-md  pb-[1.5%] bg-blue_primary flex-row  pt-[12%] px-[4%] items-center ">
+      <Loading loading={isDownloading} />
+      <View className=" shadow-md  pb-[2%] bg-blue_primary flex-row  pt-[12%] px-[4%] items-center ">
         <TouchableOpacity onPress={router.back}>
           <Ionicons name="chevron-back-sharp" size={24} color="white" />
         </TouchableOpacity>
@@ -201,7 +204,11 @@ export default function DetailDocument({}: Props) {
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
           >
-            {documents.map((item, index) => (
+
+            { !(documents.length > 0)?
+            <Text className="text-center text-lg font-msemibold mt-[50%]">Không có tài liệu nào</Text>
+            :
+            documents.map((item, index) => (
               <View
                 key={index} 
                 className="w-[95%] flex-row items-center bg-white mx-auto px-3 py-3 mt-3 rounded-md shadow-lg">
