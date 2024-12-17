@@ -14,6 +14,7 @@ import { localHost } from '@/utils/localhost';
 import { AuthContext } from '@/context/AuthContext';
 import Loading from '@/components/ui/Loading';
 import deleteApi from '@/utils/delete';
+import Feather from '@expo/vector-icons/Feather';
 type Props = {}
 
 export default function Feature({ }: Props) {
@@ -26,7 +27,7 @@ export default function Feature({ }: Props) {
   const router = useRouter()
   const { subjectId, name, code } = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
-  const rollCall = async () => {
+  const sessions = async () => {
     router.push({
       pathname: '/(teacherDetail)/classDetail/sessions',
       params: {
@@ -36,9 +37,9 @@ export default function Feature({ }: Props) {
       },
     });
   }
-  const review = async () => {
+  const setting = async () => {
     router.push({
-      pathname: '/classDetail/review',
+      pathname: '/(teacherDetail)/classDetail/setting',
       params: {
         subjectId: subjectId,
         name: name,
@@ -122,27 +123,41 @@ export default function Feature({ }: Props) {
       <Loading loading={loading} />
       <View className=' pb-[3.5%]  border-b-[1px] border-gray-200 flex-row  pt-[13%] px-[4%] items-center bg-blue_primary '>
         <TouchableOpacity onPress={router.back}>
-          <Ionicons name="chevron-back-sharp" size={24} color="white" />
+          <Ionicons name='chevron-back-sharp' size={24} color='white' />
         </TouchableOpacity>
 
-        <Text className='mx-auto text-[18px] font-msemibold uppercase text-white'>{code}</Text>
+        <Text className='mx-auto text-[18px] font-msemibold uppercase text-white'>
+          {code}
+        </Text>
         <TouchableOpacity onPress={deleteClass}>
-          <MaterialIcons name="exit-to-app" size={24} color="white" />
+          <MaterialIcons name='exit-to-app' size={24} color='white' />
         </TouchableOpacity>
-
       </View>
       <View>
-        <TouchableOpacity onPress={rollCall} className='flex-row items-center bg-white w-[94%] mx-auto px-[6%] py-4 rounded-2xl mt-[10%]   '>
-          <FontAwesome5 name="chalkboard-teacher" size={20} color="black" />
-          <Text className='text-base font-msemibold ml-4 mr-auto'>Giảng dạy</Text>
+        <TouchableOpacity
+          onPress={sessions}
+          className='flex-row items-center bg-white w-[94%] mx-auto px-[6%] py-4 rounded-2xl mt-[10%]   '>
+          <FontAwesome5 name='chalkboard-teacher' size={20} color='black' />
+          <Text className='text-base font-msemibold ml-4 mr-auto'>
+            Giảng dạy
+          </Text>
           {/* <FontAwesome6 name="exclamation" size={22} color="#FE3535" /> */}
         </TouchableOpacity>
-        <TouchableOpacity onPress={review} className='flex-row items-center bg-white w-[94%] mx-auto px-[7%] py-4 rounded-2xl mt-3'>
-          <Foundation name="clipboard-pencil" size={24} color="black" />
-          <Text className='text-base font-msemibold ml-4 mr-auto'>Tổng quan</Text>
+        <TouchableOpacity
+          onPress={setting}
+          className='flex-row items-center bg-white w-[94%] mx-auto px-[7%] py-4 rounded-2xl mt-3'>
+          <Foundation name='clipboard-pencil' size={24} color='black' />
+          <Text className='text-base font-msemibold ml-4 mr-auto'>
+            Tổng quan
+          </Text>
         </TouchableOpacity>
-
+        <TouchableOpacity
+          onPress={setting}
+          className='flex-row items-center bg-white w-[94%] mx-auto px-[7%] py-4 rounded-2xl mt-3'>
+          <Feather name='settings' size={24} color='black' />
+          <Text className='text-base font-msemibold ml-4 mr-auto'>Cài đặt</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
-  )
+  );
 }

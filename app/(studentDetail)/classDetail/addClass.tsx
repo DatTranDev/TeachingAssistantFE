@@ -8,6 +8,8 @@ import { localHost } from '@/utils/localhost';
 import { AuthContext } from '@/context/AuthContext';
 import { ClassSession } from '@/app/(student)/timetable';
 import { useRouter } from 'expo-router';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+
 
 type Props = {}
 
@@ -55,19 +57,35 @@ export default function AddClass({ }: Props) {
         
     }
     return (
-        <SafeAreaView className='flex-1'>
-            <View className=' pb-[3.5%]  border-b-[1px] border-gray-200 flex-row  pt-[13%] px-[4%] items-center  '>
-                <TouchableOpacity onPress={()=>router.back()}>
-                    <Ionicons name="chevron-back-sharp" size={24} color="black" />
-                </TouchableOpacity>
-                <Text className='mx-auto text-[18px] font-msemibold uppercase pr-6'>Tham gia lớp học</Text>
-            </View>
-            <View >
-                <InputLayout placeHorder='Nhập mã lớp học' value={code} handle={setCode} style='w-[70%] mt-[2%]' />
-                <ButtonCustom content='Tham gia' otherStyle='w-[35%] mt-[8%]' handle={search} />
-            </View>
-           
-        </SafeAreaView>
-
-    )
+      <SafeAreaView className='flex-1'>
+        <View className=' pb-[3.5%]  border-b-[1px] border-gray-200 flex-row  pt-[13%] px-[4%] items-center bg-blue_primary '>
+          <TouchableOpacity onPress={router.back}>
+            <Ionicons name='chevron-back-sharp' size={24} color='white' />
+          </TouchableOpacity>
+          <Text className='mx-auto text-[18px] font-msemibold uppercase text-white pr-1'>
+            Tham gia lớp học
+          </Text>
+          <TouchableOpacity>
+            <MaterialCommunityIcons
+              name='qrcode-scan'
+              size={22}
+              color='white'
+            />
+          </TouchableOpacity>
+        </View>
+        <View>
+          <InputLayout
+            placeHorder='Nhập mã lớp học'
+            value={code}
+            handle={setCode}
+            style='w-[70%] mt-[2%]'
+          />
+          <ButtonCustom
+            content='Tham gia'
+            otherStyle='w-[35%] mt-[8%]'
+            handle={search}
+          />
+        </View>
+      </SafeAreaView>
+    );
 }
