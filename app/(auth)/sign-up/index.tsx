@@ -94,7 +94,7 @@ export default function RegisInfo({}: Props) {
             </View>
           </View>
                         <InputLayout style='w-[85%] mt-[3%]'
-                        title={info.role=="Sinh viên" ? "Mã số sinh viên":"Mã số giảng viên"}
+                        title={info.role=="student" ? "Mã số sinh viên":"Mã số giảng viên"}
                         placeHorder='22520266'
                         value={info.userCode}
                         handle={(e) => setInfo({...info,userCode:e})} />

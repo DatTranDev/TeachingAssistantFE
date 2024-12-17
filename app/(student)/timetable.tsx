@@ -9,6 +9,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import get from '@/utils/get';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Loading from '@/components/ui/Loading';
+import { useFocusEffect } from '@react-navigation/native';
 
 type Props = {}
 export type ClassSession = {
@@ -73,9 +74,11 @@ export default function Timetable({}: Props) {
     }
     setLoading(false)
   }
-  useEffect(()=>{
-    getSub()
-  },[])
+  useFocusEffect(
+    React.useCallback(() => {
+      getSub();
+    }, [])
+  );
   useEffect(()=>{
     setListSub(data.filter(item=>item.dayOfWeek==daySelect))
   },[daySelect])

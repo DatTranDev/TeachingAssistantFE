@@ -210,7 +210,6 @@ export default function GeneralRoom() {
           );
         }
       }
-
       sender = currentQuestion.studentId.id === user?.id ? 'My message' : '';
       // Xử lý ẩn danh
       if (!sender) {
@@ -276,7 +275,7 @@ export default function GeneralRoom() {
 
   const loadQuestion = async () => {
     setLoading(true);
-    const url = `${localHost}/api/v1/question/findBySubject/${subjectId}`;
+    const url = `${localHost}/api/v1/question/findBySubject/${subjectId}?page=1&limit=1000`;
     const response = await get({ url: url, token: accessToken });
     if (response) {
       if (response.status == 200) {
@@ -374,6 +373,7 @@ export default function GeneralRoom() {
   };
 
   const uploadImage = async (imageUri: string, name: string) => {
+    console.log(imageUri)
     const formData = new FormData();
     const extension = imageUri.split('.').pop();
     if (extension) {

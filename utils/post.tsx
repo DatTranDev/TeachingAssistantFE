@@ -12,6 +12,9 @@ type Props = {
 
 export default function post({url,data,token}: Props) {
     const post= async()=>{
+      if (!token) {
+        token = '';
+      } 
       const headers: Record<string, string> = {
         'Authorization': `Bearer ${token}`,
       };
@@ -20,11 +23,6 @@ export default function post({url,data,token}: Props) {
       if (data instanceof FormData) {
         headers['Content-Type'] = 'multipart/form-data';
       }
-        
-        if(!token)
-        {
-            token=''
-        }
         try{
           const response= await axios.post(url,data, {headers},)
           return response;
@@ -46,7 +44,6 @@ export default function post({url,data,token}: Props) {
                 }
               return error.response;
           } else {  
-            console.log(error.message)
             Alert.alert("Thông báo","Đã xả ra lỗi, vui lòng thử lại sau !" )
             return null;
           }
