@@ -28,14 +28,10 @@ export default function refreshAccessToken() {
                                     return data.access_token;
                               }
                               else{
-                                    await logoutEndSession();
-                                    Alert.alert("Thông báo","Phiên đăng nhập của bạn đã hết hạn, vui lòng đăng nhập lại")
-                                    return false;
+                                    throw new Error("Phiên đăng nhập của bạn đã hết hạn, vui lòng đăng nhập lại")
                               }
                         }else{
-                              await logoutEndSession();
-                              Alert.alert("Thông báo","Phiên đăng nhập của bạn đã hết hạn, vui lòng đăng nhập lại")
-                              return false;
+                              throw new Error("Phiên đăng nhập của bạn đã hết hạn, vui lòng đăng nhập lại")
                         }
               }catch{
                   await logoutEndSession();

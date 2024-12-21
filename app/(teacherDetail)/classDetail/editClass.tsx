@@ -7,33 +7,53 @@ import { AuthContext } from '@/context/AuthContext';
 import post from '@/utils/post';
 import { localHost } from '@/utils/localhost';
 import Loading from '@/components/ui/Loading';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-type Props = {}
+import patch from '@/utils/patch';
+type Subject = {
+    id: string;
+    code: string;
+    name: string;
+    hostId: string;
+}
 
 type Session = {
+  _id?: string;
+  subjectId?: string;
+  id?: string;
   dayOfWeek: number;
   room: string;
   start: string;
   end: string;
 };
 
+type Props = {
+    subject: Subject;
+    classSessions: Session[];
+}
 
-export default function AddClass({}: Props) {
+export default function EditClass({
+    subject,
+    classSessions,
+}: Props) {
   const authContext = useContext(AuthContext);
   if (!authContext) {
     Alert.alert("Thông báo", "Đã xảy ra lỗi")
     return;
   }
   const router=useRouter()
-  const [name, setName] = React.useState('');
-  const [code, setCode] = React.useState('');
-  const [numberOfSesion, setNumberOfSesion] = React.useState(1);
-  const [sessions, setSessions] = React.useState<Session[]>([
-    { dayOfWeek: 1, room: '', start: 'Tiết 1', end: '2' },
-  ]);
+  const {data} =useLocalSearchParams();
+  const parseData = typeof data === 'string'?JSON.parse(data):data;
+  const [name, setName] = React.useState(parseData.subject.name);
+  const [code, setCode] = React.useState(parseData.subject.code);
+  const [numberOfSesion, setNumberOfSesion] = React.useState(parseData.classSessions.length);
+  const [sessions, setSessions] = React.useState<Session[]>(parseData.classSessions);
   const [loading, setLoading] = React.useState(false);
   
+  const initialName = parseData.subject.name;
+  const initialCode = parseData.subject.code;
+  const initialSessions = parseData.classSessions;
+
   const updateSession = <K extends keyof Session>(
     index: number,
     key: K,
@@ -91,34 +111,55 @@ export default function AddClass({}: Props) {
       }
     }
     const {user, accessToken} = authContext;
-    const data = {
-      name,
-      code,
-      hostId: user?.id,
-      sessions,
-    };
-    console.log(data);
-    const url = `${localHost}/api/v1/subject/add`;
-    const token = accessToken;
-    setLoading(true);
-    const response = await post({ url, data, token });
-    if (response) {
-      if (response.status === 201) {
-        Alert.alert('Thành công', 'Lớp học đã được tạo');
-        setName('');
-        setCode('');
-        setSessions([{ dayOfWeek: 1, room: '', start: 'Tiết 1', end: '2' }]);
-        //Navigate
-        router.back
-        setLoading(false);
-        return;
-      }
-    }
-    else
-    {
-      Alert.alert('Thông báo', 'Đã xảy ra lỗi, vui lòng thử lại sau !')
-      setLoading(false);
+    
+    // Check for changes
+    const hasChanges =
+      name !== initialName ||
+      code !== initialCode ||
+      JSON.stringify(sessions) !== JSON.stringify(initialSessions);
+
+    if (!hasChanges) {
+      Alert.alert('Thông báo', 'Không có thay đổi nào được thực hiện');
       return;
+    }
+    try{
+      setLoading(true)
+      if(JSON.stringify(sessions) !== JSON.stringify(initialSessions)){
+        await Promise.all(sessions.map(async(session)=>{
+          const response = await patch({
+            url: `${localHost}/api/v1/classSession/update/${session.id}`,
+            data: {
+              dayOfWeek: session.dayOfWeek,
+              room: session.room,
+              start: session.start,
+              end: session.end
+            },
+            token: accessToken
+          })
+          if(!response)
+            throw new Error('Fail to update')
+        })
+        )
+      }
+      else{
+        const response = await patch({
+          url: `${localHost}/api/v1/subject/update/${parseData.subject.id}`,
+          data: {
+            name: name,
+            code: code
+          },
+          token: accessToken
+        })
+        if(!response)
+          throw new Error('Fail to update')
+      }
+      setLoading(false)
+      Alert.alert('Thành công', 'Chỉnh sửa thành công');
+    }
+    catch(e:any){
+      Alert.alert('Thông báo', 'Đã xảy ra lỗi: ', e.message)
+      setLoading(false)
+      return
     }
   };
   
@@ -147,7 +188,7 @@ export default function AddClass({}: Props) {
             <Ionicons name='chevron-back-sharp' size={24} color='white' />
           </TouchableOpacity>
           <Text className='mx-auto text-[18px] font-msemibold text-white uppercase pr-6'>
-              Thêm lớp học
+              Sửa lớp học
             </Text>
         </View>
         <View className='px-8 mb-10'>
@@ -169,6 +210,7 @@ export default function AddClass({}: Props) {
           <View className="mx-auto p-0 bg-white w-[100%] border-[1px] rounded-2xl border-gray-300 mb-2">
             <Picker 
                 style={{padding: 0, margin: 0}}
+                enabled={false}
                 selectedValue={numberOfSesion}
                 onValueChange={(a)=>setNumberOfSesion(a)} >
                   <Picker.Item label="1 buổi" value={1} />
@@ -264,7 +306,7 @@ export default function AddClass({}: Props) {
           </ScrollView>
           <ButtonCustom 
             otherStyle='mt-5'
-            content='Tạo lớp học'
+            content='Chỉnh sửa'
             handle={handleSubmit}
             >
           </ButtonCustom>
