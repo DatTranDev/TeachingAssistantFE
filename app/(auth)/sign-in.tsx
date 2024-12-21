@@ -109,11 +109,11 @@ export default function SignIn({ }: Props) {
                     }
                     if (response.status == 200) {
                         const result = await response.data;
-                        // const FCMregister = await registerFCMToken(result.accessToken, result.data.id);
-                        // if(!FCMregister){
-                        //     setLoading(false);
-                        //     return;
-                        // }
+                        const FCMregister = await registerFCMToken(result.accessToken, result.data.id);
+                        if(!FCMregister){
+                            setLoading(false);
+                            return;
+                        }
                         await login(result.data, result.accessToken, result.refreshToken);
                         if(result.data.role=='student')
                         {
