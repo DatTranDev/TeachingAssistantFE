@@ -35,7 +35,7 @@ export default function Profile({ }: Props) {
           <Text className='text-[16px] font-medium mt-1'>{user?.name}</Text>
           <Text className='text-sm'>{user?.userCode} | {user?.role == 'student' ? ('Sinh viên') : ('Giảng viên')}</Text>
         </View>
-        <ButtonCustom content='Chỉnh sửa' otherStyle='w-[30%] p-[7px] mt-3' handle={edit}/>
+        <ButtonCustom content='Chỉnh sửa' otherStyle='min-w-fit max-w-[40%] p-[7px] mt-3' handle={edit}/>
 
 
         <View className='mt-4'>
