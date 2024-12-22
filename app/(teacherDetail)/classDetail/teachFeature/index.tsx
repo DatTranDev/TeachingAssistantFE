@@ -50,11 +50,13 @@ export default function TeachFeature({}: Props) {
    }, []);
    const rollCall = async () => {
       router.push({
-         pathname: "/classDetail/rollCall",
+         pathname: "/classDetail/teachFeature/rollCall",
          params: {
             subjectId: subjectId,
             name: name,
-            code: code
+            code: code,
+            date: date,
+            attendId: attendId,
          }
       });
    };

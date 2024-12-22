@@ -49,5 +49,5 @@ export default function index(){
           requestUserPermission();
           handleNotification();
     }, [])
-    return <Redirect href='/sign-in'/>
+    return <Redirect href='/(auth)/sign-in'/>
 }

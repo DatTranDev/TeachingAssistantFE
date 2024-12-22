@@ -76,6 +76,7 @@ export default function SignIn({ }: Props) {
             const response = await post({ url, data, token: acessToken });
             if (response) {
                 if (response.status == 200) {
+                    console.log(response.data)
                     console.log('Subscribe to topics successfully')
                 }
                 else {

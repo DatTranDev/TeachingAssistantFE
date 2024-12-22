@@ -15,6 +15,7 @@ import { AuthContext } from '@/context/AuthContext';
 import Loading from '@/components/ui/Loading';
 import deleteApi from '@/utils/delete';
 import Feather from '@expo/vector-icons/Feather';
+
 type Props = {}
 
 export default function Feature({ }: Props) {
@@ -57,9 +58,9 @@ export default function Feature({ }: Props) {
       },
     });
   }
-  const document = async () => {
+  const statistical  = async () => {
     router.push({
-      pathname: '/classDetail/document',
+      pathname: '/(teacherDetail)/classDetail/statistical',
       params: {
         subjectId: subjectId,
         name: name,
@@ -144,11 +145,16 @@ export default function Feature({ }: Props) {
           {/* <FontAwesome6 name="exclamation" size={22} color="#FE3535" /> */}
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={setting}
+          onPress={statistical}
           className='flex-row items-center bg-white w-[94%] mx-auto px-[7%] py-4 rounded-2xl mt-3'>
-          <Foundation name='clipboard-pencil' size={24} color='black' />
+          <MaterialCommunityIcons
+            name='clipboard-text-multiple-outline'
+            size={24}
+            color='black'
+            style={{marginLeft:-2}}
+          />
           <Text className='text-base font-msemibold ml-4 mr-auto'>
-            Tổng quan
+            Thống kê
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
