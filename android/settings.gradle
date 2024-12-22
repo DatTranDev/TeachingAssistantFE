@@ -44,7 +44,7 @@ if (getRNMinorVersion() >= 75) {
   }
 }
 
-rootProject.name = 'EduAssist'
+rootProject.name = 'Teaching Assistant'
 
 dependencyResolutionManagement {
   versionCatalogs {
