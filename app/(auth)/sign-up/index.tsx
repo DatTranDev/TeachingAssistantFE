@@ -81,28 +81,28 @@ export default function RegisInfo({}: Props) {
                         placeHorder='Nguyễn Văn A'
                         value={info.name}
                         handle={(e) => setInfo({...info,name:e})} />
-                        <View className={` ml-auto mr-auto w-[85%] mt-4 pb-1`}>
-            <Text className="text-[16px] font-msemibold text-gray_primary mb-2 ml-0">Vai trò</Text>
-            <View className="border-[1.2px] rounded-2xl border-gray-400 justify-center  ">
-              <Picker style={{ height: 43,color:'#1F2937'}}
-               className="text-xs"
-               selectedValue={info.role}
-               onValueChange={(a)=>setInfo({...info,role:a})} >
-                <Picker.Item label="Sinh viên" value="student" />
-                <Picker.Item label="Giảng viên" value="teacher" />
-              </Picker>
-            </View>
-          </View>
-                        <InputLayout style='w-[85%] mt-[3%]'
-                        title={info.role=="student" ? "Mã số sinh viên":"Mã số giảng viên"}
-                        placeHorder='22520266'
-                        value={info.userCode}
-                        handle={(e) => setInfo({...info,userCode:e})} />
-                        <InputLayout style='w-[85%] mt-[3%]'
-                        title='Tên trường'
-                        placeHorder='Đại học Công nghệ thông tin'
-                        value={info.school}
-                        handle={(e) => setInfo({...info,school:e})} />
+                    <View className={` ml-auto mr-auto w-[85%] mt-4 pb-1`}>
+                      <Text className="text-[16px] font-msemibold text-gray_primary mb-2 ml-0">Vai trò</Text>
+                      <View className="border-[1.2px] rounded-2xl border-gray-400 justify-center  ">
+                        <Picker style={{ height: 43,color:'#1F2937'}}
+                        className="text-xs"
+                        selectedValue={info.role}
+                        onValueChange={(a)=>setInfo({...info,role:a})} >
+                          <Picker.Item label="Sinh viên" value="student" />
+                          <Picker.Item label="Giảng viên" value="teacher" />
+                        </Picker>
+                      </View>
+                    </View>
+                    <InputLayout style='w-[85%] mt-[3%]'
+                      title={info.role=="student" ? "Mã số sinh viên":"Mã số giảng viên"}
+                      placeHorder='22520266'
+                      value={info.userCode}
+                      handle={(e) => setInfo({...info,userCode:e})} />
+                    <InputLayout style='w-[85%] mt-[3%]'
+                      title='Tên trường'
+                      placeHorder='Đại học Công nghệ thông tin'
+                      value={info.school}
+                      handle={(e) => setInfo({...info,school:e})} />
                     <ButtonCustom content="Tiếp tục" handle={signUp} otherStyle="w-[85%] mt-[10%]"/>
                 </View>
                

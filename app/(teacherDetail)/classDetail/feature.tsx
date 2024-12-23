@@ -26,7 +26,7 @@ export default function Feature({ }: Props) {
   }
   const { user, accessToken } = authContext;
   const router = useRouter()
-  const { subjectId, name, code } = useLocalSearchParams();
+  const { subjectId, name, code, joinCode } = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
   const sessions = async () => {
     router.push({
@@ -44,7 +44,8 @@ export default function Feature({ }: Props) {
       params: {
         subjectId: subjectId,
         name: name,
-        code: code
+        code: code,
+        joinCode: joinCode
       },
     });
   }

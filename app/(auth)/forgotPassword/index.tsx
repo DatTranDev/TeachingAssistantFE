@@ -84,7 +84,7 @@ export default function ForgotPassword({}: Props) {
       <ScrollView className="h-[100vh] relative">
                 <View>
                   <View className="mt-[30%] ml-[7%] flex-row items-center">
-                 <TouchableOpacity onPress={()=>router.replace("/(auth)/sign-in")}>
+                 <TouchableOpacity onPress={()=>router.back()}>
                    <Ionicons name="arrow-back-sharp" size={30} color={colors.blue_primary} />
                  </TouchableOpacity>
                  

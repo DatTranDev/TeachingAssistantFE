@@ -26,6 +26,7 @@ export type Subject= {
    times:Time[],
    hostName:string,
    code:string,
+   joinCode?:string
 }
 export default function Classes(props: Props) {
   const authContext = useContext(AuthContext);
@@ -46,7 +47,8 @@ export default function Classes(props: Props) {
       params: {
         subjectId:sub.id,
         name:sub.name,
-        code:sub.code
+        code:sub.code,
+        joinCode:sub.joinCode,
       },
     });
   }
@@ -91,7 +93,8 @@ export default function Classes(props: Props) {
         hostName: item.subject.host.name,
         start: item.start,
         end: item.end,
-        dayOfWeek: item.dayOfWeek
+        dayOfWeek: item.dayOfWeek,
+        joinCode: item.subject.joinCode
       }));
       setData(formattedData);
       const listSubject = formattedData.reduce((acc: Subject[], item: ClassSession) => {
@@ -108,6 +111,7 @@ export default function Classes(props: Props) {
             name: item.name,
             code: item.code,
             hostName: item.hostName,
+            joinCode: item.joinCode,
             times: [{
               numberOfWeek: item.dayOfWeek, 
               start: item.start,

@@ -37,7 +37,7 @@ export default function ChangePassword({ }: Props) {
             try {
                 if (response) {
                     if (response.status == 200) {
-                        Alert.alert('Thông báo', 'Thay đổi mật khẩu thành công')
+                        Alert.alert('Thông báo', 'Thay đổi mật khẩu thành công, vui lòng đăng nhập')
                         router.replace('/(auth)/sign-in')
                     } 
                     else {
