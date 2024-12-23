@@ -127,12 +127,12 @@ export default function DiscussionRoom() {
       const list: JSX.Element[] = [];
       const totalMessages = PostList.length;
 
-      if (totalMessages === 0) {
+      if (totalMessages == 0) {
          return (
             <Text
                className="text-blue_primary"
                style={{ marginHorizontal: "auto", marginVertical: "auto", fontSize: 18, marginTop: "80%" }}>
-               Gửi bài tập nhóm tại đây !
+               Đặt câu hỏi tại đây !
             </Text>
          );
       }
@@ -435,7 +435,7 @@ export default function DiscussionRoom() {
                   <Ionicons name="chevron-back-sharp" size={24} color="white" />
                </TouchableOpacity>
                <View className="mx-auto items-center pr-6">
-                  <Text className="text-[18px] font-msemibold uppercase text-white">Thảo luận</Text>
+                  <Text className="text-[18px] font-msemibold uppercase text-white">Câu hỏi</Text>
                   <Text className="mt-[-3px] text-white font-mmedium">{formatNoWeekday(date)}</Text>
                </View>
             </View>

@@ -36,6 +36,7 @@ type Props = {
       school: string;
    };
    handleDeletePost: (Id: string) => void;
+   handleKickStudent: (studentId: string) => void;
 };
 type ReactionShow = {
    type: number;
@@ -53,7 +54,8 @@ export default function postDiscussionTeacher({
    reactions,
    myId,
    Creator,
-   handleDeletePost
+   handleDeletePost,
+   handleKickStudent
 }: Props) {
    const authContext = useContext(AuthContext);
    if (!authContext) {
@@ -123,7 +125,6 @@ export default function postDiscussionTeacher({
          }
       }
    };
-
    return (
       <View className="w-full ">
          {/* modal phản hồi */}
@@ -204,7 +205,7 @@ export default function postDiscussionTeacher({
                         <Text className="text-base ml-[5%]">{Creator.school}</Text>
                      </View>
                   </View>
-                  <TouchableOpacity className="flex-row mt-5 items-center mx-auto pr-2">
+                  <TouchableOpacity onPress={()=>handleKickStudent(Creator.id)} className="flex-row mt-5 items-center mx-auto pr-2">
                      <MaterialCommunityIcons name="logout" size={24} color="rgb(254 53 53)" />
                      <Text className="text-xl ml-2 text-red">Mời khỏi lớp</Text>
                   </TouchableOpacity>

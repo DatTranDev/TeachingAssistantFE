@@ -77,22 +77,27 @@ export default function listRoom({ }: Props) {
                 </TouchableOpacity>
                 <View className='mx-auto items-center pr-6'>
                     <Text className='text-[18px] font-msemibold uppercase text-white'>{code}</Text>
-                    <Text className='mt-[-3px] text-white font-mmedium'>Thảo luận</Text>
+                    <Text className='mt-[-3px] text-white font-mmedium'>Trao đổi</Text>
                 </View>
             </View>
                   <View>
-                        <TouchableOpacity onPress={goToGeneral} className='flex-row items-center bg-white w-[94%] mx-auto px-[6%] py-4 rounded-2xl mt-[10%]   '>
+                        <Text className='text-base font-semibold mt-[4%] ml-[5%]'>Thảo luận</Text>
+                        <TouchableOpacity onPress={goToGeneral} className='flex-row items-center bg-white w-[94%] mx-auto px-[6%] py-4 rounded-2xl mt-2   '>
                         <Ionicons name="chatbubble-ellipses-outline" size={24} color="black" />
                               <Text className='text-base font-msemibold ml-4 mr-auto'>Kênh chung</Text>
                         </TouchableOpacity>
-                        {listAttend.map((channel,index)=>{
+                        {listAttend.length>0&&<Text className='text-base font-semibold mt-[4%] ml-[5%]'>Đặt câu hỏi</Text>}
+                        <ScrollView className='mt-2'>                        
+                        {listAttend.length>0&&listAttend.map((channel,index)=>{
                               return(
-                                    <TouchableOpacity key={index} onPress={()=>goToChannel(channel)} className='flex-row items-center bg-white w-[94%] mx-auto px-[6%] py-4 rounded-2xl mt-3'>
+                                    <TouchableOpacity key={index} onPress={()=>goToChannel(channel)} className='flex-row items-center bg-white w-[94%] mx-auto px-[6%] py-4 rounded-2xl mb-3'>
                                           <Feather name="book" size={24} color="black" />
                                           <Text className='text-base font-msemibold ml-4 mr-auto'>Buổi {channel.sessionNumber} - {formatNoWeekday(channel.date)}</Text>
                                     </TouchableOpacity>
                               )
                         })}
+                        </ScrollView>
+                        
                   </View>
             </SafeAreaView>
       )

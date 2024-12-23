@@ -10,8 +10,7 @@ type Props = {
 
 }
 
-export default function get({url,token}: Props) {
-  let start=0;
+export default async function get({url,token}: Props) {
     const get = async ()=>{
         if(!token)
         {
@@ -29,16 +28,25 @@ export default function get({url,token}: Props) {
         }catch (error: unknown) {
             if (axios.isAxiosError(error)) {
               if (error.response) {
-                if(error.response.status==401 && start==0)
+                if(error.response.status==401)
                 {
-                  start=start+1;
                   token=await refreshAccessToken()
                   if(token)
                   {
-                    return await get();
+                    try{
+                      const response= await axios.get(url, {
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                      }
+                      },)
+                      return response; 
+                    }catch(error){
+                      Alert.alert("Thông báo","Đã xả ra lỗi, vui lòng thử lại sau !" )
+                      return false;
+                    }
                   }
                   else{
-                    return false
+                    return false;
                   }
                 }
                 return error.response;
@@ -54,5 +62,5 @@ export default function get({url,token}: Props) {
         }
         
     }
-  return get();
+  return await get();
 }

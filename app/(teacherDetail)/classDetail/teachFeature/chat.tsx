@@ -37,6 +37,7 @@ import Feather from '@expo/vector-icons/Feather';
 import { EvilIcons, FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { localHost } from '@/utils/localhost';
 import { ChatContainer } from '@/components/teacher/chat';
+import { colors } from '@/constants/colors';
 
 export type Question = {
   _id: string;
@@ -171,6 +172,39 @@ export default function Chat() {
     // Kiểm tra nếu hiệu của hai thời điểm lớn hơn 10 phút
     return diffMinutes > 5;
   };
+  const kickStudent= async (studentId:string)=>{
+    Alert.alert(
+      "Xác nhận",
+      "Bạn có chắc chắn muốn mời người này ra khỏi lớp học này không?",
+      [
+        {
+          text: "Hủy",
+          style: "cancel"
+        },
+        {
+          text: "Đồng ý",
+          onPress: async () => {
+            setUploading(true)
+            const res = await post({
+              url: `${localHost}/api/v1/subject/leave`,
+              data: { studentId: studentId, subjectId: subjectId },
+              token: accessToken
+            });
+            setUploading(false)
+            if (res) {
+              if (res.status == 200) {
+                await loadQuestion()
+                Alert.alert('Thông báo', "Đã mời sinh viên ra khỏi lớp học thành công");
+              } else {
+                Alert.alert('Lỗi', "Đã xảy ra lỗi");
+              }
+            }
+          }
+        }
+      ]
+    );
+  }
+ 
 
   const renderQuestion = () => {
     const list: JSX.Element[] = [];
@@ -179,14 +213,8 @@ export default function Chat() {
     if (totalMessages === 0) {
       return (
         <Text
-          style={{
-            marginHorizontal: 'auto',
-            marginVertical: 'auto',
-            fontSize: 18,
-            color: '#FF9400',
-            marginTop: '80%'
-          }}>
-          Gửi thắc mắc của bạn tại đây!
+          className='mx-auto text-base text-blue_primary mt-[80%]'>
+          Thảo luận cùng nhau tại đây !
         </Text>
       );
     }
@@ -272,6 +300,8 @@ export default function Chat() {
           Type={currentQuestion.type}
           Sender={currentQuestion.studentId}
           handleDeleteChat={handleDeleteChat}
+          handleKickStudent={kickStudent}
+          IsRecall={currentQuestion.isResolved}
         />
       );
     }
@@ -376,6 +406,7 @@ export default function Chat() {
         if (response.status == 201) {
           let newMsg = msg;
           newMsg._id = response.data.question.id;
+          newMsg.id=response.data.question.id;
            const msgList = questionList.filter(value => value._id != idMsg);
            msgList.push(newMsg);
           setQuestionList(msgList);
@@ -478,7 +509,6 @@ export default function Chat() {
       }
     }
   };
-
   //send
   const handlesendQuestion = async () => {
     setcheckScroll(true);
@@ -509,7 +539,7 @@ export default function Chat() {
               justifyContent: 'center',
               alignItems: 'center'
             }}>
-            <ActivityIndicator size='large' color='#FF9557' animating={true} />
+            <ActivityIndicator size='large' color={colors.blue_primary} animating={true} />
           </View>
         ) : (
           <ScrollView

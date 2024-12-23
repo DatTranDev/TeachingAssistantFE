@@ -127,7 +127,7 @@ export default function ChannelRoom() {
     if (totalMessages === 0) {
       return (
         <Text className='text-blue_primary' style={{ marginHorizontal: "auto", marginVertical: "auto", fontSize: 18, marginTop: "80%" }}>
-          Gửi bài tập nhóm tại đây !
+          Đặt câu hỏi tại đây !
         </Text>
       );
     }
@@ -159,7 +159,6 @@ export default function ChannelRoom() {
           Title={currentPost.title}
           UserCode={currentPost.user.userCode}
           Name={currentPost.user.name}
-
         />
       );
     }

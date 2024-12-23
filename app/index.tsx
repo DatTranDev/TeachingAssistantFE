@@ -9,6 +9,9 @@ type Props = {}
 
 export default function index(){
     const authContext = useContext(AuthContext);
+    if(!authContext)
+        return;
+    const {addFCMToken}= authContext;
     useEffect(() => {
         const handleNotification = async () => {
             messaging().getInitialNotification().then(async (remoteMessage) => {
@@ -43,7 +46,7 @@ export default function index(){
             if (enabled) {
                 console.log('Authorization status:', authStatus);
                 const token = await messaging().getToken();
-                console.log('FCM token: ',token);
+               addFCMToken(token);
             }
         }
           requestUserPermission();

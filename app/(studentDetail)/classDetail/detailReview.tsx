@@ -28,31 +28,32 @@ import { formatNoWeekday } from "@/utils/formatDate";
 
 type Props = {};
 
-export default function DetailReview({}: Props) {
-  const authContext = useContext(AuthContext);  
+export default function DetailReview({ }: Props) {
+  const authContext = useContext(AuthContext);
   if (!authContext) {
     Alert.alert("Thông báo", "Đã xảy ra lỗi")
     return;
   }
-  const [data,setData]=useState([])
-  const [loading,setLoading]=useState(false)
+  const [data, setData] = useState([])
+  const [loading, setLoading] = useState(false)
   const [visible, setVisible] = useState(false);
-  const {accessToken,user}=authContext;
-  const {attendId,date}=useLocalSearchParams();
-  const [avgReview,setAvgReview]=useState({understandPercent:0,
-    usefulPercent:0,
-    teachingMethodScore:0,
-    atmosphereScore:0,
-    documentScore:0,
-    totalReview:0,
+  const { accessToken, user } = authContext;
+  const { attendId, date } = useLocalSearchParams();
+  const [avgReview, setAvgReview] = useState({
+    understandPercent: 0,
+    usefulPercent: 0,
+    teachingMethodScore: 0,
+    atmosphereScore: 0,
+    documentScore: 0,
+    totalReview: 0,
   })
-  const [review,setReview]=useState({
-    understandPercent:70,
-    usefulPercent:50,
-    teachingMethodScore:5,
-    atmosphereScore:5,
-    documentScore:5,
-    thinking:"",
+  const [review, setReview] = useState({
+    understandPercent: 70,
+    usefulPercent: 50,
+    teachingMethodScore: 5,
+    atmosphereScore: 5,
+    documentScore: 5,
+    thinking: "",
   })
   function formatDate(dateString: string) {
     const options: Intl.DateTimeFormatOptions = {
@@ -64,11 +65,11 @@ export default function DetailReview({}: Props) {
     const formattedDate = `${date.toLocaleDateString('vi-VN', options)}`;
     return formattedDate;
   }
-  const getData=async()=>{
+  const getData = async () => {
     setLoading(true)
-    const url= `${localHost}/api/v1/review/findByCAttend/${attendId}`
-    const res=await get({url:url,token:accessToken})
-    if(res&&res.status==200){
+    const url = `${localHost}/api/v1/review/findByCAttend/${attendId}`
+    const res = await get({ url: url, token: accessToken })
+    if (res && res.status == 200) {
       setData(res.data.reviews)
       // Tính trung bình các thuộc tính
       if (res.data.reviews.length > 0) {
@@ -86,32 +87,33 @@ export default function DetailReview({}: Props) {
     }
     setLoading(false)
   }
-  const sendReview=async()=>{
+  const sendReview = async () => {
     setLoading(true)
-    const url=`${localHost}/api/v1/review/add`
-    const data={
+    const url = `${localHost}/api/v1/review/add`
+    const data = {
       ...review,
-      cAttendId:attendId,
-      studentId:user?.id,
+      cAttendId: attendId,
+      studentId: user?.id,
     }
-    
-    const res=await post({url:url,data:data,token:accessToken})
-    if(res&&res.status==409){
-      Alert.alert("Thông báo","Không thể gửi đánh giá do trước đó đã đánh giá rồi")
+
+    const res = await post({ url: url, data: data, token: accessToken })
+    if (res && res.status == 409) {
+      Alert.alert("Thông báo", "Không thể gửi đánh giá do trước đó đã đánh giá rồi")
+      setLoading(false)
       return;
     }
-    if(res&&res.status==201){
+    if (res && res.status == 201) {
       setVisible(false)
-      Alert.alert("Thông báo","Đánh giá thành công")
+      Alert.alert("Thông báo", "Đánh giá thành công")
       await getData();
-    }else{
-      Alert.alert("Thông báo","Đã xảy ra lỗi")
+    } else {
+      Alert.alert("Thông báo", "Đã xảy ra lỗi")
     }
     setLoading(false)
   }
-  useEffect(()=>{
+  useEffect(() => {
     getData()
-  },[])
+  }, [])
   const router = useRouter();
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -232,7 +234,7 @@ export default function DetailReview({}: Props) {
           </TouchableOpacity>
           <View className='mx-auto items-center pr-6'>
             <Text className='text-[18px] font-msemibold uppercase text-white'>
-                Đánh giá
+              Đánh giá
             </Text>
             <Text className='mt-[-3px] text-white font-mmedium'>
               {formatNoWeekday(date)}
@@ -300,13 +302,16 @@ export default function DetailReview({}: Props) {
         </View>
         <Text className='ml-[8%] text-base font-msemibold mt-2'>Góp ý</Text>
         <ScrollView className='mt-4'>
-          {data.map((item: any, index: number) => (
-            <View
-              key={index}
-              className='bg-white w-[84%] mx-auto px-4 py-2 rounded-[10px] border-[1px] border-gray_line mb-2 rounded-tl-[4px] rounded-br-[4px]'>
-              <Text className='text-base'>{item.thinking}</Text>
-            </View>
-          ))}
+          {data.length == 0 ? 
+          <Text className='text-base font-medimum text-gray-500 mt-2 text-center'>Không có góp ý</Text> 
+          :
+            data.map((item: any, index: number) => (
+              <View
+                key={index}
+                className='bg-white w-[84%] mx-auto px-4 py-2 rounded-[10px] border-[1px] border-gray_line mb-2 rounded-tl-[4px] rounded-br-[4px]'>
+                <Text className='text-base'>{item.thinking}</Text>
+              </View>
+            ))}
         </ScrollView>
         <ButtonCustom
           content='Đánh giá buổi học'

@@ -28,7 +28,7 @@ export default function RollCall({ }: Props) {
     return;
   }
   const { user, accessToken } = authContext;
-  const { date, attendId } = useLocalSearchParams();
+  const { date, attendId, subjectId } = useLocalSearchParams();
   const [loading, setLoading] = useState<boolean>(false)
   const [totalStudent, setTotalStudent] = useState<number>(50);
   const [listStudent, setListStudent] = useState<Student[]>([]);
@@ -109,8 +109,7 @@ export default function RollCall({ }: Props) {
           setIsActive(res.data.cAttend.isActive)
           if(res.data.cAttend.isActive)
           {
-            console.log('ok1')
-            getListStudent()
+            getPresentStudent()
           }
           else{
             setLoading(false)
@@ -127,7 +126,7 @@ export default function RollCall({ }: Props) {
       }
       
     }
-    async function getListStudent()
+    async function getPresentStudent()
     {
       const res = await get({url:localHost+`/api/v1/cAttend/attendStudents/${attendId}`,token:accessToken})
       if(res)
@@ -146,7 +145,18 @@ export default function RollCall({ }: Props) {
         setLoading(false)
       }
     }
-   
+    async function getAllStudent()
+    {
+      const res = await get({url:localHost+`/api/v1/subject/${subjectId}/students`,token:accessToken})
+      if(res)
+      {
+        if(res.status==200)
+        {
+          setTotalStudent(res.data.students.length)
+        }
+      }
+    }
+    getAllStudent();  
     getAttend();
    
   },[])
@@ -233,7 +243,7 @@ export default function RollCall({ }: Props) {
         </Text>
         <ScrollView>
           {listStudent.map((item,index)=>(
-            <View className='bg-white rounded-md p-3 mt-3'>
+            <View key={index} className='bg-white rounded-md p-3 mt-3'>
               <Text className='text-base font-mregular text-center'>
                 {index+1}. {item.userCode} - {item.name}
               </Text>

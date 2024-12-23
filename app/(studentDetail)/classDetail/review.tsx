@@ -11,88 +11,95 @@ import get from '@/utils/get';
 import { formatNoWeekday } from '@/utils/formatDate';
 import { useFocusEffect } from '@react-navigation/native';
 type Props = {}
-export type Review={
-    attendId:string,
-    date:string,
-    reviewed:boolean,
-    sessionNumber:number
+export type Review = {
+  attendId: string,
+  date: string,
+  reviewed: boolean,
+  sessionNumber: number
 }
 export default function Review({ }: Props) {
-    const authContext = useContext(AuthContext);  
-    if (!authContext) {
-      Alert.alert("Thông báo", "Đã xảy ra lỗi")
-      return;
+  const authContext = useContext(AuthContext);
+  if (!authContext) {
+    Alert.alert("Thông báo", "Đã xảy ra lỗi")
+    return;
+  }
+  const { accessToken, user } = authContext;
+  const [listReview, setListReview] = useState<Review[]>([])
+  const router = useRouter()
+  const { subjectId, name, code } = useLocalSearchParams()
+  function formatDate(dateString: string) {
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: 'long', // Thứ trong tuần
+      day: '2-digit',  // Ngày
+      month: '2-digit', // Tháng
+      year: 'numeric',  // Năm
+    };
+    const date = new Date(dateString);
+    // const vietnameseWeekdays = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+    // const weekday = vietnameseWeekdays[date.getDay()];
+    // Chuyển đổi ngày tháng năm sang định dạng yêu cầu
+    const formattedDate = `${date.toLocaleDateString('vi-VN', options)}`;
+    return formattedDate;
+  }
+  async function getData() {
+    const url = `${localHost}/api/v1/cAttend/findBySubject/${subjectId}`;
+    const res = await get({ url: url, token: accessToken });
+    const url2 = `${localHost}/api/v1/subject/${subjectId}/user/${user?.id}/reviews`;
+    const res2 = await get({ url: url2, token: accessToken });
+    console.log(res2);
+    if (res && res.status == 200 && res2 && res2.status == 200) {
+      const listAttend = res.data.cAttends;
+      const listReview = res2.data.reviews;
+      const data = listAttend
+        .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()) // Sắp xếp giảm dần theo ngày
+        .map((item: any) => ({
+          attendId: item.id,
+          date: item.date,
+          reviewed: listReview.find(
+            (review: any) => review.cAttendId.id == item.id
+          ),
+          sessionNumber: item.sessionNumber
+        }));
+      setListReview(data);
     }
-    const {accessToken,user}=authContext;
-    const [listReview,setListReview]=useState<Review[]>([])
-    const router=useRouter()
-    const {subjectId,name,code}=useLocalSearchParams()
-    function formatDate(dateString: string) {
-        const options: Intl.DateTimeFormatOptions = {
-          weekday: 'long', // Thứ trong tuần
-          day: '2-digit',  // Ngày
-          month: '2-digit', // Tháng
-          year: 'numeric',  // Năm
-        };
-        const date = new Date(dateString);
-        // const vietnameseWeekdays = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
-        // const weekday = vietnameseWeekdays[date.getDay()];
-        // Chuyển đổi ngày tháng năm sang định dạng yêu cầu
-        const formattedDate = `${date.toLocaleDateString('vi-VN', options)}`;
-        return formattedDate;
-      }
-      async function getData() {
-        const url = `${localHost}/api/v1/cAttend/findBySubject/${subjectId}`;
-        const res = await get({ url: url, token: accessToken });
-        const url2 = `${localHost}/api/v1/subject/${subjectId}/user/${user?.id}/reviews`;
-        const res2 = await get({ url: url2, token: accessToken });
-        console.log(res2);
-        if (res && res.status == 200 && res2 && res2.status == 200) {
-          const listAttend = res.data.cAttends;
-          const listReview = res2.data.reviews;
-          const data = listAttend.map((item: any) => ({
-            attendId: item.id,
-            date: item.date,
-            reviewed: listReview.find(
-              (review: any) => review.cAttendId.id == item.id
-            ),
-            sessionNumber: item.sessionNumber
-          }));
-          setListReview(data);
-        }
-      }
-    useFocusEffect(
-        useCallback(()=>{
-            getData()
-        },[])
-    )
-    const clickReview=(attendId:string,date:string)=>{
-        router.push({
-            pathname: '/(studentDetail)/classDetail/detailReview', 
-            params: {
-                attendId:attendId,
-                date:date
-            },
-          });
-    }
+  }
+  useFocusEffect(
+    useCallback(() => {
+      getData()
+    }, [])
+  )
+  const clickReview = (attendId: string, date: string) => {
+    router.push({
+      pathname: '/(studentDetail)/classDetail/detailReview',
+      params: {
+        attendId: attendId,
+        date: date
+      },
+    });
+  }
 
-    return (
-      <SafeAreaView className='flex-1'>
-        <View className=' shadow-md  pb-[1.8%] bg-blue_primary flex-row  pt-[12%] px-[4%] items-center '>
-          <TouchableOpacity onPress={router.back}>
-            <Ionicons name='chevron-back-sharp' size={24} color='white' />
-          </TouchableOpacity>
-          <View className='mx-auto items-center pr-6'>
-            <Text className='text-[18px] font-msemibold uppercase text-white'>
-              {code}
-            </Text>
-            <Text className='mt-[-3px] text-white font-mmedium'>
-              Đánh giá
-            </Text>
-          </View>
+  return (
+    <SafeAreaView className='flex-1'>
+      <View className=' shadow-md  pb-[1.8%] bg-blue_primary flex-row  pt-[12%] px-[4%] items-center '>
+        <TouchableOpacity onPress={router.back}>
+          <Ionicons name='chevron-back-sharp' size={24} color='white' />
+        </TouchableOpacity>
+        <View className='mx-auto items-center pr-6'>
+          <Text className='text-[18px] font-msemibold uppercase text-white'>
+            {code}
+          </Text>
+          <Text className='mt-[-3px] text-white font-mmedium'>
+            Đánh giá
+          </Text>
         </View>
-        <ScrollView className='mt-6'>
-          {listReview.map((item, index) => {
+      </View>
+      <Text className=' text-center text-base font-semibold mt-3'>Danh sách các buổi học</Text>
+      <ScrollView className='mt-3'>
+        {listReview.length == 0 ? <View className='flex-1 items-center justify-center h-full'>
+          <Text className='text-gray-500'>Không tìm thấy</Text>
+          </View> 
+          :
+          listReview.map((item, index) => {
             return !item.reviewed ? (
               <TouchableOpacity
                 key={index}
@@ -119,27 +126,7 @@ export default function Review({ }: Props) {
               </TouchableOpacity>
             );
           })}
-          {/* <TouchableOpacity onPress={()=>clickReview()} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
-                    
-                    <View className='mx-auto items-center justify-center'>
-                        <Text>Thứ 6, 18/05/2024</Text>
-                        <Text className='text-[#FE3535] text-base font-mmedium mt-1'>Chưa đánh giá</Text>
-                    </View>
-                    <FontAwesome6 name="exclamation" size={22} color="#FE3535" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={()=>clickReview()} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
-                    <View className='mx-auto items-center justify-center'>
-                        <Text>Thứ 6, 18/05/2024</Text>
-                        <Text className='text-green text-base font-mmedium mt-1'>Đã đánh giá</Text>
-                    </View>
-                </TouchableOpacity>
-                <TouchableOpacity className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
-                    <View className='mx-auto items-center justify-center'>
-                        <Text>Thứ 6, 18/05/2024</Text>
-                        <Text className='text-orange text-base font-mmedium mt-1'>Hết hạn đánh giá</Text>
-                    </View>
-                </TouchableOpacity> */}
-        </ScrollView>
-      </SafeAreaView>
-    );
+      </ScrollView>
+    </SafeAreaView>
+  );
 }

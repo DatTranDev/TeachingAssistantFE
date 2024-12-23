@@ -48,9 +48,9 @@ export default function SignIn({ }: Props) {
     })
 
     const { login } = authContext;
-    const registerFCMToken = async (acessToken: string, userId: string) => {
+    const registerFCMToken = async (accessToken: string, userId: string) => {
         const urlGetSubject = `${localHost}/api/v1/subject/findByUserId/${userId}`;
-        const response = await get({ url: urlGetSubject, token: acessToken });
+        const response = await get({ url: urlGetSubject, token: accessToken });
         let topics = [];
         if (response) {
             if (response.status == 200) {
@@ -73,7 +73,7 @@ export default function SignIn({ }: Props) {
                 token: token,
                 topics: topics
             }
-            const response = await post({ url, data, token: acessToken });
+            const response = await post({ url, data, token: accessToken });
             if (response) {
                 if (response.status == 200) {
                     console.log(response.data)
@@ -110,12 +110,12 @@ export default function SignIn({ }: Props) {
                     }
                     if (response.status == 200) {
                         const result = await response.data;
+                        await login(result.data, result.accessToken, result.refreshToken);
                         const FCMregister = await registerFCMToken(result.accessToken, result.data.id);
                         if(!FCMregister){
                             setLoading(false);
                             return;
                         }
-                        await login(result.data, result.accessToken, result.refreshToken);
                         if(result.data.role=='student')
                         {
                             router.replace('/(student)/timetable')

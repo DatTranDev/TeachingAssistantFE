@@ -10,151 +10,183 @@ import { useLocalSearchParams } from 'expo-router';
 import get from '@/utils/get';
 import * as Location from 'expo-location';
 import post from '@/utils/post';
+import { formatDate, formatNoWeekday } from '@/utils/formatDate';
+import Loading from '@/components/ui/Loading';
 type Props = {}
-export type Attend={
-    id:string,
-    date:string,
-    status:boolean
+export type Attend = {
+    id: string,
+    date: string,
+    status: string,
+    sessionNumber:number,
+    teacherLatitude:number,
+    teacherLongitude:number
 }
 export default function RollCall({ }: Props) {
-    const authContext = useContext(AuthContext);  
+    const authContext = useContext(AuthContext);
     if (!authContext) {
-      Alert.alert("Thông báo", "Đã xảy ra lỗi")
-      return;
+        Alert.alert("Thông báo", "Đã xảy ra lỗi")
+        return;
     }
-    const {subjectId}=useLocalSearchParams()
-    const {accessToken,user}=authContext;
-    const [attends,setAttends]=useState<Attend[]>([])
-    const [location, setLocation] = useState<{
-        latitude: number;
-        longitude: number;
-    } | null>(null);
+    
+    const { subjectId,code } = useLocalSearchParams()
+    const { accessToken, user,FCMToken } = authContext;
+    const [attends, setAttends] = useState<Attend[]>([])
+    const [locationLongitude, setLocationLongitude] = useState<number>(0);
+    const [locationLatitude, setLocationLatitude] = useState<number>(0);
+    const [absent, setAbsent] = useState<number>(0);
+    const [totalRollCall, setTotalRollCall] = useState<number>(0);
+    const [loading, setLoading] = useState<boolean>(false);
+    useEffect(() => {
+        async function getData() {
+            setLoading(true);
+            const url = `${localHost}/api/v1/cAttend/findBySubject/${subjectId}`
+            const res = await get({ url: url, token: accessToken })
+            const url2 = `${localHost}/api/v1/subject/${subjectId}/user/${user?.id}/attendRecords`
+            const res2 = await get({ url: url2, token: accessToken })
 
-    function formatDate(dateString: string) {
-        const options: Intl.DateTimeFormatOptions = {
-          weekday: 'long', // Thứ trong tuần
-          day: '2-digit',  // Ngày
-          month: '2-digit', // Tháng
-          year: 'numeric',  // Năm
-        };
-        const date = new Date(dateString);
-        // const vietnameseWeekdays = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
-        // const weekday = vietnameseWeekdays[date.getDay()];
-        // Chuyển đổi ngày tháng năm sang định dạng yêu cầu
-        console.log(date)
-        const formattedDate = `${date.toLocaleDateString('vi-VN', options)}`;
-        return formattedDate;
-      }
-    useEffect(()=>{
-        async function getData () {
-            const url=`${localHost}/api/v1/cAttend/findBySubject/${subjectId}`
-            const res= await get({url:url,token:accessToken})
-            const url2=`${localHost}/api/v1/subject/${subjectId}/user/${user?.id}/attendRecords`
-            const res2= await get({url:url2,token:accessToken})
-            
-            if(res && res.status==200 && res2 && res2.status==200){
-                const listAttend=res.data.cAttends;
-                const listReview=res2.data.attendRecords;
-                const data= listAttend.map((item:any)=>({
-                    id:item.id,
-                    date:item.date,
-                    status:listReview.find((review:any)=>review.cAttendId.id==item.id)?true:false
-                }))
+            if (res && res.status == 200 && res2 && res2.status == 200) {
+                const listAttend = res.data.cAttends;
+                const listReview = res2.data.attendRecords.filter((item: any) => item.status != "KP");
+                let totalRollCall = 0;
+                let absent = 0;
+                const data = listAttend.map((item: any) => {
+                    if (item.isActive) {
+                        totalRollCall++;
+                        let status = "Chưa điểm danh";
+                        if (item.timeExpired == 0) {
+                            status = "Hết hạn điểm danh";
+                        }
+                        status = listReview.find((review: any) => review.cAttendId.id == item.id) ? "Đã điểm danh" : status
+                        if (status != "Đã điểm danh") {
+                            absent++;
+                        }
+                        return {
+                            id: item.id,
+                            date: item.date,
+                            status: status,
+                            sessionNumber: item.sessionNumber,
+                            teacherLatitude: item.teacherLatitude,
+                            teacherLongitude: item.teacherLongitude
+                        }
+                    }
+                    return null; // Trả về null nếu item không active
+                }).filter((item: any) => item !== null).sort((a: Attend, b: Attend) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Lọc bỏ các item null và sắp xếp giảm dần theo ngày
                 setAttends(data)
-            }                   
+                setAbsent(absent)
+                setTotalRollCall(totalRollCall)
+               
             }
-            getData()
-    },[])
-    const router=useRouter()
+            setLoading(false);
+        }
+        getData()
+    }, [])
+    const router = useRouter()
     const getLocation = async () => {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
             Alert.alert('Thông báo', 'Cần cấp quyền truy cập vị trí để điểm danh');
-            return;
+            return null;
         }
         let currentLocation = await Location.getCurrentPositionAsync({});
-        setLocation({
-            latitude: currentLocation.coords.latitude,
-            longitude: currentLocation.coords.longitude
-        });
+       return{
+        longitude:currentLocation.coords.longitude,
+        latitude:currentLocation.coords.latitude
+       }
     };
 
-    const clickRollCall = async (attend:Attend) => {
-       
-        await getLocation();
-        if(!attend.status){
-            console.log(location)
-            const url=`${localHost}/api/v1/cAttend/attendrecord/add`
-            const data={
-                cAttendId:attend.id,
-                studentId:user?.id,
-                studentLatitude: location?.latitude,
-                studentLongitude: location?.longitude
+    const clickRollCall = async (attend: Attend) => {
+        setLoading(true);
+        let location = null;
+        if(attend.teacherLatitude == 0 && attend.teacherLongitude == 0){
+            location = {
+                longitude:0,
+                latitude:0
+            }
+        }
+        else{
+            location = await getLocation();
+        }
+        if(!location){
+            return;
+        }
+
+        if (attend.status == "Chưa điểm danh") {
+            const url = `${localHost}/api/v1/cAttend/attendrecord/add`
+            const data = {
+                cAttendId: attend.id,
+                studentId: user?.id,
+                studentLatitude: location.latitude,
+                studentLongitude: location.longitude,
+                FCMToken: FCMToken
             }
             console.log(data)
             const res = await post({ url: url, token: accessToken, data: data })
-            if(res){
+            if (res) {
                 console.log(res.data)
             }
-            if(res && res.status==201){
-                const record=res.data.attendRecord;
-                if(record.status=="CM"){
+            if (res && res.status == 201) {
+                const record = res.data.attendRecord;
+                console.log(record.status)
+                if (record.status == "CM") {
+                    setAttends(attends.map((item: Attend) => item.id == attend.id ? { ...item, status: "Đã điểm danh" } : item))
                     Alert.alert("Thông báo", "Điểm danh thành công")
-            }
-            if(record.status=="KP"){
-                Alert.alert("Thông báo", "Điểm danh không thành công")
+                }
+                if (record.status == "KP") {
+                    Alert.alert("Thông báo", "Điểm danh không thành công")
+                }
             }
         }
-        }
+        setLoading(false);
     }
 
     return (
         <View>
-            <View className=' pb-[1.5%]  border-b-[1px] border-gray-200 flex-row  pt-[12%] px-[4%] items-center mr-6 '>
-                <TouchableOpacity onPress={router.back}>
-                    <Ionicons name="chevron-back-sharp" size={24} color="black" />
-                </TouchableOpacity>
-                <View className='mx-auto items-center'>
-                    <Text className='text-[18px] font-msemibold uppercase'>SE310.P12</Text>
-                    <Text className='mt-[-3px]'>Điểm danh</Text>
-                </View>
-            </View>
-            <Text className='font-msemibold text-blue_primary mt-[5%] ml-[5%]'>Đã vắng 1/5 buổi</Text>
+            <Loading loading={loading} />
+           <View className=' shadow-md  pb-[1.8%] bg-blue_primary flex-row  pt-[12%] px-[4%] items-center '>
+          <TouchableOpacity onPress={router.back}>
+            <Ionicons name='chevron-back-sharp' size={24} color='white' />
+          </TouchableOpacity>
+          <View className='mx-auto items-center pr-6'>
+            <Text className='text-[18px] font-msemibold uppercase text-white'>
+              {code}
+            </Text>
+            <Text className='mt-[-3px] text-white font-mmedium'>
+              Điểm danh
+            </Text>
+          </View>
+        </View>
+        <Text className=' text-center text-base font-semibold mt-[4%]'>Danh sách các buổi học</Text>
+            {attends.length>0&&<Text className='font-medium text-blue_primary text-center -mt-[2px]'>Đã vắng {absent}/{totalRollCall} buổi</Text>}
             <ScrollView className='mt-3'>
-                {attends.map((item,index)=>(
-                    !item.status?
-                    <TouchableOpacity key={index} onPress={()=>clickRollCall(item)} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
-                        <View className='mx-auto items-center justify-center'>
-                        <Text>Thứ 6, 18/05/2024</Text>
-                        <Text className='text-[#FE3535] text-base font-mmedium mt-1'>Chưa điểm danh</Text>
-                    </View>
-                        <FontAwesome6 name="exclamation" size={22} color="#FE3535" />
-                    </TouchableOpacity>
-                    :
-                   
-                    <TouchableOpacity key={index} onPress={()=>clickRollCall(item)} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
-                        <View className='mx-auto items-center justify-center'>
-                            <Text>Thứ 6, 18/05/2024</Text>
-                            <Text className='text-green text-base font-mmedium mt-1'>Đã điểm danh</Text>
-                        </View>
-                    </TouchableOpacity>
-                
-                   
+                {   attends.length==0?<View className='flex-1 items-center justify-center h-full'>
+          <Text className='text-gray-500'>Không tìm thấy</Text>
+          </View> 
+          :
+          attends.map((item, index) => (
+                    item.status == "Chưa điểm danh" ?
+                        <TouchableOpacity key={index} onPress={() => clickRollCall(item)} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
+                            <View className='mx-auto items-center justify-center'>
+                                <Text>Buổi {item.sessionNumber} - {formatDate(item.date)}</Text>
+                                <Text className='text-[#FE3535] text-base font-mmedium mt-1'>Chưa điểm danh</Text>
+                            </View>
+                            <FontAwesome6 name="exclamation" size={22} color="#FE3535" />
+                        </TouchableOpacity>
+                        : (item.status == "Đã điểm danh" ?
+                            <View key={index} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
+                                <View className='mx-auto items-center justify-center'>
+                                    <Text>Buổi {item.sessionNumber} - {formatNoWeekday(item.date)}</Text>
+                                    <Text className='text-green text-base font-mmedium mt-1'>Đã điểm danh</Text>
+                                </View>
+                            </View>
+                            :
+                            <View key={index} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
+                                <View className='mx-auto items-center justify-center'>
+                                    <Text>Buổi {item.sessionNumber} - {formatNoWeekday(item.date)}</Text>
+                                    <Text className='text-orange text-base font-mmedium mt-1'>Hết hạn điểm danh</Text>
+                                </View>
+                            </View>
+                        )
                 ))}
-
-                {/* <View className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
-                    <View className='mx-auto items-center justify-center'>
-                        <Text>Thứ 6, 18/05/2024</Text>
-                        <Text className='text-green text-base font-mmedium mt-1'>Đã điểm danh</Text>
-                    </View>
-                </View>
-                <View className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
-                    <View className='mx-auto items-center justify-center'>
-                        <Text>Thứ 6, 18/05/2024</Text>
-                        <Text className='text-orange text-base font-mmedium mt-1'>Hết hạn điểm danh</Text>
-                    </View>
-                </View> */}
-
             </ScrollView>
         </View>
     )

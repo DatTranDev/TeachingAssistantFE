@@ -37,6 +37,7 @@ import Feather from '@expo/vector-icons/Feather';
 import { EvilIcons, FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { localHost } from '@/utils/localhost';
 import { colors } from '@/constants/colors';
+import patch from '@/utils/patch';
 
 export type Question = {
   _id: string;
@@ -169,6 +170,9 @@ export default function GeneralRoom() {
     // Kiểm tra nếu hiệu của hai thời điểm lớn hơn 10 phút
     return diffMinutes > 5;
   };
+  const recallQuestion = async (Id: string) => {
+        setQuestionList(prevList => prevList.map(item => item._id === Id ? {...item, isResolved: true} : item));
+  }
 
   const renderQuestion = () => {
     const list: JSX.Element[] = [];
@@ -177,14 +181,8 @@ export default function GeneralRoom() {
     if (totalMessages === 0) {
       return (
         <Text
-          style={{
-            marginHorizontal: 'auto',
-            marginVertical: 'auto',
-            fontSize: 18,
-            color: '#FF9400',
-            marginTop: '80%'
-          }}>
-          Gửi thắc mắc của bạn tại đây!
+        className='mx-auto text-base text-blue_primary mt-[80%]'>
+          Thảo luận cùng nhau tại đây !
         </Text>
       );
     }
@@ -261,11 +259,15 @@ export default function GeneralRoom() {
       list.push(
         <Question
           key={currentQuestion._id}
+          Id={currentQuestion._id}
+          SenderId={currentQuestion.studentId.id}
+          IsRecall={currentQuestion.isResolved}
           User={sender}
           Content={currentQuestion.content}
           Time={shouldDisplayTime ? formatTimeQuestion(time) : ''}
           Avatar={isSameSender ? 'no' : sender && user ? user?.avatar : ''}
           Type={currentQuestion.type}
+          HandleRecall={recallQuestion}
         />
       );
     }
@@ -288,15 +290,7 @@ export default function GeneralRoom() {
     setLoading(false);
   };
 
-  const generateID = () => {
-    const codeInit = 'qwertyuiopasdfghjklzxcvbnm1234567890';
-    let code = '';
-    for (let i = 0; i < 10; i++) {
-      const index = Math.floor(Math.random() * codeInit.length);
-      code += codeInit.charAt(index);
-    }
-    return code;
-  };
+ 
   const sendQuestion = async (Type: string, Content: string) => {
     if (!Content || Content == '') {
       Content = message;
@@ -310,12 +304,9 @@ export default function GeneralRoom() {
       type: Type,
       isResolved: false
     };
-
-    const idMsg = generateID();
-
     if (user) {
       const msg: Question = {
-        _id: idMsg,
+        _id: "",
         subjectId: `${subjectId}`,
         content: Content,
         studentId: {
@@ -330,11 +321,8 @@ export default function GeneralRoom() {
         isResolved: false,
         updatedAt: `${new Date().toISOString()}`,
         __v: '0',
-        id: idMsg
+        id: ""
       };
-
-      setQuestionList(prevList => [...prevList, msg]);
-
       const url = `${localHost}/api/v1/question/add`;
 
       const response = await post({
@@ -344,30 +332,35 @@ export default function GeneralRoom() {
       });
 
       if (response) {
-        if (socketContext?.socket) {
-          const dataMsg = {
-            title: `${name}`, //Tên môn học
-            body: Type == 'text' ? msg.content : 'Đã gửi một ảnh', //Nội dung tin nhắn
-            type: 'message', //Loại tin nhắn
-            senderId: user.id, //ID người gửi
-            sender: 'Ẩn danh', //Tên người gửi
-            subject: `${name}`, //Tên môn học
-            room: '' //Phòng học
-          };
-          socketContext.socket.emit('sendMessageToSubject', {
-            subjectID: subjectId,
-            message: msg,
-            dataMsg: dataMsg
-          });
+        if(response.status==201){
+          msg.id=response.data.question.id
+          msg._id=response.data.question._id
+          setQuestionList(prevList => [...prevList, msg]);
+          if (socketContext?.socket) {
+            const dataMsg = {
+              title: `${name}`, //Tên môn học
+              body: Type == 'text' ? msg.content : 'Đã gửi một ảnh', //Nội dung tin nhắn
+              type: 'message', //Loại tin nhắn
+              senderId: user.id, //ID người gửi
+              sender: 'Ẩn danh', //Tên người gửi
+              subject: `${name}`, //Tên môn học
+              room: '' //Phòng học
+            };
+            socketContext.socket.emit('sendMessageToSubject', {
+              subjectID: subjectId,
+              message: msg,
+              dataMsg: dataMsg
+            });
+          }
         }
+        
         if (response.status != 201) {
-          const msgList = questionList.filter(value => value._id !== idMsg);
-
-          setQuestionList(msgList);
-
-          Alert.alert('Alert', 'Message could not be sent');
+          Alert.alert('Thông báo','Không thể gửi tin nhắn !');
           return false;
         }
+      }else{
+          Alert.alert('Thông báo','Không thể gửi tin nhắn !');
+          return false;
       }
     }
   };
@@ -477,7 +470,7 @@ export default function GeneralRoom() {
             <Text className='text-[18px] font-msemibold uppercase text-white'>
               {code}
             </Text>
-            <Text className='mt-[-3px] text-white font-mmedium'>Trao đổi</Text>
+            <Text className='mt-[-3px] text-white font-mmedium'>Thảo luận</Text>
           </View>
         </View>
         <LinearGradient

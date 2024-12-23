@@ -12,6 +12,7 @@ import { formatNoWeekday, formatDate } from '@/utils/formatDate';
 import ButtonCustom from '@/components/ui/ButtonCustom';
 import Entypo from '@expo/vector-icons/Entypo';
 import post from '@/utils/post';
+import Loading from '@/components/ui/Loading';
 type Props = {}
 export type Attend = {
   attendId: string,
@@ -35,6 +36,7 @@ export default function Sessions({ }: Props) {
   const router = useRouter()
   const { subjectId, code } = useLocalSearchParams()
   const [currentSession, setCurrentSession] = useState<Attend | null>(null)
+  const [loading,setLoading]=useState<boolean>(false)
   const getClassSessionId = async () => {
     const today = new Date().getDay();
     const url = `${localHost}/api/v1/classSession/findByUser/${user?.id}`;
@@ -68,6 +70,7 @@ export default function Sessions({ }: Props) {
   }
     useEffect(() => {
       async function getData() {
+        setLoading(true);
         const url = `${localHost}/api/v1/cAttend/findBySubject/${subjectId}`
         const res = await get({ url: url, token: accessToken })
         if (res && res.status == 200) {
@@ -83,6 +86,7 @@ export default function Sessions({ }: Props) {
           }, null))
           setListSession(data.reverse())
         }
+        setLoading(false)
       }
       getData()
     }, [])
@@ -145,6 +149,7 @@ export default function Sessions({ }: Props) {
 
     return (
       <SafeAreaView className='flex-1'>
+        <Loading loading={loading}/>
         <View className=" shadow-md  pb-[1.5%] bg-blue_primary flex-row  pt-[12%] px-[4%] items-center ">
           <TouchableOpacity onPress={router.back}>
             <Ionicons name="chevron-back-sharp" size={24} color="white" />

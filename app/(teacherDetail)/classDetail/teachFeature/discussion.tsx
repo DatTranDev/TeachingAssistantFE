@@ -130,7 +130,7 @@ export default function Discussion() {
             <Text
                className="text-blue_primary"
                style={{ marginHorizontal: "auto", marginVertical: "auto", fontSize: 18, marginTop: "80%" }}>
-               Gửi bài tập nhóm tại đây !
+               Không có câu hỏi nào !
             </Text>
          );
       }
@@ -178,6 +178,7 @@ export default function Discussion() {
                isResolved={currentPost.isResolved}
                reactions={currentPost.reactions}
                myId={user?.id || null}
+               handleKickStudent={kickStudent}
             />
          );
       }
@@ -202,6 +203,38 @@ export default function Discussion() {
    const handleDeletePost = (Id: string) => {
       setPostList(prevList => prevList.filter(item => item.id != Id));
    };
+   const kickStudent= async (studentId:string)=>{
+      Alert.alert(
+        "Xác nhận",
+        "Bạn có chắc chắn muốn mời người này ra khỏi lớp học này không?",
+        [
+          {
+            text: "Hủy",
+            style: "cancel"
+          },
+          {
+            text: "Đồng ý",
+            onPress: async () => {
+              setUploading(true)
+              const res = await post({
+                url: `${localHost}/api/v1/subject/leave`,
+                data: { studentId: studentId, subjectId: subjectId },
+                token: accessToken
+              });
+              setUploading(false)
+              if (res) {
+                if (res.status == 200) {
+                  await loadPost()
+                  Alert.alert('Thông báo', "Đã mời sinh viên ra khỏi lớp học thành công");
+                } else {
+                  Alert.alert('Lỗi', "Đã xảy ra lỗi");
+                }
+              }
+            }
+          }
+        ]
+      );
+    }
    useEffect(() => {
       loadPost();
    }, []);

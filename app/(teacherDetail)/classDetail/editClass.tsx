@@ -188,7 +188,7 @@ export default function EditClass({
             <Ionicons name='chevron-back-sharp' size={24} color='white' />
           </TouchableOpacity>
           <Text className='mx-auto text-[18px] font-msemibold text-white uppercase pr-6'>
-              Sửa lớp học
+              Cập nhật thông tin
             </Text>
         </View>
         <View className='px-8 mb-10'>
@@ -207,9 +207,9 @@ export default function EditClass({
             handle={setCode}
           />
           <Text className="text-[16px] font-msemibold text-gray_primary mb-2">Số buổi học</Text>
-          <View className="mx-auto p-0 bg-white w-[100%] border-[1px] rounded-2xl border-gray-300 mb-2">
+          <View className="mx-auto p-0 bg-white w-[100%] border-[1px] rounded-2xl border-gray-300 mb-1">
             <Picker 
-                style={{padding: 0, margin: 0}}
+                style={{padding: 0, margin: 0, color:'gray'}}
                 enabled={false}
                 selectedValue={numberOfSesion}
                 onValueChange={(a)=>setNumberOfSesion(a)} >
