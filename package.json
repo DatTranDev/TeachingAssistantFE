@@ -53,7 +53,9 @@
     "socket.io-client": "^4.8.1",
     "expo-camera": "~15.0.16",
     "@react-native-community/datetimepicker": "8.0.1",
-    "@shopify/react-native-skia": "1.2.3"
+    "@shopify/react-native-skia": "1.2.3",
+    "expo-intent-launcher": "~11.0.1",
+    "expo-clipboard": "~6.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
