@@ -16,12 +16,14 @@ import deleteApi from "@/utils/delete";
 import { Reaction } from "@/app/(studentDetail)/classDetail/discussionRoom";
 import patch from "@/utils/patch";
 import { downloadImage } from "@/utils/downloadImage";
+import { SocketContext } from "@/context/SocketContext";
 
 type Props = {
    Title: string;
    Content: string;
    Time: string;
    Id: string;
+   CAttendId: string|string[];
    Images: string[];
    nameAnonymous: string;
    isResolved: boolean;
@@ -46,6 +48,7 @@ export default function DiscussionPost({
    Title,
    Time,
    Id,
+   CAttendId,
    Images,
    nameAnonymous,
    isResolved,
@@ -55,6 +58,7 @@ export default function DiscussionPost({
    handleDeletePost
 }: Props) {
    const authContext = useContext(AuthContext);
+   const socketContext = useContext(SocketContext);
    if (!authContext) {
       return;
    }
@@ -81,7 +85,7 @@ export default function DiscussionPost({
    };
    useEffect(() => {
       resetReaction();
-   }, []);
+   }, [isResolved, reactions]);
    const handleDownload = async (imageUrl: string) => {
       try {
          await Linking.openURL(imageUrl);
@@ -108,7 +112,15 @@ export default function DiscussionPost({
                   });
                   resetReaction();
                   setMyReaction({ ...myReaction, type: type });
-               } else {
+                  if(socketContext)
+                     {
+                        const {socket}=socketContext;
+                        let ins = myReaction;
+                        ins.type = type;
+                        ins.discussionId = Id;
+                        socket.emit('sendUpdateReaction', {subjectID:CAttendId, messageID: Id,reaction: ins});
+                     } 
+               } else {``
                   Alert.alert("Thất bại", "Không thể cập nhật phản hồi");
                }
             }
@@ -140,6 +152,12 @@ export default function DiscussionPost({
                      return [...prev, { type: type, count: 1 }];
                   }
                });
+               if(socketContext)
+               {
+                  const {socket}=socketContext;
+                  newReaction.discussionId = Id;
+                  socket.emit('sendReaction', {subjectID:CAttendId, messageID: Id,reaction: newReaction});
+               }
             } else {
                Alert.alert("Thất bại", "Không thể thêm phản hồi");
             }
@@ -156,13 +174,18 @@ export default function DiscussionPost({
                setReactionModalVisible(false);
                Alert.alert("Thành công", "Đã xóa bài đăng");
                handleDeletePost(Id);
+               if(socketContext)
+               {
+                  const {socket}=socketContext;
+                  socket.emit('sendDeleteMessage', {subjectID:CAttendId, messageID: Id});
+               }
             }
          } else {
             Alert.alert("Thất bại", "Không thể xóa bài đăng");
+
          }
       }
    };
-
    return (
       <View className="w-full ">
          <Modal

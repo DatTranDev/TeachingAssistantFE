@@ -13,6 +13,7 @@ import { localHost } from "@/utils/localhost";
 import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "expo-router";
 import deleteApi from "@/utils/delete";
+import { SocketContext } from "@/context/SocketContext";
 import { Reaction } from "@/app/(studentDetail)/classDetail/discussionRoom";
 import patch from "@/utils/patch";
 
@@ -23,6 +24,7 @@ type Props = {
    Id: string;
    Images: string[];
    nameAnonymous: string;
+   CAttendId?: string;
    isResolved: boolean;
    reactions: Reaction[];
    myId: string | null;
@@ -37,6 +39,7 @@ type Props = {
    };
    handleDeletePost: (Id: string) => void;
    handleKickStudent: (studentId: string) => void;
+   handleReceiveReaction?: (reaction: Reaction) => void;
 };
 type ReactionShow = {
    type: number;
@@ -49,11 +52,13 @@ export default function postDiscussionTeacher({
    Time,
    Id,
    Images,
+   CAttendId,
    nameAnonymous,
    isResolved,
    reactions,
    myId,
    Creator,
+   handleReceiveReaction,
    handleDeletePost,
    handleKickStudent
 }: Props) {
@@ -61,6 +66,7 @@ export default function postDiscussionTeacher({
    if (!authContext) {
       return;
    }
+   const socketContext = useContext(SocketContext);
    const { user, accessToken } = authContext;
    const [selectedImage, setSelectedImage] = useState("");
    const [modalVisible, setModalVisible] = useState(false);
@@ -83,7 +89,7 @@ export default function postDiscussionTeacher({
    };
    useEffect(() => {
       resetReaction();
-   }, []);
+   }, [reactions]);
    const handleDownload = async (imageUrl: string) => {
       try {
          await Linking.openURL(imageUrl);
@@ -101,6 +107,9 @@ export default function postDiscussionTeacher({
                setReactionModalVisible(false);
                Alert.alert("Thành công", "Đã xóa bài đăng");
                handleDeletePost(Id);
+               if(socketContext){
+                  const {socket} = socketContext;
+                  socket.emit("sendDeleteMessage", {subjectID:  CAttendId, messageID: Id});               }
             }
          } else {
             Alert.alert("Thất bại", "Không thể xóa bài đăng");
@@ -119,12 +128,23 @@ export default function postDiscussionTeacher({
             if (res.status == 200) {
                isResolved = true;
                setReply(true);
+               if(socketContext){
+                  const {socket} = socketContext;
+                  socket.emit("sendResolve", {subjectID:  CAttendId, messageID: Id});
+               }
+
             } else {
                Alert.alert("Thất bại", "Không thể trả lời bài đăng");
             }
          }
       }
    };
+   useEffect(() => {
+      if (socketContext) {
+         const { socket } = socketContext;
+         //socket.emit('joinSubject', { userID: user?.id,subjectID: CAttendId });
+      }
+   }  , []);
    return (
       <View className="w-full ">
          {/* modal phản hồi */}
