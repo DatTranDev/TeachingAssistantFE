@@ -81,9 +81,14 @@ export default function Document({}: Props) {
           <Text className='mt-[-3px] text-white font-mmedium'>Tài liệu</Text>
         </View>
       </View>
+      <Text className=' text-center text-base font-semibold mt-[4%]'>Danh sách các buổi học</Text>
       <ScrollView className='h-full'>
-        <View className='mt-4'></View>
-        {listDocument.map((item, index) => (
+        <View className='mt-3'></View>
+        {listDocument.length==0?<View className='flex-1 items-center justify-center h-full'>
+          <Text className='text-gray-500'>Không tìm thấy</Text>
+          </View> 
+          :
+          listDocument.map((item, index) => (
           <TouchableOpacity
             key={index}
             onPress={() => clickDocument(item.attendId, item.date,item.sessionNumber)}

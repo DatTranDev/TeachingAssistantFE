@@ -61,6 +61,7 @@ export type Discussion = {
 };
 export type Reaction = {
    type: number;
+   discussionId?: string;
    id: string;
    userId: {
       id: string;
@@ -130,7 +131,7 @@ export default function Discussion() {
             <Text
                className="text-blue_primary"
                style={{ marginHorizontal: "auto", marginVertical: "auto", fontSize: 18, marginTop: "80%" }}>
-               Gửi bài tập nhóm tại đây !
+               Không có câu hỏi nào !
             </Text>
          );
       }
@@ -169,6 +170,7 @@ export default function Discussion() {
                handleDeletePost={handleDeletePost}
                key={currentPost.id}
                Content={currentPost.content}
+               CAttendId={currentPost.cAttendId}
                Time={formatTimePost(time)}
                Creator={currentPost.creator}
                Title={currentPost.title}
@@ -178,6 +180,7 @@ export default function Discussion() {
                isResolved={currentPost.isResolved}
                reactions={currentPost.reactions}
                myId={user?.id || null}
+               handleKickStudent={kickStudent}
             />
          );
       }
@@ -202,9 +205,111 @@ export default function Discussion() {
    const handleDeletePost = (Id: string) => {
       setPostList(prevList => prevList.filter(item => item.id != Id));
    };
+   const kickStudent= async (studentId:string)=>{
+      Alert.alert(
+        "Xác nhận",
+        "Bạn có chắc chắn muốn mời người này ra khỏi lớp học này không?",
+        [
+          {
+            text: "Hủy",
+            style: "cancel"
+          },
+          {
+            text: "Đồng ý",
+            onPress: async () => {
+              setUploading(true)
+              const res = await post({
+                url: `${localHost}/api/v1/subject/leave`,
+                data: { studentId: studentId, subjectId: subjectId },
+                token: accessToken
+              });
+              setUploading(false)
+              if (res) {
+                if (res.status == 200) {
+                  await loadPost()
+                  Alert.alert('Thông báo', "Đã mời sinh viên ra khỏi lớp học thành công");
+                } else {
+                  Alert.alert('Lỗi', "Đã xảy ra lỗi");
+                }
+              }
+            }
+          }
+        ]
+      );
+    }
    useEffect(() => {
       loadPost();
    }, []);
+   useEffect(() => {
+     if (socketContext) {
+       console.log('socket: ', socketContext.socket.id);
+       const { socket } = socketContext;
+       if (socket) {
+         socket.emit('joinSubject', { userID: user?.id,subjectID: cAttendId });
+         socket.on('receiveSubjectMessage', (message: Discussion) => {
+           if(message.creator.id!=user?.id)
+             setPostList((prevList) => [...prevList, message]);
+           scrollViewRef.current?.scrollToEnd({ animated: true });
+         });
+         socket.on("receiveReaction", (object: any) => {
+            const reaction = object.reaction;
+            setPostList(prevList =>
+               prevList.map(post => {
+                  if (post.id == reaction.discussionId) {
+                     const newReaction:Reaction = {
+                        type: reaction.type,
+                        discussionId: reaction.discussionId,
+                        id: reaction.id,
+                        userId: {
+                           id: reaction.userId.id,
+                           name: reaction.userId.name,
+                           userCode: reaction.userId.userCode,
+                           avatar: reaction.userId.avatar
+                        }
+                     }
+                     return {
+                        ...post,
+                        reactions: [...post.reactions, newReaction]
+                     };
+                  }
+                  return post;
+               })
+            );
+         });
+         socket.on("receiveUpdateReaction", (object:any) => {
+            const reaction:Reaction = object.reaction;
+            setPostList(prevList =>
+               prevList.map(post => {
+                  if (post.id === reaction.discussionId) {
+                     return {
+                        ...post,
+                        reactions: post.reactions.filter(item => item.id !== reaction.id).concat(reaction)
+                     };
+                  }
+                  return post;
+               })
+            );
+         });
+         socket.on('receiveDeleteMessage', (messageID: string) => {
+             setPostList((prevList) => prevList.filter((message) => message.id !== messageID));
+          });
+          
+       }
+     }
+     return () => {
+       if (socketContext) {
+         const { socket } = socketContext;
+         if (socket) {
+           socket.emit('leaveSubject', { userID: user?.id,subjectID: cAttendId });
+           socket.off('receiveSubjectMessage');
+           socket.off("receiveReaction");
+           socket.off("receiveDeletePost");
+           socket.off("receiveUpdateReaction");
+             socket.off("receiveDeleteMessage");
+         }
+       }
+     };
+     }, [socketContext]);
    return (
       <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
          <View className="justify-center h-full flex-1 w-full relative">

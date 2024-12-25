@@ -16,6 +16,7 @@ import { Camera, CameraView } from "expo-camera";
 
 import { Canvas, DiffRect, rect, rrect } from "@shopify/react-native-skia";
 import { Dimensions, Platform, StyleSheet } from "react-native";
+import Loading from '@/components/ui/Loading';
 
 const { width, height } = Dimensions.get("window");
 
@@ -40,7 +41,7 @@ export default function AddClass({ }: Props) {
     const [permission, requestPermission] = useCameraPermissions();
 
     const isPermissionGranted = Boolean(permission?.granted);
-
+    const [loading, setLoading] = useState(false)
     const [modalVisible, setModalVisible] = useState(false)
     const authContext = useContext(AuthContext);
     const router= useRouter();
@@ -62,7 +63,9 @@ export default function AddClass({ }: Props) {
                 "studentId": user?.id,
                 "joinCode": code
             }
+            setLoading(true)
             const response= await post({url,data,token:accessToken})
+            setLoading(false)
             if(response)
             {
                 if(response.status==201)
@@ -90,6 +93,7 @@ export default function AddClass({ }: Props) {
     }
     return (
       <SafeAreaView className='flex-1'>
+        <Loading loading={loading}/>
         <View className=' pb-[3.5%]  border-b-[1px] border-gray-200 flex-row  pt-[13%] px-[4%] items-center bg-blue_primary '>
           <TouchableOpacity onPress={router.back}>
             <Ionicons name='chevron-back-sharp' size={24} color='white' />
@@ -106,15 +110,16 @@ export default function AddClass({ }: Props) {
           </TouchableOpacity>
         </View>
         <View>
+          <Text className='text-base font-msemibold mt-[5%] -mb-5 ml-[16%]'>Nhập mã lớp học</Text>
           <InputLayout
-            placeHorder='Nhập mã lớp học'
+            placeHorder='ABCDEF'
             value={code}
             handle={setCode}
-            style='w-[70%] mt-[2%]'
+            style='w-[70%] '
           />
           <ButtonCustom
             content='Tham gia'
-            otherStyle='w-[35%] mt-[8%]'
+            otherStyle='w-[35%] mt-[7%]'
             handle={search}
           />
         </View>
@@ -133,6 +138,7 @@ export default function AddClass({ }: Props) {
                     setTimeout(async () => {
                       setModalVisible(false)
                     }, 500);
+                    search()
                   }
                 }}
               />

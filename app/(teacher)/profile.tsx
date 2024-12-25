@@ -5,6 +5,7 @@ import { images } from '@/constants/image'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import ButtonCustom from '@/components/ui/ButtonCustom';
 import { useRouter,Redirect } from 'expo-router';
+import Loading from '@/components/ui/Loading';
 
 
 type Props = {}
@@ -12,6 +13,7 @@ type Props = {}
 export default function Profile({ }: Props) {
   const authContext = useContext(AuthContext);
   const router= useRouter()
+  const [loading,setLoading]= useState(false)
   if (!authContext) {
     return;
   }
@@ -20,8 +22,14 @@ export default function Profile({ }: Props) {
   const edit=()=>{
       router.push('/(studentDetail)/profileDetail/editProfile')
   }
+  const handleLogout= async ()=>{
+    setLoading(true)
+    await logout()
+    setLoading(false)
+  }
   return (
     <SafeAreaView className='flex-1'>
+      <Loading loading={loading}/>
       <View >
         <View className='bg-blue_primary pb-[3.5%]  border-b-[1px] border-gray-200 '>
           <Text className='mx-auto mt-[13%] text-[18px] font-msemibold text-white uppercase'>Thông tin cá nhân</Text>
@@ -49,9 +57,9 @@ export default function Profile({ }: Props) {
           </View>
         </View>
 
-        <TouchableOpacity onPress={logout} className='flex-row mt-5 items-center mx-auto pr-2'>
+        <TouchableOpacity onPress={handleLogout} className='flex-row mt-5 items-center mx-auto pr-2'>
            <MaterialCommunityIcons name="logout" size={24} color="rgb(239 68 68)" />
-          <Text className='text-xl ml-2 text-red-500'>Đăng xuất</Text>
+          <Text className='text-xl ml-2 text-red'>Đăng xuất</Text>
         </TouchableOpacity>
         </View>
         

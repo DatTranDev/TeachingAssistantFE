@@ -77,7 +77,7 @@ export default function Tetting({}: Props) {
       const dataString = JSON.stringify(data)
       console.log(dataString)
       router.push({ 
-        pathname: '(teacherDetail)/classDetail/editClass',
+        pathname: '/(teacherDetail)/classDetail/editClass',
         params: {
           data: dataString
         }
@@ -90,15 +90,12 @@ export default function Tetting({}: Props) {
         <TouchableOpacity onPress={router.back}>
           <Ionicons name='chevron-back-sharp' size={24} color='white' />
         </TouchableOpacity>
-        <View className='mx-auto items-center pr-1'>
+        <View className='mx-auto items-center pr-6'>
           <Text className='text-[18px] font-msemibold uppercase text-white'>
             {code}
           </Text>
           <Text className='mt-[-3px] text-white font-mmedium'>Cài đặt</Text>
         </View>
-        <TouchableOpacity>
-          <FontAwesome5 name='pencil-alt' size={20} color='white' />
-        </TouchableOpacity>
       </View>
       <TouchableOpacity
         onPress={() => openModal()}

@@ -73,7 +73,7 @@ export default function EditProfile({}: Props) {
     setVisible(true)
     let imageRes = user.avatar;
     if(user.avatar!=info.avatar){
-      imageRes = await uploadImage(info.avatar, 'avatar');
+      imageRes = await uploadImage(info.avatar);
       if(imageRes){
         setInfo({...info,avatar:imageRes})
       }
@@ -110,14 +110,11 @@ export default function EditProfile({}: Props) {
    <SafeAreaView>
     <View>
       <Loading loading={visible}/>
-      <View className=' shadow-md  pb-[1.5%] bg-blue_primary flex-row  pt-[12%] px-[4%] items-center '>
+      <View className=' pb-[3.5%]  border-b-[1px] border-gray-200 flex-row  pt-[13%] px-[4%] items-center bg-blue_primary '>
         <TouchableOpacity onPress={router.back}>
-          <Ionicons name='chevron-back-sharp' size={24} color='white' />
+          <Ionicons name="chevron-back-sharp" size={24} color="white" />
         </TouchableOpacity>
-        <View className='mx-auto items-center pr-1'>
-          <Text className='text-[18px] font-msemibold uppercase text-white'>Cập nhật thông tin</Text>
-        </View>
-          <FontAwesome5 name='pencil-alt' size={20} color='white' />
+        <Text className='mx-auto text-[18px] font-msemibold uppercase text-white pr-6'>Cập nhật thông tin</Text>
       </View>
         <TouchableOpacity onPress={pickImage}>
             <View className="mx-auto rounded-full  border-gray-400 border-[1px] self-start mt-[10%]">

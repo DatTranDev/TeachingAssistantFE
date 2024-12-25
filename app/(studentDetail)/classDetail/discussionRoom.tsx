@@ -59,6 +59,7 @@ export type Discussion = {
 export type Reaction = {
    type: number;
    id: string;
+   discussionId?: string|string[];
    userId: {
       id: string;
       name: string;
@@ -127,12 +128,12 @@ export default function DiscussionRoom() {
       const list: JSX.Element[] = [];
       const totalMessages = PostList.length;
 
-      if (totalMessages === 0) {
+      if (totalMessages == 0) {
          return (
             <Text
                className="text-blue_primary"
                style={{ marginHorizontal: "auto", marginVertical: "auto", fontSize: 18, marginTop: "80%" }}>
-               Gửi bài tập nhóm tại đây !
+               Đặt câu hỏi tại đây !
             </Text>
          );
       }
@@ -178,6 +179,7 @@ export default function DiscussionRoom() {
                Time={formatTimePost(time)}
                Creator={currentPost.creator}
                Title={currentPost.title}
+               CAttendId={cAttendId}
                Id={currentPost.id}
                Images={currentPost.images}
                nameAnonymous={nameAnonymous}
@@ -318,7 +320,7 @@ export default function DiscussionRoom() {
    //Connect to socket
   useEffect(() => {
   if (socketContext) {
-    console.log('socket: ', socketContext.socket.id);
+    console.log('socket student: ', socketContext.socket.id);
     const { socket } = socketContext;
     if (socket) {
       socket.emit('joinSubject', { userID: user?.id,subjectID: cAttendId });
@@ -327,6 +329,19 @@ export default function DiscussionRoom() {
           setPostList((prevList) => [...prevList, message]);
         scrollViewRef.current?.scrollToEnd({ animated: true });
       });
+      socket.on('receiveResolve', (messageID: string) => {
+         setPostList((prevList) =>
+           prevList.map((message) => {
+             if (message.id === messageID) {
+               return { ...message, isResolved: true };
+             }
+             return message;
+           })
+         );
+       });
+       socket.on('receiveDeleteMessage', (messageID: string) => {  
+         setPostList((prevList) => prevList.filter((message) => message.id !== messageID));
+       });
     }
   }
   return () => {
@@ -335,6 +350,8 @@ export default function DiscussionRoom() {
       if (socket) {
         socket.emit('leaveSubject', { userID: user?.id,subjectID: cAttendId });
         socket.off('receiveSubjectMessage');
+         socket.off('receiveResolve');
+         socket.off('receiveDelete=Message');
       }
     }
   };
@@ -435,7 +452,7 @@ export default function DiscussionRoom() {
                   <Ionicons name="chevron-back-sharp" size={24} color="white" />
                </TouchableOpacity>
                <View className="mx-auto items-center pr-6">
-                  <Text className="text-[18px] font-msemibold uppercase text-white">Thảo luận</Text>
+                  <Text className="text-[18px] font-msemibold uppercase text-white">Câu hỏi</Text>
                   <Text className="mt-[-3px] text-white font-mmedium">{formatNoWeekday(date)}</Text>
                </View>
             </View>

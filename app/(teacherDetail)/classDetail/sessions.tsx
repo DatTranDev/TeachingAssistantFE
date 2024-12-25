@@ -12,11 +12,13 @@ import { formatNoWeekday, formatDate } from '@/utils/formatDate';
 import ButtonCustom from '@/components/ui/ButtonCustom';
 import Entypo from '@expo/vector-icons/Entypo';
 import post from '@/utils/post';
+import Loading from '@/components/ui/Loading';
 type Props = {}
-export type Session = {
+export type Attend = {
   attendId: string,
   date: string,
-  sessionNumber: number
+  sessionNumber: number,
+  isActive: boolean
 }
 type ClassSession = {
   idSubject: string,
@@ -30,10 +32,11 @@ export default function Sessions({ }: Props) {
     return;
   }
   const { accessToken, user } = authContext;
-  const [listSession, setListSession] = useState<Session[]>([])
+  const [listSession, setListSession] = useState<Attend[]>([])
   const router = useRouter()
   const { subjectId, code } = useLocalSearchParams()
-  const [currentSession, setCurrentSession] = useState<Session | null>(null)
+  const [currentSession, setCurrentSession] = useState<Attend | null>(null)
+  const [loading,setLoading]=useState<boolean>(false)
   const getClassSessionId = async () => {
     const today = new Date().getDay();
     const url = `${localHost}/api/v1/classSession/findByUser/${user?.id}`;
@@ -67,6 +70,7 @@ export default function Sessions({ }: Props) {
   }
     useEffect(() => {
       async function getData() {
+        setLoading(true);
         const url = `${localHost}/api/v1/cAttend/findBySubject/${subjectId}`
         const res = await get({ url: url, token: accessToken })
         if (res && res.status == 200) {
@@ -74,22 +78,24 @@ export default function Sessions({ }: Props) {
           const data = listAttend.map((item: any) => ({
             attendId: item.id,
             date: item.date,
-            sessionNumber: item.sessionNumber
+            sessionNumber: item.sessionNumber,
+            isActive: item.isActive
           }))
-          setCurrentSession(data.reduce((prev: Session |null, curr: Session) => {
+          setCurrentSession(data.reduce((prev: Attend |null, curr: Attend) => {
             return Math.abs(curr.sessionNumber) > Math.abs(prev?.sessionNumber || 0) ? curr : prev;
           }, null))
           setListSession(data.reverse())
         }
+        setLoading(false)
       }
       getData()
     }, [])
-    const clickReview = (attendId: string, date: string) => {
+    const clickReview = (item: Attend) => {
       router.push({
         pathname: '/(teacherDetail)/classDetail/teachFeature',
         params: {
-          attendId: attendId,
-          date: date,
+          attendId: item.attendId,
+          date: item.date,
           subjectId: subjectId,
           code: code
         },
@@ -123,7 +129,8 @@ export default function Sessions({ }: Props) {
             setListSession([...listSession, {
               attendId: res.data.cAttend.id,
               date: res.data.cAttend.date,
-              sessionNumber: res.data.cAttend.sessionNumber
+              sessionNumber: res.data.cAttend.sessionNumber,
+              isActive: res.data.cAttend.isActive
             }])
             Alert.alert('Thông báo', 'Thêm buổi học thành công')
           }
@@ -142,6 +149,7 @@ export default function Sessions({ }: Props) {
 
     return (
       <SafeAreaView className='flex-1'>
+        <Loading loading={loading}/>
         <View className=" shadow-md  pb-[1.5%] bg-blue_primary flex-row  pt-[12%] px-[4%] items-center ">
           <TouchableOpacity onPress={router.back}>
             <Ionicons name="chevron-back-sharp" size={24} color="white" />
@@ -162,7 +170,7 @@ export default function Sessions({ }: Props) {
         <ScrollView className='mt-4'>
           {listSession.map((item, index) => {
             return (
-              <TouchableOpacity key={index} onPress={() => clickReview(item.attendId, item.date)} className='flex-row bg-white w-[100%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
+              <TouchableOpacity key={index} onPress={() => clickReview(item)} className='flex-row bg-white w-[100%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
                 <View className='mx-auto items-center justify-center'>
                   <Text className='text-black text-sm font-mmedium '>Buổi {item.sessionNumber}</Text>
                   <Text className='text-black text-base font-msemibold mt-1'>{formatDate(item.date)}</Text>

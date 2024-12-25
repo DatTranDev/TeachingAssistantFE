@@ -19,6 +19,8 @@ type Props = {
     logout: () => Promise<void>;
     accessToken:string|null;
     refreshToken:string|null;
+    FCMToken:string|null;
+    addFCMToken: (token:string) => Promise<void>;
   }
   export const AuthContext= createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }:Props) => {
@@ -26,17 +28,19 @@ export const AuthProvider = ({ children }:Props) => {
   const [user,setUser]= useState<User | null>(null)
   const [accessToken, setAccessToken]= useState<string|null>(null)
   const [refreshToken, setRefreshToken]= useState<string|null>(null)
+  const [FCMToken, setFCMToken]= useState<string|null>(null)
   useEffect(()=>{
       const loadUser=async()=>{
           try {
             const userData = await AsyncStorage.getItem('user');
             const accessTokenData= await AsyncStorage.getItem('accessToken');
             const refreshTokenData= await AsyncStorage.getItem('refreshToken');
-            
+            const FCMTokenData= await AsyncStorage.getItem('FCMToken');
             if (userData && accessTokenData) {
               setUser(JSON.parse(userData));
               setAccessToken(accessTokenData);
               setRefreshToken(refreshTokenData)
+              setFCMToken(FCMTokenData)
             }
           } catch (e) {
             console.log(e);
@@ -44,20 +48,21 @@ export const AuthProvider = ({ children }:Props) => {
         };
         loadUser();
         // Lắng nghe sự kiện cập nhật accessToken từ bên ngoài
+  
+
+  authEventEmitter.on('updateAccessToken', updateAccessTokenListener);
+  authEventEmitter.on('logoutEndSession', logoutEndSession);
+
+  return () => {
+    authEventEmitter.off('updateAccessToken', updateAccessTokenListener);
+    authEventEmitter.off('logoutEndSession', logoutEndSession);
+  };
+        
+  },[])
   const updateAccessTokenListener = (token: string) => {
     setAccessToken(token);
     AsyncStorage.setItem('accessToken', token);
   };
-
-  authEventEmitter.on('updateAccessToken', updateAccessTokenListener);
-  authEventEmitter.on('logoutEndSession', logout);
-
-  return () => {
-    authEventEmitter.off('updateAccessToken', updateAccessTokenListener);
-    authEventEmitter.off('logoutEndSession', logout);
-  };
-        
-  },[])
   const unsubscribeFromTopics = async (acessToken: string|null, userId: string|undefined) => {
     const urlGetSubject = `${localHost}/api/v1/subject/findByUserId/${userId}`;
     const response = await get({ url: urlGetSubject, token: acessToken });
@@ -114,6 +119,10 @@ export const AuthProvider = ({ children }:Props) => {
       
       
     };
+  const addFCMToken = async (token:string)=>{
+    setFCMToken(token);
+    await AsyncStorage.setItem('FCMToken', token);
+  }
   
   const logout = async () => {
     const result = await unsubscribeFromTopics(accessToken,user?.id)
@@ -126,8 +135,15 @@ export const AuthProvider = ({ children }:Props) => {
     await AsyncStorage.removeItem('refreshToken');
     router.replace('/(auth)/sign-in')
   };
+  const logoutEndSession = async () => {
+    setUser(null);
+    await AsyncStorage.removeItem('user');
+    await AsyncStorage.removeItem('accessToken');
+    await AsyncStorage.removeItem('refreshToken');
+    router.replace('/(auth)/sign-in')
+  }
   return(
-    <AuthContext.Provider value={{user,login,logout,accessToken,refreshToken}}>
+    <AuthContext.Provider value={{user,login,logout,accessToken,refreshToken,FCMToken,addFCMToken}}>
         {children}
     </AuthContext.Provider>
     )

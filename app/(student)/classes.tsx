@@ -20,6 +20,7 @@ import { useRouter } from 'expo-router';
 import { ClassSession } from './timetable';
 import { localHost } from '@/utils/localhost';
 import { AuthContext } from '@/context/AuthContext';
+import { useFocusEffect } from 'expo-router';
 
 type Props = {};
 export type Time = {
@@ -138,9 +139,11 @@ export default function Classes(props: Props) {
       Alert.alert('Thông báo', 'Đã xảy ra lỗi, vui lòng quay lại sau');
     }
   };
-  useEffect(() => {
-    getSub();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      getSub();
+    }, [])
+  );
   return (
     <SafeAreaView className='flex-1'>
       <View className='bg-blue_primary pb-[3.5%]  border-b-[1px] border-gray-200 '>

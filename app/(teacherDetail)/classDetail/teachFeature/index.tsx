@@ -50,11 +50,13 @@ export default function TeachFeature({}: Props) {
    }, []);
    const rollCall = async () => {
       router.push({
-         pathname: "/classDetail/rollCall",
+         pathname: "/classDetail/teachFeature/rollCall",
          params: {
             subjectId: subjectId,
             name: name,
-            code: code
+            code: code,
+            date: date,
+            attendId: attendId,
          }
       });
    };
@@ -127,7 +129,7 @@ export default function TeachFeature({}: Props) {
                <Text className="text-base font-msemibold ml-4 mr-auto">
                   Điểm danh
                </Text>
-               <FontAwesome6 name="exclamation" size={22} color="#FE3535" />
+               {/* <FontAwesome6 name="exclamation" size={22} color="#FE3535" /> */}
             </TouchableOpacity>
             <TouchableOpacity
                onPress={chat}
@@ -138,7 +140,7 @@ export default function TeachFeature({}: Props) {
                   color="black"
                />
                <Text className="text-base font-msemibold ml-4 mr-auto">
-                  Trao đổi
+                  Thảo luận
                </Text>
             </TouchableOpacity>
             <TouchableOpacity
