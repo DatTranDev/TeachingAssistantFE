@@ -30,7 +30,7 @@ export default function RollCall({ }: Props) {
   const { user, accessToken } = authContext;
   const { date, attendId, subjectId } = useLocalSearchParams();
   const [loading, setLoading] = useState<boolean>(false)
-  const [totalStudent, setTotalStudent] = useState<number>(50);
+  const [totalStudent, setTotalStudent] = useState<number>(0);
   const [listStudent, setListStudent] = useState<Student[]>([]);
   const [openModal, setOpenModal] = useState<boolean>(false)
   const [time, setTime] = useState<number>(3)
@@ -238,17 +238,23 @@ export default function RollCall({ }: Props) {
         </View>
       </View>
       <View className='px-[5%] mt-[2%] flex-1'>
-        <Text className='text-lg font-msemibold text-center mt-2'>
+        <Text className='text-base font-msemibold text-center mt-2'>
           Sinh viên có mặt ({listStudent.length}/{totalStudent})
         </Text>
         <ScrollView>
-          {listStudent.map((item,index)=>(
+          {!isActive?
+          <Text className='text-center text-gray-500 mt-3'>
+            Chưa bắt đầu điểm danh
+          </Text>
+          :
+          listStudent.map((item,index)=>(
             <View key={index} className='bg-white rounded-md p-3 mt-3'>
               <Text className='text-base font-mregular text-center'>
                 {index+1}. {item.userCode} - {item.name}
               </Text>
             </View>
           ))}
+          
         </ScrollView>
       </View>
       <LinearGradient

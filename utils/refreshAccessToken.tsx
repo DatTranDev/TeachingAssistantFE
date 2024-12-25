@@ -33,31 +33,24 @@ export default async function refreshAccessToken() {
                   if (response) {
                         if (response.status == 200) {
                               const data = await response.data
-                              // updateAccessToken(data.access_token);
+                              updateAccessToken(data.access_token);
                               return data.access_token;
                         }
                         else {
-                              // await logoutEndSession();
-                              console.log("logout")
-                              // await logout();
+                              await logoutEndSession();
                               Alert.alert("Thông báo", "Phiên đăng nhập của bạn đã hết hạn, vui lòng đăng nhập lại")
                               return null;
                         }
                   } else {
-                        console.log("logout")
-                        // await logout();
+                        await logoutEndSession();
                         Alert.alert("Thông báo", "Phiên đăng nhập của bạn đã hết hạn, vui lòng đăng nhập lại")
                         return null;
                   }
             } catch {
-                  console.log("logout")
                   await logoutEndSession();
-                  // await logout();
                   Alert.alert("Thông báo", "Phiên đăng nhập của bạn đã hết hạn, vui lòng đăng nhập lại")
                   return null;
             }
-
-
       }
       return (
             await refreshAcccess()

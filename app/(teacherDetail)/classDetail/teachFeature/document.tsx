@@ -270,6 +270,21 @@ export default function Document({ }: Props) {
           const result = await downloadResumable.downloadAsync();
           if (result && result.uri) {
             await Sharing.shareAsync(result.uri);
+            // if (result && result.uri) {
+            //   console.log("File tải thành công:", result.uri);
+      
+            //   // Phát hiện MIME Type từ file
+            //   const fileInfo = await FileSystem.getInfoAsync(result.uri, { size: true });
+            //   const mimeType = result.headers["content-type"] || "application/octet-stream";
+      
+            //   console.log("MIME Type:", mimeType);
+      
+            //   // Mở file với Intent Launcher
+            //   IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
+            //     data: result.uri,
+            //     type: mimeType,
+            //   });
+            // }
           }
         } catch (e) {
           Alert.alert('Lỗi', 'Không thể tải tài liệu');
