@@ -34,6 +34,7 @@ import get from "@/utils/get";
 import deleteApi from "@/utils/delete";
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
+import { openLink } from "@/utils/openLink";
 
 
 type Props = {};
@@ -152,21 +153,6 @@ export default function DetailDocument({}: Props) {
           const result = await downloadResumable.downloadAsync();
           if (result && result.uri) {
             await Sharing.shareAsync(result.uri);
-            // if (result && result.uri) {
-            //   console.log("File tải thành công:", result.uri);
-      
-            //   // Phát hiện MIME Type từ file
-            //   const fileInfo = await FileSystem.getInfoAsync(result.uri, { size: true });
-            //   const mimeType = result.headers["content-type"] || "application/octet-stream";
-      
-            //   console.log("MIME Type:", mimeType);
-      
-            //   // Mở file với Intent Launcher
-            //   IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
-            //     data: result.uri,
-            //     type: mimeType,
-            //   });
-            // }
           }
         } catch (e) {
           Alert.alert('Lỗi', 'Không thể tải tài liệu');
@@ -240,7 +226,7 @@ export default function DetailDocument({}: Props) {
                 </View>
                 <TouchableOpacity 
                   className="ml-auto mr-1"
-                  onPress={() => downloadFile(item)}>
+                  onPress={() => openLink(item.downloadUrl)}>
                   <AntDesign name="clouddownloado" size={28} color={colors.blue_primary} />
                 </TouchableOpacity>
               </View>

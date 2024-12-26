@@ -5,7 +5,8 @@ import {
   SafeAreaView,
   TouchableOpacity,
   ScrollView,
-  Alert
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, Redirect } from 'expo-router';
@@ -21,6 +22,7 @@ import { ClassSession } from './timetable';
 import { localHost } from '@/utils/localhost';
 import { AuthContext } from '@/context/AuthContext';
 import { useFocusEffect } from 'expo-router';
+import { colors } from '@/constants/colors';
 
 type Props = {};
 export type Time = {
@@ -45,6 +47,7 @@ export default function Classes(props: Props) {
   const { user, accessToken } = authContext;
   const router = useRouter();
   const [listSub, setListSub] = useState<Subject[]>([]);
+  const [loading, setLoading] = useState(false);
   const addClass = () => {
     router.push('/(studentDetail)/classDetail/addClass');
   };
@@ -87,57 +90,61 @@ export default function Classes(props: Props) {
     return false;
   };
   const getSub = async () => {
+    setLoading(true);
     const url = `${localHost}/api/v1/classSession/findByUser/${user?.id}`;
     const response = await get({ url, token: accessToken });
 
-    if (response && response.status == 200) {
-      const formattedData: ClassSession[] = response.data.classSessions.map(
-        (item: any) => ({
-          idSubject: item.subjectId,
-          code: item.subject.code,
-          name: item.subject.name,
-          startDay: item.subject.startDay,
-          endDay: item.subject.endDay,
-          room: item.room,
-          hostName: item.subject.host.name,
-          start: item.start,
-          end: item.end,
-          dayOfWeek: item.dayOfWeek
-        })
-      );
-      setData(formattedData);
-      const listSubject = formattedData.reduce(
-        (acc: Subject[], item: ClassSession) => {
-          const existingSubject = acc.find(s => s.id === item.idSubject);
-          if (existingSubject) {
-            existingSubject.times.push({
-              numberOfWeek: item.dayOfWeek,
-              start: item.start,
-              end: item.end
-            });
-          } else {
-            acc.push({
-              id: item.idSubject,
-              name: item.name,
-              code: item.code,
-              hostName: item.hostName,
-              times: [
-                {
-                  numberOfWeek: item.dayOfWeek,
-                  start: item.start,
-                  end: item.end
-                }
-              ]
-            });
-          }
-          return acc;
-        },
-        [] as Subject[]
-      );
-      setListSub(listSubject);
-    } else {
-      Alert.alert('Thông báo', 'Đã xảy ra lỗi, vui lòng quay lại sau');
-    }
+    if (response ) {
+      if (response.status == 200) {
+        const formattedData: ClassSession[] = response.data.classSessions.map(
+          (item: any) => ({
+            idSubject: item.subjectId,
+            code: item.subject.code,
+            name: item.subject.name,
+            startDay: item.subject.startDay,
+            endDay: item.subject.endDay,
+            room: item.room,
+            hostName: item.subject.host.name,
+            start: item.start,
+            end: item.end,
+            dayOfWeek: item.dayOfWeek,
+          })
+        );
+        setData(formattedData);
+        const listSubject = formattedData.reduce(
+          (acc: Subject[], item: ClassSession) => {
+            const existingSubject = acc.find((s) => s.id === item.idSubject);
+            if (existingSubject) {
+              existingSubject.times.push({
+                numberOfWeek: item.dayOfWeek,
+                start: item.start,
+                end: item.end,
+              });
+            } else {
+              acc.push({
+                id: item.idSubject,
+                name: item.name,
+                code: item.code,
+                hostName: item.hostName,
+                times: [
+                  {
+                    numberOfWeek: item.dayOfWeek,
+                    start: item.start,
+                    end: item.end,
+                  },
+                ],
+              });
+            }
+            return acc;
+          },
+          [] as Subject[]
+        );
+        setListSub(listSubject);
+      } else {
+        Alert.alert("Thông báo", "Đã xảy ra lỗi, vui lòng quay lại sau");
+      }
+    } 
+    setLoading(false);
   };
   useFocusEffect(
     React.useCallback(() => {
@@ -165,9 +172,12 @@ export default function Classes(props: Props) {
       </View>
       {/* list */}
       <ScrollView className='mt-4'>
-        {listSub.length > 0 ? (
-          listSub.map((item: Subject, index: number) => (
-            <TouchableOpacity key={index} onPress={() => clickClass(item)}>
+        {loading ? (
+          <ActivityIndicator className='mt-[50%]' size="large" color={colors.blue_primary} />
+        ) : (
+          listSub.length > 0 ? (
+            listSub.map((item: Subject, index: number) => (
+              <TouchableOpacity key={index} onPress={() => clickClass(item)}>
               <View className='border-y-[1px] border-slate-200 mb-2 pl-[5%] pr-2 py-3 bg-white'>
                 {checkTime(item.times) ? (
                 <Text className='text-green font-medium ml-[2px] mt-[-4px] mb-2'>
@@ -216,7 +226,7 @@ export default function Classes(props: Props) {
               Không có lớp học nào
             </Text>
           </View>
-        )}
+        ))}
       </ScrollView>
     </SafeAreaView>
   );

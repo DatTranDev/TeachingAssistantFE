@@ -19,8 +19,11 @@ import { formatNoWeekday } from "@/utils/formatDate";
 import Loading from "@/components/ui/Loading";
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-// import * as Clipboard from "expo-clipboard";
-// import * as IntentLauncher from "expo-intent-launcher";
+import * as Clipboard from "expo-clipboard";
+import * as IntentLauncher from "expo-intent-launcher";
+import mime from "react-native-mime-types";
+import { Platform } from 'react-native';
+import { openFile } from "@/utils/openFile";
 
 type Props = {};
 type DetailRollCall = {
@@ -134,23 +137,16 @@ export default function RollCall({}: Props) {
    
   };
   const handleCopy = async () => {
-    // try {
-    //   await Clipboard.setStringAsync(urlFile);
-    //   Alert.alert("Sao chép thành công", "Liên kết đã được sao chép vào clipboard.");
-    //   setOpenModal(false)
-    // } catch (error) {
-    //   Alert.alert("Lỗi", "Không thể sao chép dữ liệu.");
-    //   console.error("Lỗi sao chép clipboard:", error);
-    // }
-  };
-    const openLink = async () => {
-      const supported = await Linking.canOpenURL(urlFile);
-      if (supported) {
-        await Linking.openURL(urlFile); // Mở liên kết
-      } else {
-        Alert.alert("Không thể mở liên kết");
-      }
+    try {
+      await Clipboard.setStringAsync(urlFile);
+      Alert.alert("Sao chép thành công", "Liên kết đã được sao chép vào clipboard.");
+      setOpenModal(false)
+    } catch (error) {
+      Alert.alert("Lỗi", "Không thể sao chép dữ liệu.");
+      console.error("Lỗi sao chép clipboard:", error);
     }
+  };
+   
     const extractFileName = (url: string): string | null => {
       const regex = /files%2F([^?]*)/; // Tìm phần sau 'files%2F' cho đến trước dấu '?'
       const match = url.match(regex);
@@ -160,47 +156,27 @@ export default function RollCall({}: Props) {
       }
       return null;
     };
-    const downloadFile = async (url:string) => {
+    const downloadAndShareFile = async (url:string) => {
       try {
-       
-        const filename = extractFileName(url);
-        const fileUri = `${FileSystem.documentDirectory}${filename}`; 
-        await downloadNewFile();      
-        async function downloadNewFile() {
-          setLoading(true);
-          const downloadResumable = FileSystem.createDownloadResumable(
-            url,
-            fileUri,
-            {}
-          );
-  
-          try {
-            const result = await downloadResumable.downloadAsync();
-            // if (result && result.uri) {
-            //   console.log("File tải thành công:", result.uri);
-      
-            //   // Phát hiện MIME Type từ file
-            //   const fileInfo = await FileSystem.getInfoAsync(result.uri, { size: true });
-            //   const mimeType = result.headers["content-type"] || "application/octet-stream";
-      
-            //   console.log("MIME Type:", mimeType);
-      
-            //   // Mở file với Intent Launcher
-            //   IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
-            //     data: result.uri,
-            //     type: mimeType,
-            //   });
-            // }
-          } catch (e) {
-            Alert.alert('Lỗi', 'Không thể tải tài liệu');
-          } finally {
-            setLoading(false);
-          }
+        console.log(url)
+        const fileName = extractFileName(url); // Hàm lấy tên tệp từ URL
+        if(fileName){
+          const fileUri = `${FileSystem.documentDirectory}${fileName}`;    
+        setLoading(true); // Đặt trạng thái loading
+        // Tải tệp
+        const downloadResumable = FileSystem.createDownloadResumable(url, fileUri);
+        const result = await downloadResumable.downloadAsync();
+    
+        if (result && result.uri) {
+          await Sharing.shareAsync(result.uri);
+        } else {
+          Alert.alert('Lỗi', 'Không thể tải tài liệu');
         }
-  
+      }
       } catch (error) {
         Alert.alert('Lỗi', 'Đã xảy ra lỗi khi tải tài liệu');
-        setLoading(false);
+      } finally {
+        setLoading(false); // Đảm bảo cập nhật trạng thái loading
       }
     };
 
@@ -234,9 +210,9 @@ export default function RollCall({}: Props) {
                   Sao chép
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => downloadFile(urlFile)} className="py-[6px] bg-green opacity-90 rounded-2xl w-28 mx-auto mt-2">
+              <TouchableOpacity onPress={() => downloadAndShareFile(urlFile)} className="py-[6px] bg-green opacity-90 rounded-2xl w-28 mx-auto mt-2">
                 <Text className="text-white text-center text-base">
-                  Tải xuống
+                  Chia sẻ
                 </Text>
               </TouchableOpacity>
             </View>

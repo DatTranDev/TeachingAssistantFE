@@ -11,6 +11,7 @@ import { localHost } from '@/utils/localhost';
 import Feather from '@expo/vector-icons/Feather';
 import Loading from '@/components/ui/Loading';
 import patch from '@/utils/patch';
+import { logoutEndSession } from "@/utils/authEventEmitter";
 type Props = {}
 
 export default function ChangePassword({ }: Props) {
@@ -38,7 +39,7 @@ export default function ChangePassword({ }: Props) {
                 if (response) {
                     if (response.status == 200) {
                         Alert.alert('Thông báo', 'Thay đổi mật khẩu thành công, vui lòng đăng nhập')
-                        router.replace('/(auth)/sign-in')
+                        await logoutEndSession();
                     } 
                     else {
                         Alert.alert('Thông báo', 'Đã xảy ra lỗi, vui lòng thử lại sau')

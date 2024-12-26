@@ -297,7 +297,7 @@ export default function Review({}: Props) {
             </Text>
           ) : (
             detailReviews.map((item: DetailReview, index: number) => (
-              <View className="w-[84%]  mx-auto">
+              <View key={index} className="w-[84%]  mx-auto">
                <Text className="ml-[2.5%] text-gray-500">Buổi {item.sessionNumber} - {formatNoWeekday(item.date)}</Text>
                 <TouchableOpacity onPress={()=>goToDetailReview(item.attendId,item.date)} className=" bg-white pl-[4%]  rounded-2xl pt-1 pb-2 gap-y-1 mb-2 mt-1">
                   {/* <View className='flex-row items-center mt-[-6px] mb-[2px]'>

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Alert } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 import Entypo from '@expo/vector-icons/Entypo';
 import ButtonCustom from '@/components/ui/ButtonCustom';
@@ -12,6 +12,7 @@ import { ClassSession } from './timetable';
 import { localHost } from '@/utils/localhost';
 import { AuthContext } from '@/context/AuthContext';
 import { useFocusEffect } from '@react-navigation/native';
+import { colors } from '@/constants/colors';
 
 
 type Props = {}
@@ -38,6 +39,7 @@ export default function Classes(props: Props) {
   const {user,accessToken}= authContext;
   const router= useRouter();
   const [listSub,setListSub]= useState<Subject[]>([])
+  const [loading,setLoading]= useState<boolean>(false)
   const addClass = () => {
   router.push('/(teacherDetail)/classDetail/addClass')
   }
@@ -79,6 +81,7 @@ export default function Classes(props: Props) {
     return false;
   }
   const getSub = async () => {
+    setLoading(true)
     const url = `${localHost}/api/v1/classSession/findByUser/${user?.id}`
     const response = await get({url, token:accessToken})
   
@@ -125,10 +128,8 @@ export default function Classes(props: Props) {
     } else {
       Alert.alert('Thông báo','Đã xảy ra lỗi, vui lòng quay lại sau')
     }
+    setLoading(false)
   }
-  useEffect(()=>{
-    getSub()
-  },[])
   useFocusEffect(
     React.useCallback(() => {
       getSub();
@@ -149,7 +150,8 @@ export default function Classes(props: Props) {
       </View>
       {/* list */}
       <ScrollView className='mt-4'>
-        {listSub.map((item: Subject, index: number) => (
+        {loading?(<ActivityIndicator className='mt-[50%]' size="large" color={colors.blue_primary} />):(
+        listSub.map((item: Subject, index: number) => (
           <TouchableOpacity key={index} onPress={()=>clickClass(item)}>
           
             <View  className='border-y-[1px] border-slate-200 mb-2 pl-[5%] pr-2 py-3 bg-white'>
@@ -171,7 +173,7 @@ export default function Classes(props: Props) {
             </View>
           </View>
           </TouchableOpacity>
-        ))}
+        )))}
         </ScrollView>
     </SafeAreaView>
 

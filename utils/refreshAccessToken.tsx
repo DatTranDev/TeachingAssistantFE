@@ -33,7 +33,7 @@ export default async function refreshAccessToken() {
                   if (response) {
                         if (response.status == 200) {
                               const data = await response.data
-                              updateAccessToken(data.access_token);
+                              await updateAccessToken(data.access_token);
                               return data.access_token;
                         }
                         else {
