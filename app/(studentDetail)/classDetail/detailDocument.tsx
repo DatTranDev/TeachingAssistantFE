@@ -34,6 +34,7 @@ import get from "@/utils/get";
 import deleteApi from "@/utils/delete";
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
+import { openLink } from "@/utils/openLink";
 
 
 type Props = {};
@@ -225,7 +226,7 @@ export default function DetailDocument({}: Props) {
                 </View>
                 <TouchableOpacity 
                   className="ml-auto mr-1"
-                  onPress={() => downloadFile(item)}>
+                  onPress={() => openLink(item.downloadUrl)}>
                   <AntDesign name="clouddownloado" size={28} color={colors.blue_primary} />
                 </TouchableOpacity>
               </View>

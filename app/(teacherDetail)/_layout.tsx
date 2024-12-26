@@ -21,6 +21,7 @@ export default function TeacherDetailLayout({}: Props) {
       <Stack.Screen name='classDetail/statistical/index' options={{headerShown:false}}/>
       <Stack.Screen name='classDetail/statistical/rollCall' options={{headerShown:false}}/>
       <Stack.Screen name='classDetail/statistical/review' options={{headerShown:false}}/>
+      <Stack.Screen name='classDetail/teachFeature/studentList' options={{headerShown:false}}/>
     </Stack>
   )
 }

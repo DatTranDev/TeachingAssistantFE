@@ -59,9 +59,9 @@ export const AuthProvider = ({ children }:Props) => {
   };
         
   },[])
-  const updateAccessTokenListener = (token: string) => {
+  const updateAccessTokenListener = async(token: string) => {
     setAccessToken(token);
-    AsyncStorage.setItem('accessToken', token);
+    await AsyncStorage.setItem('accessToken', token);
   };
   const unsubscribeFromTopics = async (acessToken: string|null, userId: string|undefined) => {
     const urlGetSubject = `${localHost}/api/v1/subject/findByUserId/${userId}`;

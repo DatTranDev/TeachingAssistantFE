@@ -34,6 +34,8 @@ import get from "@/utils/get";
 import deleteApi from "@/utils/delete";
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
+import { openLink } from "@/utils/openLink";
+import { openFile } from "@/utils/openFile";
 
 
 type Props = {};
@@ -241,9 +243,10 @@ export default function Document({ }: Props) {
             {
               text: "Không",
               style: "cancel",
-              onPress: () => {
+              onPress: async () => {
                 // Mở file đã tồn tại
-                Sharing.shareAsync(fileUri);
+                // Sharing.shareAsync(fileUri);
+                await openFile(fileUri,filename)
               }
             },
             {
@@ -413,7 +416,7 @@ export default function Document({ }: Props) {
                 </View>
                 <TouchableOpacity
                   className="ml-auto mr-1"
-                  onPress={() => downloadFile(item)}>
+                  onPress={() => openLink(item.downloadUrl)}>
                   <AntDesign name="clouddownloado" size={28} color={colors.blue_primary} />
                 </TouchableOpacity>
               </Pressable>

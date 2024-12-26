@@ -19,6 +19,7 @@ import { formatNoWeekday } from "@/utils/formatDate";
 import get from "@/utils/get";
 import { localHost } from "@/utils/localhost";
 import { AuthContext } from "@/context/AuthContext";
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 type Props = {};
 
@@ -106,6 +107,18 @@ export default function TeachFeature({}: Props) {
          }
       });
    };
+   const studentList = async () => {
+      router.push({
+         pathname: "/classDetail/teachFeature/studentList",
+         params: {
+            subjectId: subjectId,
+            name: name,
+            code: code,
+            attendId: attendId,
+            date: date
+         }
+      });
+   };
    return (
       <SafeAreaView>
          <View className=" shadow-md  pb-[1.5%] bg-blue_primary flex-row  pt-[12%] px-[4%] items-center ">
@@ -122,14 +135,21 @@ export default function TeachFeature({}: Props) {
             </View>
          </View>
          <View>
+         <TouchableOpacity
+               onPress={studentList}
+               className="flex-row items-center bg-white w-[94%] mx-auto px-[6%] py-4 rounded-2xl mt-[10%]   ">
+               <FontAwesome name="list-alt" size={24} color="black" />
+               <Text className="text-base font-msemibold ml-4 mr-auto">
+                  Danh sách sinh viên
+               </Text>
+            </TouchableOpacity>
             <TouchableOpacity
                onPress={rollCall}
-               className="flex-row items-center bg-white w-[94%] mx-auto px-[6%] py-4 rounded-2xl mt-[10%]   ">
+               className="flex-row items-center bg-white w-[94%] mx-auto px-[6%] py-4 rounded-2xl mt-3   ">
                <FontAwesome6 name="calendar-check" size={24} color="black" />
                <Text className="text-base font-msemibold ml-4 mr-auto">
                   Điểm danh
                </Text>
-               {/* <FontAwesome6 name="exclamation" size={22} color="#FE3535" /> */}
             </TouchableOpacity>
             <TouchableOpacity
                onPress={chat}
