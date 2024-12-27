@@ -126,12 +126,12 @@ export default function Sessions({ }: Props) {
         {
           console.log(res.data)
           if (res.status == 201) {
-            setListSession([...listSession, {
+            setListSession([{
               attendId: res.data.cAttend.id,
               date: res.data.cAttend.date,
               sessionNumber: res.data.cAttend.sessionNumber,
               isActive: res.data.cAttend.isActive
-            }])
+            },...listSession])
             Alert.alert('Thông báo', 'Thêm buổi học thành công')
           }
           else {
