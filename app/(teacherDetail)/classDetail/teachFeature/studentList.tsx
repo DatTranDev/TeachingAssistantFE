@@ -72,7 +72,7 @@ export default function StudentList({}: Props) {
             const res2 = await get({ url: url2, token: accessToken });
             if (res2) {
               if (res2.status === 200) {
-                setPresentStudent(res2.data.students);
+                setPresentStudent(res2.data.students.filter((student: any) => student.status=="CM"));
               } else {
                 setLoading(false);
                 Alert.alert(
