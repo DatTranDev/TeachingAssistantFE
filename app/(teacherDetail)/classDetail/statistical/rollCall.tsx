@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   Alert,
   Modal,
@@ -24,6 +24,7 @@ import * as IntentLauncher from "expo-intent-launcher";
 import mime from "react-native-mime-types";
 import { Platform } from 'react-native';
 import { openFile } from "@/utils/openFile";
+import { useFocusEffect } from "@react-navigation/native";
 
 type Props = {};
 type DetailRollCall = {
@@ -77,7 +78,7 @@ export default function RollCall({}: Props) {
           if (res2 && res2.status == 200) {
             return {
               ...item,
-              presentStudents: res2.data.students.length,
+              presentStudents: res2.data.students.filter((student: any) => student.status=="CM").length,
             };
           }
           return item; // Trả về item gốc nếu không có dữ liệu
@@ -87,15 +88,7 @@ export default function RollCall({}: Props) {
         (sum, item) => sum + item.presentStudents,
         0
       );
-      console.log(presentStudents);
-      console.log(
-        Number(
-          (
-            (presentStudents / (total * updatedListAttend.length)) *
-            100
-          ).toFixed(2)
-        )
-      );
+      
       setPercentPresent(
         Number(
           (
@@ -181,10 +174,11 @@ export default function RollCall({}: Props) {
     };
 
 
-  useEffect(() => {
-    getData();
-  }, []);
-
+  useFocusEffect(
+    React.useCallback(() => {
+      getData();
+    }, [])
+  );
   return (
     <SafeAreaView className="flex-1">
       <Loading loading={loading} />
