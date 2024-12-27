@@ -104,7 +104,34 @@ export default function RollCall({}: Props) {
       setOpenModal(false);
     }
   };
-  const deleteRollCall = async () => {};
+  const deleteRollCall = async () => {
+    if (isActive) {
+      setLoading(true);
+      
+      const data = {
+        isActive: "false", //Bắt đầu điểm danh
+        teacherLatitude: 0,
+        teacherLongitude: 0,
+        timeExpired: 0, //Thời gian hết hạn(đơn vị phút)
+      };
+      const res = await patch({
+        url: localHost + `/api/v1/cAttend/update/${attendId}`,
+        data: data,
+        token: accessToken,
+      });
+      if (res) {
+        if (res.status === 200) {
+          setIsActive(false);
+          setListStudent([])
+          Alert.alert("Thông báo", "Đã xóa điểm danh");
+        } else {
+          Alert.alert("Thông báo", "Đã xảy ra lỗi");
+        }
+      }
+      setLoading(false);
+      setOpenModal(false);
+    }
+  };
   useEffect(() => {
     async function getAttend() {
       setLoading(true);
@@ -194,7 +221,7 @@ export default function RollCall({}: Props) {
                     <Picker.Item label="5 phút" value="5" />
                     <Picker.Item label="10 phút" value="10" />
                     <Picker.Item label="15 phút" value="15" />
-                    <Picker.Item label="Không giới hạn" value="-1" />
+                    <Picker.Item label="30 phút" value="30" />
                   </Picker>
                 </View>
               </View>
