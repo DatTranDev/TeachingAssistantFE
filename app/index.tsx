@@ -11,7 +11,7 @@ export default function index(){
     const authContext = useContext(AuthContext);
     if(!authContext)
         return;
-    const {addFCMToken}= authContext;
+    const {addFCMToken, user}= authContext;
     useEffect(() => {
         const handleNotification = async () => {
             messaging().getInitialNotification().then(async (remoteMessage) => {
@@ -30,7 +30,7 @@ export default function index(){
             messaging().onMessage(async (remoteMessage) => {
                 console.log('Message handled in the foreground!', remoteMessage);
                 if(authContext?.user?.role=='student' && remoteMessage.data?.type=='attendance')
-                    if(remoteMessage.data?.type=='attendance' && remoteMessage.data?.senderId)
+                    if(remoteMessage.data?.type=='attendance' && remoteMessage.data?.sender!=user?.id)
                     {
                         Alert.alert('Điểm danh ngay', `Môn học: ${remoteMessage.data?.subject}\nPhòng: ${remoteMessage.data?.room}`);
                     }

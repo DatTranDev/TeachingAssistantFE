@@ -35,7 +35,7 @@ export default function TeachFeature({}: Props) {
    }
    const { accessToken, user } = authContext;
    const router = useRouter();
-   const { subjectId, name, code, attendId, date } = useLocalSearchParams();
+   const { subjectId, name, code, attendId, date, sessionNumber } = useLocalSearchParams();
    const [questionResolved, setQuestionResolved] = useState<number>(0);
    const getQuestionResolved = async () => {
       const res = await get({
@@ -61,6 +61,7 @@ export default function TeachFeature({}: Props) {
             name: name,
             code: code,
             date: date,
+            sessionNumber: sessionNumber,
             attendId: attendId,
          }
       });

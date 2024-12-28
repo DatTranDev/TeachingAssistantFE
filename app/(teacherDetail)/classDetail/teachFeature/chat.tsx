@@ -393,7 +393,7 @@ export default function Chat() {
             body: Type == 'text' ? msg.content : 'Đã gửi một ảnh', //Nội dung tin nhắn
             type: 'message', //Loại tin nhắn
             senderId: user.id, //ID người gửi
-            sender: 'Ẩn danh', //Tên người gửi
+            sender: user?.name, //Tên người gửi
             subject: `${name}`, //Tên môn học
             room: '' //Phòng học
           };

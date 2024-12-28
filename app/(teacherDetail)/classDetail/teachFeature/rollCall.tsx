@@ -25,6 +25,8 @@ import get from "@/utils/get";
 import patch from "@/utils/patch";
 import post from "@/utils/post";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { SocketContext } from '@/context/SocketContext';
+
 type Props = {};
 type Student = {
   id: string;
@@ -38,8 +40,10 @@ export default function RollCall({}: Props) {
   if (!authContext) {
     return;
   }
+  const socketContext = useContext(SocketContext);
+  
   const { user, accessToken } = authContext;
-  const { date, attendId, subjectId } = useLocalSearchParams();
+  const { date, attendId, subjectId, name, sessionNumber } = useLocalSearchParams();
   const [loading, setLoading] = useState<boolean>(false);
   const [totalStudent, setTotalStudent] = useState<number>(0);
   const [listStudent, setListStudent] = useState<Student[]>([]);
@@ -79,7 +83,7 @@ export default function RollCall({}: Props) {
   const createRollCall = async () => {
     
       setLoading(true);
-      if (checkLocation) {
+      if (checkLocation&&tabAutomation) {
         const check = await getLocation();
         if (!check) {
           return;
@@ -96,6 +100,7 @@ export default function RollCall({}: Props) {
         teacherLongitude: location?.longitude,
         timeExpired: time, //Thời gian hết hạn(đơn vị phút)
       };
+      let checkTab = false;
       if (!tabAutomation) {
         data = {
           isActive: "true", //Bắt đầu điểm danh
@@ -103,6 +108,7 @@ export default function RollCall({}: Props) {
           teacherLongitude: 0,
           timeExpired: 0, //Thời gian hết hạn(đơn vị phút)
         };
+        checkTab = true;
       }
       const res = await patch({
         url: localHost + `/api/v1/cAttend/update/${attendId}`,
@@ -111,9 +117,38 @@ export default function RollCall({}: Props) {
       });
       if (res) {
         if (res.status === 200) {
+          if(!checkTab){
+            if (socketContext?.socket) {
+              const dataMsg = {
+                title: ``, //Tên môn học
+                body: "", //Nội dung tin nhắn
+                type: 'attendance', //Loại tin nhắn
+                senderId: user?.id, //ID người gửi
+                sender: 'Ẩn danh', //Tên người gửi
+                subject: `${name}`, //Tên môn học
+                room: '' //Phòng học
+              };
+              socketContext.socket.emit('attendace', {
+                subjectID: subjectId,
+                dataMsg: {
+                  ...dataMsg,
+                  cAttend: {
+                    ...data,
+                    id: attendId,
+                    teacherLongitude: !location?.longitude ? 0 : location.longitude,
+                    teacherLatitude: !location?.latitude ? 0 : location.latitude,
+                    sessionNumber: sessionNumber,
+                    date: date,
+                    status: 'Chưa điểm danh'
+                  },
+                }
+              });
+            }
+          }
           if (isActive) {
             Alert.alert("Thông báo", "Chỉnh sửa điểm danh thành công");
           } else {
+            
             Alert.alert("Thông báo", "Tạo điểm danh thành công");
           }
           setIsActive(true);
@@ -152,6 +187,7 @@ export default function RollCall({}: Props) {
       setOpenModal(false);
     }
   };
+
   useEffect(() => {
     async function getAttend() {
       setLoading(true);
@@ -230,6 +266,40 @@ export default function RollCall({}: Props) {
     getAllStudent();
     getAttend();
   }, []);
+  //Connect to socket
+  useEffect(() => {
+    if (socketContext) {
+      console.log('socket: ', socketContext.socket.id);
+      const { socket } = socketContext;
+      if (socket) {
+        socket.emit('joinSubject', { userID: user?.id, subjectID: subjectId });
+        socket.on('receiveUserAttendance', (dataMsg: any) => {
+            console.log('dataMsg receive: ', dataMsg);
+            setListStudent((listStudent) => {
+              return listStudent.map((item) => {
+                if (item.id == dataMsg) {
+                  item.check = true;
+                }
+                return item;  
+              });
+            }
+            )
+        });
+      }
+    }
+    return () => {
+      if (socketContext) {
+        const { socket } = socketContext;
+        if (socket) {
+          socket.emit('leaveSubject', {
+            userID: user?.id,
+            subjectID: subjectId
+          });
+          socket.off('receiveUserAttendance');
+        }
+      }
+    };
+  }, [socketContext]);
   const countPresent = (list: Student[]) => {
     const count = list.filter((item: any) => item.check).length;
     return count || 0;

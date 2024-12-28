@@ -34,7 +34,7 @@ export default function Sessions({ }: Props) {
   const { accessToken, user } = authContext;
   const [listSession, setListSession] = useState<Attend[]>([])
   const router = useRouter()
-  const { subjectId, code } = useLocalSearchParams()
+  const { subjectId, code, name } = useLocalSearchParams()
   const [currentSession, setCurrentSession] = useState<Attend | null>(null)
   const [loading,setLoading]=useState<boolean>(false)
   const getClassSessionId = async () => {
@@ -104,8 +104,10 @@ export default function Sessions({ }: Props) {
         params: {
           attendId: item.attendId,
           date: item.date,
+          sessionNumber: item.sessionNumber,
           subjectId: subjectId,
-          code: code
+          code: code,
+          name: name
         },
       });
     }

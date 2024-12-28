@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import { AuthContext } from '@/context/AuthContext';
 import { localHost } from '@/utils/localhost';
 import { useLocalSearchParams } from 'expo-router';
+import { SocketContext } from '@/context/SocketContext';
 import get from '@/utils/get';
 import * as Location from 'expo-location';
 import post from '@/utils/post';
@@ -27,7 +28,7 @@ export default function RollCall({ }: Props) {
         Alert.alert("Thông báo", "Đã xảy ra lỗi")
         return;
     }
-    
+    const socketContext = useContext(SocketContext);
     const { subjectId,code } = useLocalSearchParams()
     const { accessToken, user,FCMToken } = authContext;
     const [attends, setAttends] = useState<Attend[]>([])
@@ -70,7 +71,7 @@ export default function RollCall({ }: Props) {
                         }
                     }
                     return null; // Trả về null nếu item không active
-                }).filter((item: any) => item !== null).sort((a: Attend, b: Attend) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Lọc bỏ các item null và sắp xếp giảm dần theo ngày
+                }).filter((item: any) => item !== null).sort((a: Attend, b: Attend) => b.sessionNumber-a.sessionNumber); // Lọc bỏ các item null và sắp xếp giảm dần theo ngày
                 setAttends(data)
                 setAbsent(absent)
                 setTotalRollCall(totalRollCall)
@@ -80,6 +81,52 @@ export default function RollCall({ }: Props) {
         }
         getData()
     }, [])
+    //Connect to socket
+      useEffect(() => {
+        if (socketContext) {
+          console.log('socket: ', socketContext.socket.id);
+          const { socket } = socketContext;
+          if (socket) {
+            socket.emit('joinSubject', { userID: user?.id, subjectID: subjectId });
+            socket.on('receiveAttendance', (dataMsg: any) => {
+                console.log('receiveAttendance: ', dataMsg);
+                const newAttend = dataMsg.cAttend;
+                setAttends((prev) => {
+                    const newAttends = prev.map((item) => {
+                        if (item.id === newAttend.id) {
+                            return {
+                                ...item,
+                                ...newAttend
+                            };
+                        }
+                        return item;
+                    });
+                    
+                    // If the new attendance record does not exist in the current state, add it
+                    const isExisting = prev.some(item => item.id === newAttend.id);
+                    if (!isExisting) {
+                        setTotalRollCall(totalRollCall + 1);
+                        newAttends.unshift(newAttend);
+                    }
+                    
+                    return newAttends;
+                });
+            });
+          }
+        }
+        return () => {
+          if (socketContext) {
+            const { socket } = socketContext;
+            if (socket) {
+              socket.emit('leaveSubject', {
+                userID: user?.id,
+                subjectID: subjectId
+              });
+              socket.off('receiveAttendance');
+            }
+          }
+        };
+      }, [socketContext]);
     const router = useRouter()
     const getLocation = async () => {
         let { status } = await Location.requestForegroundPermissionsAsync();
@@ -128,12 +175,19 @@ export default function RollCall({ }: Props) {
                 const record = res.data.attendRecord;
                 console.log(record.status)
                 if (record.status == "CM") {
+                    setAbsent(absent - 1)
                     setAttends(attends.map((item: Attend) => item.id == attend.id ? { ...item, status: "Đã điểm danh" } : item))
+                    if(socketContext?.socket){
+                        socketContext.socket.emit('sendAttendance', { subjectID: subjectId, student: user?.id });
+                    }
                     Alert.alert("Thông báo", "Điểm danh thành công")
                 }
                 if (record.status == "KP") {
                     Alert.alert("Thông báo", "Điểm danh không thành công")
                 }
+            }
+            if(res?.status!=201){
+                Alert.alert("Thông báo", `${res?.data?.message}`)
             }
         }
         setLoading(false);
