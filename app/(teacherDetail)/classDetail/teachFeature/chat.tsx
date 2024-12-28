@@ -432,7 +432,6 @@ export default function Chat() {
   };
 
   const uploadImage = async (imageUri: string, name: string) => {
-    console.log("name: ", name)
     const formData = new FormData();
     const extension = imageUri.split(".").pop();
     if (extension) {
@@ -447,9 +446,10 @@ export default function Chat() {
     }
     const url = `${localHost}/api/v1/upload/image`;
     try {
-      const response = await postNoAuth({
+      const response = await post({
         url: url,
         data: formData,
+        token:null,
       });
       if (response) {
         if (response.status == 200) {
