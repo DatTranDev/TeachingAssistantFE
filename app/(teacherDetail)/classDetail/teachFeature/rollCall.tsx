@@ -86,6 +86,7 @@ export default function RollCall({}: Props) {
       if (checkLocation&&tabAutomation) {
         const check = await getLocation();
         if (!check) {
+          setLoading(false);
           return;
         }
       } else {
@@ -274,7 +275,6 @@ export default function RollCall({}: Props) {
       if (socket) {
         socket.emit('joinSubject', { userID: user?.id, subjectID: subjectId });
         socket.on('receiveUserAttendance', (dataMsg: any) => {
-            console.log('dataMsg receive: ', dataMsg);
             setListStudent((listStudent) => {
               return listStudent.map((item) => {
                 if (item.id == dataMsg) {

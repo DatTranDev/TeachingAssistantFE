@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   View,
   Text,
@@ -12,32 +12,32 @@ import {
   Linking,
   ActivityIndicator,
   Alert,
-  Keyboard
-} from 'react-native';
+  Keyboard,
+} from "react-native";
 // import { icons } from "@constants";
 // import { styles } from "./mainRoom.style";
-import { Question } from '@/components/student/question';
-import * as ImagePicker from 'expo-image-picker';
-import axios from 'axios';
-import mime from 'react-native-mime-types';
+import { Question } from "@/components/student/question";
+import * as ImagePicker from "expo-image-picker";
+import axios from "axios";
+import mime from "react-native-mime-types";
 import {
   useNavigation,
   useIsFocused,
-  useFocusEffect
-} from '@react-navigation/native';
-import post from '@/utils/post';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import { useLocalSearchParams } from 'expo-router';
-import { AuthContext } from '@/context/AuthContext';
-import { SocketContext } from '@/context/SocketContext';
-import get from '@/utils/get';
-import Loading from '@/components/ui/Loading';
-import Feather from '@expo/vector-icons/Feather';
-import { EvilIcons, FontAwesome6, Ionicons } from '@expo/vector-icons';
-import { localHost } from '@/utils/localhost';
-import { colors } from '@/constants/colors';
-import patch from '@/utils/patch';
+  useFocusEffect,
+} from "@react-navigation/native";
+import post from "@/utils/post";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
+import { AuthContext } from "@/context/AuthContext";
+import { SocketContext } from "@/context/SocketContext";
+import get from "@/utils/get";
+import Loading from "@/components/ui/Loading";
+import Feather from "@expo/vector-icons/Feather";
+import { EvilIcons, FontAwesome6, Ionicons } from "@expo/vector-icons";
+import { localHost } from "@/utils/localhost";
+import { colors } from "@/constants/colors";
+import patch from "@/utils/patch";
 
 export type Question = {
   _id: string;
@@ -72,17 +72,16 @@ export default function GeneralRoom() {
   const { user, accessToken } = authContext;
   const [listFormat, setListFormat] = useState<FormatName[]>([]);
   const { subjectId, name, code } = useLocalSearchParams();
-  const [numberName, setNumberName] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [questionList, setQuestionList] = useState<Question[]>([]);
   const [isLoading, setLoading] = useState(true);
   const [isUploading, setUploading] = useState(false);
   const isFocused = useIsFocused();
   const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [checkScroll, setcheckScroll] = useState(true);
+  const [hostId, setHostId] = useState<string>("");
   const handleLoadMore = async () => {
     setPage(page + 1);
   };
@@ -93,13 +92,13 @@ export default function GeneralRoom() {
   //Connect to socket
   useEffect(() => {
     if (socketContext) {
-      console.log('socket: ', socketContext.socket.id);
+      console.log("socket: ", socketContext.socket.id);
       const { socket } = socketContext;
       if (socket) {
-        socket.emit('joinSubject', { userID: user?.id, subjectID: subjectId });
-        socket.on('receiveSubjectMessage', (message: Question) => {
+        socket.emit("joinSubject", { userID: user?.id, subjectID: subjectId });
+        socket.on("receiveSubjectMessage", (message: Question) => {
           if (message.studentId.id != user?.id)
-            setQuestionList(prevList => [...prevList, message]);
+            setQuestionList((prevList) => [...prevList, message]);
           scrollViewRef.current?.scrollToEnd({ animated: true });
         });
       }
@@ -108,11 +107,11 @@ export default function GeneralRoom() {
       if (socketContext) {
         const { socket } = socketContext;
         if (socket) {
-          socket.emit('leaveSubject', {
+          socket.emit("leaveSubject", {
             userID: user?.id,
-            subjectID: subjectId
+            subjectID: subjectId,
           });
-          socket.off('receiveSubjectMessage');
+          socket.off("receiveSubjectMessage");
         }
       }
     };
@@ -127,7 +126,7 @@ export default function GeneralRoom() {
   useEffect(() => {
     // Lắng nghe sự kiện bàn phím
     const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
+      "keyboardDidShow",
       () => {
         // Thực hiện hành động khi bàn phím xuất hiện
         scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -143,22 +142,22 @@ export default function GeneralRoom() {
   const formatTimeQuestion = (time: Date) => {
     const hours = Math.floor(time.getHours());
     const minutes = Math.floor(time.getMinutes());
-    const formattedMinutes = String(minutes).padStart(2, '0');
-    let formattedHours = String(hours).padStart(2, '0');
+    const formattedMinutes = String(minutes).padStart(2, "0");
+    let formattedHours = String(hours).padStart(2, "0");
 
     return `${formattedHours}:${formattedMinutes}`;
   };
 
   const formatDateTime = (dateTimeString: string) => {
     const date = new Date(dateTimeString);
-    const formattedDate = `${date.getHours().toString().padStart(2, '0')}:${date
+    const formattedDate = `${date.getHours().toString().padStart(2, "0")}:${date
       .getMinutes()
       .toString()
-      .padStart(2, '0')} ${date.getDate().toString().padStart(2, '0')}/${(
+      .padStart(2, "0")} ${date.getDate().toString().padStart(2, "0")}/${(
       date.getMonth() + 1
     )
       .toString()
-      .padStart(2, '0')}/${date.getFullYear()}`;
+      .padStart(2, "0")}/${date.getFullYear()}`;
     return formattedDate;
   };
   const checkTimeDifference = (dateTime1: Date, dateTime2: Date) => {
@@ -171,17 +170,21 @@ export default function GeneralRoom() {
     return diffMinutes > 5;
   };
   const recallQuestion = async (Id: string) => {
-        setQuestionList(prevList => prevList.map(item => item._id === Id ? {...item, isResolved: true} : item));
-  }
+    setQuestionList((prevList) =>
+      prevList.map((item) =>
+        item._id === Id ? { ...item, isResolved: true } : item
+      )
+    );
+  };
 
   const renderQuestion = () => {
     const list: JSX.Element[] = [];
     const totalMessages = questionList.length;
+    let numberName = 0;
 
     if (totalMessages === 0) {
       return (
-        <Text
-        className='mx-auto text-base text-blue_primary mt-[80%]'>
+        <Text className="mx-auto text-base text-blue_primary mt-[80%]">
           Thảo luận cùng nhau tại đây !
         </Text>
       );
@@ -191,7 +194,7 @@ export default function GeneralRoom() {
       totalMessages >= page * 4 + 15 ? totalMessages - (page * 4 + 15) : 0;
 
     for (let i = start; i < totalMessages; i++) {
-      let sender = '';
+      let sender = "";
       const currentQuestion = questionList[i];
       const time = new Date(currentQuestion.createdAt);
 
@@ -202,13 +205,14 @@ export default function GeneralRoom() {
           list.push(
             <Text
               key={formatDateTime(currentQuestion.createdAt)}
-              className='bg-[#BBB3B3] rounded-[10px] py-[3px] max-w-[200px] font-semibold text-[10px] mt-[15px] mb-[15px] mx-auto text-white px-[7px]'>
+              className="bg-[#BBB3B3] rounded-[10px] py-[3px] max-w-[200px] font-semibold text-[10px] mt-[15px] mb-[15px] mx-auto text-white px-[7px]"
+            >
               {formatDateTime(currentQuestion.createdAt)}
             </Text>
           );
         }
       }
-      sender = currentQuestion.studentId.id === user?.id ? 'My message' : '';
+      sender = currentQuestion.studentId.id === user?.id ? "My message" : "";
       // Xử lý ẩn danh
       if (!sender) {
         if (
@@ -219,27 +223,39 @@ export default function GeneralRoom() {
               time.getDate() !==
                 new Date(questionList[i - 1].createdAt).getDate()))
         ) {
-          const formatName = listFormat.find(
-            item => item.id === currentQuestion.studentId.id
-          );
-          if (formatName) {
+          if (currentQuestion.studentId.id == hostId) {
             list.push(
-              <Text key={`${formatName.number}${i}`} className='mr-auto ml-9'>
-                Ẩn danh {formatName.number}
+              <Text
+                key={`${hostId}${i}`}
+                className="mr-auto ml-9 text-blue_primary -mb-[2px] mt-1"
+              >
+                Giảng viên
               </Text>
             );
           } else {
-            const num = numberName + 1;
-            listFormat.push({
-              id: currentQuestion.studentId.id,
-              number: numberName + 1
-            });
-            setNumberName(numberName + 1);
-            list.push(
-              <Text key={num} className='mr-auto ml-9'>
-                Ẩn danh {num}
-              </Text>
+            const formatName = listFormat.find(
+              (item) => item.id == currentQuestion.studentId.id
             );
+            if (formatName) {
+              list.push(
+                <Text key={`${formatName.number}${i}`} className="mr-auto ml-9 -mb-[2px] mt-1">
+                  Ẩn danh {formatName.number}
+                </Text>
+              );
+            } else {
+              numberName = numberName + 1;
+              console.log(numberName);
+              console.log(currentQuestion.content);
+              listFormat.push({
+                id: currentQuestion.studentId.id,
+                number: numberName,
+              });
+              list.push(
+                <Text key={`${numberName}${i}`} className="mr-auto ml-9 -mb-[2px] mt-1">
+                  Ẩn danh {numberName}
+                </Text>
+              );
+            }
           }
         }
       }
@@ -264,8 +280,8 @@ export default function GeneralRoom() {
           IsRecall={currentQuestion.isResolved}
           User={sender}
           Content={currentQuestion.content}
-          Time={shouldDisplayTime ? formatTimeQuestion(time) : ''}
-          Avatar={isSameSender ? 'no' : sender && user ? user?.avatar : ''}
+          Time={shouldDisplayTime ? formatTimeQuestion(time) : ""}
+          Avatar={isSameSender ? "no" : sender && user ? user?.avatar : ""}
           Type={currentQuestion.type}
           HandleRecall={recallQuestion}
         />
@@ -284,17 +300,16 @@ export default function GeneralRoom() {
         const list = await response.data;
         setQuestionList(list.questions);
       } else {
-        Alert.alert('Thông báo', 'Đã xảy ra lỗi');
+        Alert.alert("Thông báo", "Đã xảy ra lỗi");
       }
     }
     setLoading(false);
   };
 
- 
   const sendQuestion = async (Type: string, Content: string) => {
-    if (!Content || Content == '') {
+    if (!Content || Content == "") {
       Content = message;
-      setMessage('');
+      setMessage("");
     }
 
     const dataPost = {
@@ -302,7 +317,7 @@ export default function GeneralRoom() {
       studentId: `${user?.id}`,
       content: Content,
       type: Type,
-      isResolved: false
+      isResolved: false,
     };
     if (user) {
       const msg: Question = {
@@ -314,68 +329,68 @@ export default function GeneralRoom() {
           userCode: user.userCode,
           role: user.role,
           avatar: user.avatar,
-          id: user.id
+          id: user.id,
         },
         createdAt: `${new Date().toISOString()}`,
         type: Type,
         isResolved: false,
         updatedAt: `${new Date().toISOString()}`,
-        __v: '0',
-        id: ""
+        __v: "0",
+        id: "",
       };
       const url = `${localHost}/api/v1/question/add`;
 
       const response = await post({
         url: url,
         data: dataPost,
-        token: accessToken
+        token: accessToken,
       });
 
       if (response) {
-        if(response.status==201){
-          msg.id=response.data.question.id
-          msg._id=response.data.question._id
-          setQuestionList(prevList => [...prevList, msg]);
+        if (response.status == 201) {
+          msg.id = response.data.question.id;
+          msg._id = response.data.question._id;
+          setQuestionList((prevList) => [...prevList, msg]);
           if (socketContext?.socket) {
             const dataMsg = {
               title: `${name}`, //Tên môn học
-              body: Type == 'text' ? msg.content : 'Đã gửi một ảnh', //Nội dung tin nhắn
-              type: 'message', //Loại tin nhắn
+              body: Type == "text" ? msg.content : "Đã gửi một ảnh", //Nội dung tin nhắn
+              type: "message", //Loại tin nhắn
               senderId: user.id, //ID người gửi
-              sender: 'Ẩn danh', //Tên người gửi
+              sender: "Ẩn danh", //Tên người gửi
               subject: `${name}`, //Tên môn học
-              room: '' //Phòng học
+              room: "", //Phòng học
             };
-            socketContext.socket.emit('sendMessageToSubject', {
+            socketContext.socket.emit("sendMessageToSubject", {
               subjectID: subjectId,
               message: msg,
-              dataMsg: dataMsg
+              dataMsg: dataMsg,
             });
           }
         }
-        
+
         if (response.status != 201) {
-          Alert.alert('Thông báo','Không thể gửi tin nhắn !');
+          Alert.alert("Thông báo", "Không thể gửi tin nhắn !");
           return false;
         }
-      }else{
-          Alert.alert('Thông báo','Không thể gửi tin nhắn !');
-          return false;
+      } else {
+        Alert.alert("Thông báo", "Không thể gửi tin nhắn !");
+        return false;
       }
     }
   };
 
   const uploadImage = async (imageUri: string, name: string) => {
-    console.log(imageUri)
+    console.log(imageUri);
     const formData = new FormData();
-    const extension = imageUri.split('.').pop();
+    const extension = imageUri.split(".").pop();
     if (extension) {
       const type = mime.lookup(extension);
       if (type) {
-        formData.append('image', {
+        formData.append("image", {
           uri: imageUri,
-          type: type || 'image/jpeg', // Mặc định là JPEG nếu không xác định được loại
-          name: name || 'photo.jpg'
+          type: type || "image/jpeg", // Mặc định là JPEG nếu không xác định được loại
+          name: name || "photo.jpg",
         } as any);
       }
     }
@@ -384,7 +399,7 @@ export default function GeneralRoom() {
       const response = await post({
         url: url,
         token: accessToken,
-        data: formData
+        data: formData,
       });
       if (response) {
         if (response.status == 200) {
@@ -392,12 +407,12 @@ export default function GeneralRoom() {
           console.log(json);
           return json.image;
         } else {
-          Alert.alert('Thông báo', 'Không thể gửi');
+          Alert.alert("Thông báo", "Không thể gửi");
           return false;
         }
       }
     } catch (error) {
-      Alert.alert('Alert', 'Unable to send photo');
+      Alert.alert("Alert", "Unable to send photo");
       return false;
     } finally {
     }
@@ -408,7 +423,7 @@ export default function GeneralRoom() {
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsMultipleSelection: false,
       // allowsEditing: true,
-      quality: 1
+      quality: 1,
     });
     if (!result.canceled) {
       setUploading(true);
@@ -418,15 +433,15 @@ export default function GeneralRoom() {
         const timestamp = currentTime.getTime();
         let imageUri = await uploadImage(
           listImage[i].uri,
-          '' + timestamp + user?.id
+          "" + timestamp + user?.id
         );
         if (imageUri) {
           image.push(imageUri);
         }
       }
-      const Image = image.join(' ');
+      const Image = image.join(" ");
       // setMessage(Image);
-      if (image.length > 0) await sendQuestion('image', Image);
+      if (image.length > 0) await sendQuestion("image", Image);
       // setMessage('');
       setUploading(false);
     }
@@ -436,7 +451,7 @@ export default function GeneralRoom() {
     let result = await ImagePicker.launchCameraAsync({
       cameraType: ImagePicker.CameraType.front,
       allowsEditing: true,
-      quality: 1
+      quality: 1,
     });
     if (!result.canceled) {
       setUploading(true);
@@ -445,11 +460,11 @@ export default function GeneralRoom() {
       const timestamp = currentTime.getTime();
       const imageUrl = await uploadImage(
         image[0].uri,
-        '' + timestamp + user?.id
+        "" + timestamp + user?.id
       );
       if (imageUrl) {
-        sendQuestion('image', imageUrl);
-        setMessage('');
+        sendQuestion("image", imageUrl);
+        setMessage("");
       }
     }
   };
@@ -457,44 +472,60 @@ export default function GeneralRoom() {
   //send
   const handlesendQuestion = async () => {
     setcheckScroll(true);
-    await sendQuestion('text', '');
+    await sendQuestion("text", "");
   };
+  const getHost = async () => {
+    const url = `${localHost}/api/v1/subject/${subjectId}`;
+    const res = await get({ url: url, token: accessToken });
+    if (res && res.status == 200) {
+      setHostId(res.data.subject.hostId);
+    }
+  };
+  useEffect(() => {
+    getHost();
+  }, []);
+
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior='padding'>
-      <View className='justify-center h-full flex-1 w-full'>
-        <View className=' shadow-md  pb-[1.5%] bg-blue_primary flex-row  pt-[12%] px-[4%] items-center '>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <View className="justify-center h-full flex-1 w-full">
+        <View className=" shadow-md  pb-[1.5%] bg-blue_primary flex-row  pt-[12%] px-[4%] items-center ">
           <TouchableOpacity onPress={router.back}>
-            <Ionicons name='chevron-back-sharp' size={24} color='white' />
+            <Ionicons name="chevron-back-sharp" size={24} color="white" />
           </TouchableOpacity>
-          <View className='mx-auto items-center pr-6'>
-            <Text className='text-[18px] font-msemibold uppercase text-white'>
+          <View className="mx-auto items-center pr-6">
+            <Text className="text-[18px] font-msemibold uppercase text-white">
               {code}
             </Text>
-            <Text className='mt-[-3px] text-white font-mmedium'>Thảo luận</Text>
+            <Text className="mt-[-3px] text-white font-mmedium">Thảo luận</Text>
           </View>
         </View>
         <LinearGradient
-          className='h-[1.2px] bg-[#F7F7F7]'
-          colors={['#C0BDBD', '#ffffff']}
+          className="h-[1.2px] bg-[#F7F7F7]"
+          colors={["#C0BDBD", "#ffffff"]}
         />
         {isLoading ? (
           <View
             style={{
               flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center'
-            }}>
-            <ActivityIndicator size='large' color={colors.blue_primary} animating={true} />
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <ActivityIndicator
+              size="large"
+              color={colors.blue_primary}
+              animating={true}
+            />
           </View>
         ) : (
           <ScrollView
-            className='flex-1 w-full'
-            keyboardShouldPersistTaps='handled'
+            className="flex-1 w-full"
+            keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
-              alignItems: 'flex-end',
+              alignItems: "flex-end",
               paddingVertical: 0,
-              paddingHorizontal: '0.5%'
+              paddingHorizontal: "0.5%",
             }}
             onContentSizeChange={(contentWidth, contentHeight) => {
               if (checkScroll) {
@@ -511,19 +542,20 @@ export default function GeneralRoom() {
             scrollEventThrottle={16}
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }>
+            }
+          >
             {renderQuestion()}
           </ScrollView>
         )}
-        <LinearGradient className='h-[1px]' colors={['#fafafa', '#d6d4d4']} />
-        <View className='h-[60px] w-[90%] ml-[5%] justify-center items-center flex-row'>
+        <LinearGradient className="h-[1px]" colors={["#fafafa", "#d6d4d4"]} />
+        <View className="h-[60px] w-[90%] ml-[5%] justify-center items-center flex-row">
           {
-            <View className='flex-1 border rounded-3xl px-[10px] border-[#E6E6E6] p-[5px]'>
+            <View className="flex-1 border rounded-3xl px-[10px] border-[#E6E6E6] p-[5px]">
               <TextInput
                 value={message}
-                onChangeText={e => setMessage(e)}
+                onChangeText={(e) => setMessage(e)}
                 multiline={true}
-                placeholder='Message'
+                placeholder="Message"
               />
             </View>
           }
@@ -531,9 +563,9 @@ export default function GeneralRoom() {
           {message.trim().length > 0 ? (
             <TouchableOpacity onPress={handlesendQuestion}>
               <Feather
-                name='send'
+                name="send"
                 size={26}
-                color='gray'
+                color="gray"
                 style={{ marginLeft: 9, marginTop: 3 }}
               />
             </TouchableOpacity>
@@ -541,17 +573,17 @@ export default function GeneralRoom() {
             <>
               <TouchableOpacity onPress={handleCamera}>
                 <Feather
-                  name='camera'
+                  name="camera"
                   size={27}
-                  color='#767676'
+                  color="#767676"
                   style={{ marginLeft: 10 }}
                 />
               </TouchableOpacity>
               <TouchableOpacity onPress={handleChooseImage}>
                 <FontAwesome6
-                  name='image'
+                  name="image"
                   size={24}
-                  color='#767676'
+                  color="#767676"
                   style={{ marginLeft: 10 }}
                 />
               </TouchableOpacity>

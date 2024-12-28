@@ -221,7 +221,7 @@ export const ChatContainer = ({ Id, Content, User, Avatar, Time, Type, Sender, h
           case 'image':
               contentType =
                   <View style={{ marginTop: 3, marginRight: 5 }}>
-                      <Pressable className="w-[150px] h-[200px] overflow-hidden rounded-xl border border-blue_primary" onPress={openModal} >
+                      <Pressable className="w-[150px] h-[200px] overflow-hidden rounded-xl border border-blue_primary" onPress={openModal} onLongPress={()=>setFeatureModalVisible(true)} >
                           <Image style={{ width: '100%', height: '100%', resizeMode: "cover" }} source={{ uri: Content }} />
                       </Pressable>
                   </View>;
@@ -256,7 +256,7 @@ export const ChatContainer = ({ Id, Content, User, Avatar, Time, Type, Sender, h
           case 'image':
               contentType =
                   <View style={{ marginTop: 3, marginLeft: 5 }}>
-                      <Pressable style={{ width: 150, height: 200, overflow: 'hidden', borderRadius: 15, borderColor: colors.blue_primary, borderWidth: 1 }} onPress={openModal}>
+                      <Pressable style={{ width: 150, height: 200, overflow: 'hidden', borderRadius: 15, borderColor: colors.blue_primary, borderWidth: 1 }} onPress={openModal} onLongPress={()=>setFeatureModalVisible(true)} >
                           <Image style={{ width: '100%', height: '100%', resizeMode: "cover" }} source={{ uri: Content }} />
                       </Pressable>
                   </View>;

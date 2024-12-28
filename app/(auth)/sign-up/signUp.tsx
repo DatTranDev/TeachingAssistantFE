@@ -45,6 +45,7 @@ export default function SignUp({}: Props) {
   const { login } = authContext;
 
   const register = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (email == '' || pass == '' || confirm == '') {
       Alert.alert(
         'Thông báo',
@@ -52,13 +53,15 @@ export default function SignUp({}: Props) {
       );
       return;
     }
+     if (!emailRegex.test(email)) {
+       Alert.alert("Thông báo", "Email không hợp lệ");
+       return;
+     }
     if (pass != confirm) {
       Alert.alert('Thông báo', 'Xác nhận mật khẩu sai');
     } else {
-      // setLoading(true);
-      console.log("aaa")
+      setLoading(true);
       const image = await uploadImage(info.avatar);
-      console.log('bbb');
       if (image) {
         const url = `${localHost}/api/v1/user/register`;
         const data = {
@@ -72,7 +75,6 @@ export default function SignUp({}: Props) {
         };
 
         const response = await postNoAuth({ url, data });
-         console.log(response);
         if (response) {
          
           if (response.status == 500) {
@@ -97,7 +99,9 @@ export default function SignUp({}: Props) {
         }
         setLoading(false);
       }
+      setLoading(false);
     }
+    setLoading(false);
   };
   const regisGoogle = () => {};
   return (
