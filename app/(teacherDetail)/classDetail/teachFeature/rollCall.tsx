@@ -82,6 +82,7 @@ export default function RollCall({}: Props) {
       if (checkLocation) {
         const check = await getLocation();
         if (!check) {
+          setLoading(false);
           return;
         }
       } else {

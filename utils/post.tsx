@@ -54,17 +54,22 @@ export default async function post({url,data,token}: Props) {
                   }
                   else{
                     Alert.alert("Thông báo","Đã xả ra lỗi, vui lòng thử lại sau !" )
-            return null;
+                    return null;
                   }
                 }
               return error.response;
           } else {  
-            Alert.alert("Thông báo","Đã xả ra lỗi, vui lòng thử lại sau !" )
+            console.log(error);
+            if(error.message=="Network Error")
+            {
+              Alert.alert("Thông báo","Kết nối mạng yếu, vui lòng thử lại sau !" )
+              return null;
+            }
+            Alert.alert("Thông báo", "Đã xả ra lỗi, vui lòng thử lại sau !");
             return null;
           }
         }
         else {
-          
             Alert.alert("Thông báo","Đã xả ra lỗi, vui lòng thử lại sau !" )
             return null;
         }

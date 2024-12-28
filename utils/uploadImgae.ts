@@ -8,7 +8,6 @@ export const uploadImage = async (imageUri: string, name?: string) => {
    {
       name=new Date().getTime().toString()
    }
-   console.log(name)
   const formData = new FormData();
   const extension = imageUri.split('.').pop();
   if (extension) {

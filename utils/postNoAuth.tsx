@@ -26,7 +26,6 @@ export default function postNoAuth({url,data,token}: Props) {
           return response;
         }
         catch (error: unknown) {
-          console.log(error)
           // Kiểm tra xem lỗi có phải là một đối tượng và có thuộc tính `response`
           if (axios.isAxiosError(error)) {
             if (error.response) {
@@ -41,7 +40,6 @@ export default function postNoAuth({url,data,token}: Props) {
             return null;
         }
       }
-        // try {
         //     const response = await fetch(url, {
         //         method: 'POST', 
         //         headers: {

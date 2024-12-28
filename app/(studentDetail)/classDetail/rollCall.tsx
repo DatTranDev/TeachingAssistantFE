@@ -107,6 +107,7 @@ export default function RollCall({ }: Props) {
             location = await getLocation();
         }
         if(!location){
+            setLoading(false);
             return;
         }
 
@@ -119,11 +120,7 @@ export default function RollCall({ }: Props) {
                 studentLongitude: location.longitude,
                 FCMToken: FCMToken
             }
-            console.log(data)
             const res = await post({ url: url, token: accessToken, data: data })
-            if (res) {
-                console.log(res.data)
-            }
             if (res && res.status == 201) {
                 const record = res.data.attendRecord;
                 console.log(record.status)
