@@ -24,6 +24,7 @@ import { AuthContext } from "@/context/AuthContext";
 import get from "@/utils/get";
 import patch from "@/utils/patch";
 import post from "@/utils/post";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 type Props = {};
 type Student = {
   id: string;
@@ -50,34 +51,33 @@ export default function RollCall({}: Props) {
     longitude: number;
   } | null>(null);
   const [isActive, setIsActive] = useState<boolean>(false);
-  const[tabAutomation,setTabAutomation]=useState<boolean>(true)
-  const [totalPresent,setTotalPresent]=useState<number>(0);
+  const [tabAutomation, setTabAutomation] = useState<boolean>(true);
+  const [totalPresent, setTotalPresent] = useState<number>(0);
   const handleRollCall = () => {
     setOpenModal(true);
     setTime(3);
     setCheckLocation(true);
   };
   const getLocation = async () => {
-    try{
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("Thông báo", "Cần cấp quyền truy cập vị trí để điểm danh");
-      return false;
-    }
-    let currentLocation = await Location.getCurrentPositionAsync({});
-    setLocation({
-      latitude: currentLocation.coords.latitude,
-      longitude: currentLocation.coords.longitude,
-    });
-    return true;
-    }catch{
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Thông báo", "Cần cấp quyền truy cập vị trí để điểm danh");
+        return false;
+      }
+      let currentLocation = await Location.getCurrentPositionAsync({});
+      setLocation({
+        latitude: currentLocation.coords.latitude,
+        longitude: currentLocation.coords.longitude,
+      });
+      return true;
+    } catch {
       Alert.alert("Thông báo", "Đã xảy ra lỗi khi lấy vị trí");
       return false;
     }
-    
   };
   const createRollCall = async () => {
-    if (!isActive) {
+    
       setLoading(true);
       if (checkLocation) {
         const check = await getLocation();
@@ -96,14 +96,14 @@ export default function RollCall({}: Props) {
         teacherLongitude: location?.longitude,
         timeExpired: time, //Thời gian hết hạn(đơn vị phút)
       };
-      if(!tabAutomation){
-      data = {
-        isActive: "true", //Bắt đầu điểm danh
-        teacherLatitude: 0,
-        teacherLongitude: 0,
-        timeExpired: 0, //Thời gian hết hạn(đơn vị phút)
-      };
-    }
+      if (!tabAutomation) {
+        data = {
+          isActive: "true", //Bắt đầu điểm danh
+          teacherLatitude: 0,
+          teacherLongitude: 0,
+          timeExpired: 0, //Thời gian hết hạn(đơn vị phút)
+        };
+      }
       const res = await patch({
         url: localHost + `/api/v1/cAttend/update/${attendId}`,
         data: data,
@@ -111,8 +111,12 @@ export default function RollCall({}: Props) {
       });
       if (res) {
         if (res.status === 200) {
+          if (isActive) {
+            Alert.alert("Thông báo", "Chỉnh sửa điểm danh thành công");
+          } else {
+            Alert.alert("Thông báo", "Tạo điểm danh thành công");
+          }
           setIsActive(true);
-          Alert.alert("Thông báo", "Tạo điểm danh thành công");
         } else {
           console.log(res.status);
           Alert.alert("Thông báo", "Đã xảy ra lỗi");
@@ -121,27 +125,24 @@ export default function RollCall({}: Props) {
       setTabAutomation(true);
       setOpenModal(false);
       setLoading(false);
-    }
+    
   };
   const deleteRollCall = async () => {
     if (isActive) {
       setLoading(true);
-      
-      const data = {
-        isActive: "false", //Bắt đầu điểm danh
-        teacherLatitude: 0,
-        teacherLongitude: 0,
-        timeExpired: 0, //Thời gian hết hạn(đơn vị phút)
-      };
+
+     
       const res = await patch({
-        url: localHost + `/api/v1/cAttend/update/${attendId}`,
-        data: data,
+        url: localHost + `/api/v1/cAttend/reset/${attendId}`,
+        data: {},
         token: accessToken,
       });
       if (res) {
         if (res.status === 200) {
           setIsActive(false);
-          setListStudent([])
+          setListStudent(
+            listStudent.map((item) => ({ ...item, check: false }))
+          );
           Alert.alert("Thông báo", "Đã xóa điểm danh");
         } else {
           Alert.alert("Thông báo", "Đã xảy ra lỗi");
@@ -170,7 +171,7 @@ export default function RollCall({}: Props) {
               setLoading(false);
               return;
             }
-          } 
+          }
         } else {
           setLoading(false);
           Alert.alert("Thông báo", "Đã xảy ra lỗi");
@@ -186,9 +187,10 @@ export default function RollCall({}: Props) {
       });
       if (res) {
         if (res.status == 200) {
-
           list.forEach((item: any) => {
-            const student = res.data.students.find((student: any) => student.id == item.id && student.status=="CM");
+            const student = res.data.students.find(
+              (student: any) => student.id == item.id && student.status == "CM"
+            );
             if (student) {
               item.check = true;
             }
@@ -218,8 +220,7 @@ export default function RollCall({}: Props) {
             check: false,
           }));
           return list;
-        }
-        else{
+        } else {
           Alert.alert("Thông báo", "Đã xảy ra lỗi");
           return null;
         }
@@ -231,39 +232,49 @@ export default function RollCall({}: Props) {
   }, []);
   const countPresent = (list: Student[]) => {
     const count = list.filter((item: any) => item.check).length;
-    return count||0;
-  }
+    return count || 0;
+  };
   const checkPresent = async (student: Student) => {
     let status = "CM";
-    if(student.check){
+    if (student.check) {
       status = "KP";
     }
-    setListStudent(listStudent.map((item: any) => {
-      if (item.id == student.id) {
-        item.check = status=="CM"?true  :false;
-      }
-      return item;
-    }));
-  const url = `${localHost}/api/v1/cAttend/attendrecord/add/forStudent`;
-  const res= await post({url,data:{
-    cAttendId:attendId,
-    studentId:student.id,
-    status:status
-},token:accessToken})
-  if(res){
-    if(res.status!=200 && res.status!=201){
-      Alert.alert("Thông báo", `Đã xảy ra lỗi khi điểm danh cho ${student.name}`);
-      setListStudent(listStudent.map((item: any) => {
+    setListStudent(
+      listStudent.map((item: any) => {
         if (item.id == student.id) {
-          item.check = status=="CM"?false  :true;
+          item.check = status == "CM" ? true : false;
         }
         return item;
-      }));
+      })
+    );
+    const url = `${localHost}/api/v1/cAttend/attendrecord/add/forStudent`;
+    const res = await post({
+      url,
+      data: {
+        cAttendId: attendId,
+        studentId: student.id,
+        status: status,
+      },
+      token: accessToken,
+    });
+    if (res) {
+      if (res.status != 200 && res.status != 201) {
+        Alert.alert(
+          "Thông báo",
+          `Đã xảy ra lỗi khi điểm danh cho ${student.name}`
+        );
+        setListStudent(
+          listStudent.map((item: any) => {
+            if (item.id == student.id) {
+              item.check = status == "CM" ? false : true;
+            }
+            return item;
+          })
+        );
       }
     }
-  }
- 
-
+  };
+  
   return (
     <SafeAreaView className="flex-1">
       <Loading loading={loading} />
@@ -367,7 +378,7 @@ export default function RollCall({}: Props) {
                 </>
               )}
               <ButtonCustom
-                content="Bắt đầu"
+                content={`${isActive ? "Lưu" : "Bắt đầu"}`}
                 handle={() => createRollCall()}
                 otherStyle={`w-[70%]  px-5 ${tabAutomation ? "" : "mt-4"}`}
               />
@@ -379,7 +390,7 @@ export default function RollCall({}: Props) {
         <TouchableOpacity onPress={router.back}>
           <Ionicons name="chevron-back-sharp" size={24} color="white" />
         </TouchableOpacity>
-        <View className="mx-auto items-center pr-6">
+        <View className={`mx-auto items-center  ${isActive ? "" : "pr-6"}`}>
           <Text className="text-[18px] font-msemibold uppercase text-white">
             Điểm danh
           </Text>
@@ -387,6 +398,11 @@ export default function RollCall({}: Props) {
             {formatNoWeekday(date)}
           </Text>
         </View>
+        {isActive && (
+          <TouchableOpacity onPress={handleRollCall}>
+            <MaterialIcons name="more-time" size={24} color="white" />
+          </TouchableOpacity>
+        )}
       </View>
       <View className=" w-[91%] mx-auto mt-[2%] flex-1">
         <Text className="text-base font-msemibold text-center mt-2">
@@ -399,21 +415,27 @@ export default function RollCall({}: Props) {
             </Text>
           ) : (
             listStudent.map((item, index) => (
-              <View key={index} className="bg-white rounded-md py-3 pl-4 mt-2 mb-1 flex-row justify-between">
-                <Text numberOfLines={1}  className="text-base text-[15px] font-mregular flex-1">
+              <View
+                key={index}
+                className="bg-white rounded-md py-3 pl-4 mt-2 mb-1 flex-row justify-between"
+              >
+                <Text
+                  numberOfLines={1}
+                  className="text-base text-[15px] font-mregular flex-1"
+                >
                   {index + 1}. {item.userCode} - {item.name}
                 </Text>
                 <TouchableOpacity
-                  onPress={() => {checkPresent(item)}}
+                  onPress={() => {
+                    checkPresent(item);
+                  }}
                   className="-mb-4  p-1"
                 >
                   <View className="relative w-8 h-8">
                     <View
                       className="w-4 h-4 rounded-sm"
                       style={{
-                        borderColor: item.check
-                          ? colors.blue_primary
-                          : "black",
+                        borderColor: item.check ? colors.blue_primary : "black",
                         borderWidth: 1.2,
                       }}
                     ></View>

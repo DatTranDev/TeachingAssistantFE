@@ -263,7 +263,7 @@ export default function RollCall({}: Props) {
       <ScrollView className="mt-2">
         {detailRollCalls.length == 0 ? (
           <Text className="text-center text-gray-500 font-msemibold mt-5">
-            Không có đánh giá
+            Không có điểm danh 
           </Text>
         ) : (
           detailRollCalls.map((item: DetailRollCall, index: number) => (

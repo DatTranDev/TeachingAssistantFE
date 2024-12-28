@@ -76,9 +76,7 @@ export default function Timetable({}: Props) {
     setLoading(false)
   }
   
-  useEffect(()=>{
-    getSub()
-  },[])
+  
   useFocusEffect(
     React.useCallback(() => {
       getSub();

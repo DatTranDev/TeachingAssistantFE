@@ -3,7 +3,7 @@ import { View, Text, SafeAreaView, TouchableOpacity, ScrollView, Alert } from 'r
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { AuthContext } from '@/context/AuthContext';
 import { localHost } from '@/utils/localhost';
 import { useLocalSearchParams } from 'expo-router';
@@ -68,28 +68,36 @@ export default function Sessions({ }: Props) {
     Alert.alert('Thông báo', 'Đã xảy ra lỗi, vui lòng quay lại sau');
     return null
   }
-    useEffect(() => {
-      async function getData() {
-        setLoading(true);
-        const url = `${localHost}/api/v1/cAttend/findBySubject/${subjectId}`
-        const res = await get({ url: url, token: accessToken })
-        if (res && res.status == 200) {
-          const listAttend = res.data.cAttends;
-          const data = listAttend.map((item: any) => ({
-            attendId: item.id,
-            date: item.date,
-            sessionNumber: item.sessionNumber,
-            isActive: item.isActive
-          }))
-          setCurrentSession(data.reduce((prev: Attend |null, curr: Attend) => {
-            return Math.abs(curr.sessionNumber) > Math.abs(prev?.sessionNumber || 0) ? curr : prev;
-          }, null))
-          setListSession(data.reverse())
-        }
-        setLoading(false)
-      }
-      getData()
+  async function getData() {
+    setLoading(true);
+    const url = `${localHost}/api/v1/cAttend/findBySubject/${subjectId}`;
+    const res = await get({ url: url, token: accessToken });
+    if (res && res.status == 200) {
+      const listAttend = res.data.cAttends;
+      const data = listAttend.map((item: any) => ({
+        attendId: item.id,
+        date: item.date,
+        sessionNumber: item.sessionNumber,
+        isActive: item.isActive,
+      }));
+      setCurrentSession(
+        data.reduce((prev: Attend | null, curr: Attend) => {
+          return Math.abs(curr.sessionNumber) >
+            Math.abs(prev?.sessionNumber || 0)
+            ? curr
+            : prev;
+        }, null)
+      );
+      setListSession(data.reverse());
+    }
+    setLoading(false);
+  }
+  useFocusEffect(
+    React.useCallback(() => {
+      getData();
     }, [])
+  );
+  
     const clickReview = (item: Attend) => {
       router.push({
         pathname: '/(teacherDetail)/classDetail/teachFeature',
@@ -101,14 +109,6 @@ export default function Sessions({ }: Props) {
         },
       });
     }
-    function getWeekDay(dateString: string | string[]) {
-      const options: Intl.DateTimeFormatOptions = {
-        weekday: 'long', // Thứ trong tuần
-      };
-      const date = new Date(String(dateString));
-      const formattedDate = `${date.toLocaleDateString('vi-VN', options)}`;
-      return formattedDate;
-    }
     const addAttend = async () => {
       const classSessionId = await getClassSessionId()
       if (classSessionId) {
@@ -119,13 +119,18 @@ export default function Sessions({ }: Props) {
           sessionNumber: currentSession ? currentSession.sessionNumber + 1 : 1,
           teacherLatitude: 0,
           teacherLongitude: 0,
-          isActive: true,
+          isActive: false,
           timeExpired: 0
         }})
         if(res)
         {
-          console.log(res.data)
           if (res.status == 201) {
+            setCurrentSession({
+              attendId: res.data.cAttend.id,
+              date: res.data.cAttend.date,
+              sessionNumber: res.data.cAttend.sessionNumber,
+              isActive: res.data.cAttend.isActive
+            })
             setListSession([{
               attendId: res.data.cAttend.id,
               date: res.data.cAttend.date,
@@ -168,16 +173,21 @@ export default function Sessions({ }: Props) {
           </View>
         </TouchableOpacity>
         <ScrollView className='mt-4'>
-          {listSession.map((item, index) => {
-            return (
-              <TouchableOpacity key={index} onPress={() => clickReview(item)} className='flex-row bg-white w-[100%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
-                <View className='mx-auto items-center justify-center'>
+          {listSession.length == 0 ? (
+            <View className='flex-1 items-center justify-center'>
+              <Text className='text-gray-500 text-sm font-mmedium mt-[10%] '>Không có buổi học nào</Text>
+            </View>
+          ) : (
+            listSession.map((item, index) => {
+              return (
+                <TouchableOpacity key={index} onPress={() => clickReview(item)} className='flex-row bg-white w-[100%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
+                  <View className='mx-auto items-center justify-center'>
                   <Text className='text-black text-sm font-mmedium '>Buổi {item.sessionNumber}</Text>
                   <Text className='text-black text-base font-msemibold mt-1'>{formatDate(item.date)}</Text>
                 </View>
               </TouchableOpacity>
             )
-          })}
+            }))}
 
         </ScrollView>
       </SafeAreaView>
