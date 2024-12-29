@@ -82,7 +82,7 @@ export default function AddClass({ }: Props) {
                         return;
                     }
                 }
-                Alert.alert("Thông báo", "Đã xảy ra lỗi")
+                Alert.alert("Thông báo", response.data.message)
             }
             else
             {
@@ -101,7 +101,13 @@ export default function AddClass({ }: Props) {
           <Text className='mx-auto text-[18px] font-msemibold uppercase text-white pr-1'>
             Tham gia lớp học
           </Text> 
-          <TouchableOpacity onPress={()=>setModalVisible(true)}>
+          <TouchableOpacity onPress={()=>{
+            if (!isPermissionGranted){
+              Alert.alert("Thông báo", "Vui lòng cấp quyền truy cập camera")
+              requestPermission()
+            }
+            setModalVisible(true)
+          }}>
             <MaterialCommunityIcons
               name='qrcode-scan'
               size={22}
@@ -126,7 +132,6 @@ export default function AddClass({ }: Props) {
         <Modal
                 visible={modalVisible}
                 transparent={true}
-                
                 onRequestClose={()=>setModalVisible(false)}
             >
               <CameraView
@@ -137,7 +142,7 @@ export default function AddClass({ }: Props) {
                     setCode(data)
                     setTimeout(async () => {
                       setModalVisible(false)
-                    }, 500);
+                    }, 0);
                     search()
                   }
                 }}
