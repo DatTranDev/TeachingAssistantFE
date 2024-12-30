@@ -529,7 +529,7 @@ export default function Chat() {
             <Text className="text-[18px] font-msemibold uppercase text-white">
               {code}
             </Text>
-            <Text className="mt-[-3px] text-white font-mmedium">Trao đổi</Text>
+            <Text className="mt-[-3px] text-white font-mmedium">Thảo luận</Text>
           </View>
         </View>
         <LinearGradient
