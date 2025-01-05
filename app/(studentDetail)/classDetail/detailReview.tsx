@@ -38,7 +38,7 @@ export default function DetailReview({ }: Props) {
   const [loading, setLoading] = useState(false)
   const [visible, setVisible] = useState(false);
   const { accessToken, user } = authContext;
-  const { attendId, date } = useLocalSearchParams();
+  const { attendId, date, isReviewed } = useLocalSearchParams();
   const [avgReview, setAvgReview] = useState({
     understandPercent: 0,
     usefulPercent: 0,
@@ -325,13 +325,15 @@ export default function DetailReview({ }: Props) {
                 className='bg-white w-[84%] mx-auto px-4 py-2 rounded-[10px] border-[1px] border-gray_line mb-2 rounded-tl-[4px] rounded-br-[4px]'>
                 <Text className='text-base'>{item.thinking}</Text>
               </View>
-            ))}
+            ))
+            }
         </ScrollView>
+        {isReviewed == "false" &&
         <ButtonCustom
           content='Đánh giá buổi học'
           otherStyle='my-3 w-[84%]'
           handle={() => setVisible(true)}
-        />
+        />}
       </SafeAreaView>
     </GestureHandlerRootView>
   );

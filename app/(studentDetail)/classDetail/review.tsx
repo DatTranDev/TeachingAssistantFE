@@ -54,12 +54,13 @@ export default function Review({ }: Props) {
       getData()
     }, [])
   )
-  const clickReview = (attendId: string, date: string) => {
+  const clickReview = (attendId: string, date: string, isReviewed:string) => {
     router.push({
       pathname: '/(studentDetail)/classDetail/detailReview',
       params: {
         attendId: attendId,
-        date: date
+        date: date,
+        isReviewed: isReviewed
       },
     });
   }
@@ -89,7 +90,7 @@ export default function Review({ }: Props) {
             return !item.reviewed ? (
               <TouchableOpacity
                 key={index}
-                onPress={() => clickReview(item.attendId, item.date)}
+                onPress={() => clickReview(item.attendId, item.date, "false")}
                 className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
                 <View className='mx-auto items-center justify-center'>
                   <Text> Buổi {item.sessionNumber} - {formatNoWeekday(item.date)}</Text>
@@ -101,7 +102,7 @@ export default function Review({ }: Props) {
             ) : (
               <TouchableOpacity
                 key={index}
-                onPress={() => clickReview(item.attendId, item.date)}
+                onPress={() => clickReview(item.attendId, item.date, "true")}
                 className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
                 <View className='mx-auto items-center justify-center'>
                   <Text> Buổi {item.sessionNumber} - {formatNoWeekday(item.date)}</Text>
