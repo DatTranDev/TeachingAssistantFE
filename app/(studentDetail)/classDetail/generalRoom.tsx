@@ -411,10 +411,12 @@ export default function GeneralRoom() {
           return false;
         }
       }
+      return false;
     } catch (error) {
       Alert.alert("Alert", "Unable to send photo");
       return false;
     } finally {
+      return false;
     }
   };
   const handleChooseImage = async () => {
@@ -422,8 +424,8 @@ export default function GeneralRoom() {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsMultipleSelection: false,
-      // allowsEditing: true,
-      quality: 1,
+      allowsEditing: false,
+      quality: 0.5,
     });
     if (!result.canceled) {
       setUploading(true);
@@ -451,7 +453,7 @@ export default function GeneralRoom() {
     let result = await ImagePicker.launchCameraAsync({
       cameraType: ImagePicker.CameraType.front,
       allowsEditing: true,
-      quality: 1,
+      quality: 0.3,
     });
     if (!result.canceled) {
       setUploading(true);
@@ -466,6 +468,8 @@ export default function GeneralRoom() {
         sendQuestion("image", imageUrl);
         setMessage("");
       }
+      setUploading(false);
+
     }
   };
 

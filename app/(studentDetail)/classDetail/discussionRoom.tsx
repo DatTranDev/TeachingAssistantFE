@@ -31,9 +31,7 @@ import Feather from "@expo/vector-icons/Feather";
 import { Entypo, EvilIcons, FontAwesome6, Ionicons } from "@expo/vector-icons";
 import { localHost } from "@/utils/localhost";
 import ButtonCustom from "@/components/ui/ButtonCustom";
-import Post from "@/components/student/chat/post";
 import { colors } from "@/constants/colors";
-import { icons } from "@/constants/icons";
 import * as ImagePicker from "expo-image-picker";
 import mime from "react-native-mime-types";
 import { formatNoWeekday } from "@/utils/formatDate";
@@ -208,7 +206,7 @@ export default function DiscussionRoom() {
       setLoading(false);
    };
    const sendPost = async (urlDownload: string[]) => {
-      if (!contentPost) {
+      if (!contentPost.trim() || !titlePost.trim()) {
          return;
       }
       const dataPost = {
@@ -368,7 +366,7 @@ export default function DiscussionRoom() {
          const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsMultipleSelection: true,
-            quality: 1
+            quality: 0.3
          });
 
          if (!result.canceled) {

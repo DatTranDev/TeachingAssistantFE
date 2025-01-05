@@ -88,10 +88,15 @@ export default function DetailReview({ }: Props) {
     setLoading(false)
   }
   const sendReview = async () => {
+    let thinking = review.thinking.trim()
+    if(!thinking){
+      thinking = " "
+    }
     setLoading(true)
     const url = `${localHost}/api/v1/review/add`
     const data = {
       ...review,
+      thinking: thinking,
       cAttendId: attendId,
       studentId: user?.id,
     }
@@ -105,6 +110,14 @@ export default function DetailReview({ }: Props) {
     if (res && res.status == 201) {
       setVisible(false)
       Alert.alert("Thông báo", "Đánh giá thành công")
+      setReview({
+        understandPercent: 70,
+        usefulPercent: 50,
+        teachingMethodScore: 5,
+        atmosphereScore: 5,
+        documentScore: 5,
+        thinking: "",
+      });
       await getData();
     } else {
       Alert.alert("Thông báo", "Đã xảy ra lỗi")
@@ -306,6 +319,7 @@ export default function DetailReview({ }: Props) {
           <Text className='text-base font-medimum text-gray-500 mt-2 text-center'>Không có góp ý</Text> 
           :
             data.map((item: any, index: number) => (
+              item.thinking.trim() &&
               <View
                 key={index}
                 className='bg-white w-[84%] mx-auto px-4 py-2 rounded-[10px] border-[1px] border-gray_line mb-2 rounded-tl-[4px] rounded-br-[4px]'>

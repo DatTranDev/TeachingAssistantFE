@@ -216,7 +216,7 @@ export default function RollCall({ }: Props) {
                     item.status == "Chưa điểm danh" ?
                         <TouchableOpacity key={index} onPress={() => clickRollCall(item)} className='flex-row bg-white w-[90%] mx-auto py-2 rounded-2xl items-center justify-end px-5 mb-3'>
                             <View className='mx-auto items-center justify-center'>
-                                <Text>Buổi {item.sessionNumber} - {formatDate(item.date)}</Text>
+                                <Text>Buổi {item.sessionNumber} - {formatNoWeekday(item.date)}</Text>
                                 <Text className='text-[#FE3535] text-base font-mmedium mt-1'>Chưa điểm danh</Text>
                             </View>
                             <FontAwesome6 name="exclamation" size={22} color="#FE3535" />

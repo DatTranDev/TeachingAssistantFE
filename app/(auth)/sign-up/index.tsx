@@ -36,7 +36,7 @@ export default function RegisInfo({}: Props) {
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 1,
+      quality: 0.5,
     });
 
     if (!result.canceled) {

@@ -175,7 +175,7 @@ export default function Review({ }: Props) {
              <Text className='text-center text-base font-msemibold mt-5'>Không có góp ý</Text>
              :
              data.map((item: any, index: number) => (
-             item.thinking && 
+             item.thinking.trim() && 
              <View
                key={index}
                className='bg-white w-[84%] mx-auto px-4 py-2 rounded-[10px] border-[1px] border-gray_line mb-2 rounded-tl-[4px] rounded-br-[4px]'>

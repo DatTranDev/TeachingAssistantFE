@@ -62,7 +62,7 @@ export default function Tetting({}: Props) {
                 </TouchableOpacity>
                 </View>
                 <View className='w-full h-[85%] my-auto' >
-                    <Image className='w-[90%] h-[90%] mx-auto' source={{ uri: `http://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${joinCode}` }} style={{ resizeMode: 'contain' }} />
+                    <Image className='w-[90%] h-[90%] mx-auto' source={{ uri: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${joinCode}` }} style={{ resizeMode: 'contain' }} />
                     <Text className='mx-auto text-white text-2xl'>{joinCode}</Text>
                 </View>
             </View>

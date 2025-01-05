@@ -470,7 +470,7 @@ export default function Chat() {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsMultipleSelection: false,
-      quality: 1,
+      quality: 0.5,
     });
     if (!result.canceled) {
       setUploading(true);
@@ -496,7 +496,7 @@ export default function Chat() {
     let result = await ImagePicker.launchCameraAsync({
       cameraType: ImagePicker.CameraType.front,
       allowsEditing: true,
-      quality: 1,
+      quality: 0.3,
     });
     if (!result.canceled) {
       setUploading(true);
@@ -511,6 +511,7 @@ export default function Chat() {
         sendQuestion("image", imageUrl);
         setMessage("");
       }
+      setUploading(false);
     }
   };
   //send

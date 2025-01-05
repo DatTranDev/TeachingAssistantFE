@@ -159,33 +159,49 @@ export const ChatContainer = ({ Id, Content, User, Avatar, Time, Type, Sender, h
   }
   const modalFeature = () => {
     return (
-         <Modal
-            animationType="fade"
-            transparent={true}
-            visible={featureModalVisible}
-            onRequestClose={() => setFeatureModalVisible(false)}>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={featureModalVisible}
+        onRequestClose={() => setFeatureModalVisible(false)}
+      >
+        <TouchableOpacity
+          className="flex-1 justify-center items-center"
+          style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
+          onPress={() => setFeatureModalVisible(false)}
+        >
+          <View className="mt-2 bg-white items-center py-2 rounded-lg flex-row px-1">
+            {User != "My message" && (
+              <TouchableOpacity
+                onPress={() => {
+                  setInfoModalVisible(true);
+                  setFeatureModalVisible(false);
+                }}
+                className="items-center mx-3"
+              >
+                <MaterialCommunityIcons
+                  name="card-account-details-outline"
+                  size={24}
+                  color="orange"
+                />
+                <Text className="text-[14px] mt-[2px] text-gray_primary">
+                  Hiển thị
+                </Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
-               className="flex-1 justify-center items-center"
-               style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
-               onPress={() => setFeatureModalVisible(false)}>
-               <View className="mt-2 bg-white items-center py-2 rounded-lg flex-row px-1">
-                  <TouchableOpacity
-                     onPress={() => {
-                        setInfoModalVisible(true);
-                        setFeatureModalVisible(false);
-                     }}
-                     className="items-center mx-3">
-                     <MaterialCommunityIcons name="card-account-details-outline" size={24} color="orange" />
-                     <Text className="text-[14px] mt-[2px] text-gray_primary">Hiển thị</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={deleteChat} className="items-center mx-3">
-                     <Feather name="trash" size={24} color="red" />
-                     <Text className="text-[14px] mt-[2px] text-gray_primary">Xóa tin nhắn</Text>
-                  </TouchableOpacity>
-               </View>
+              onPress={deleteChat}
+              className="items-center mx-3"
+            >
+              <Feather name="trash" size={24} color="red" />
+              <Text className="text-[14px] mt-[2px] text-gray_primary">
+                Xóa tin nhắn
+              </Text>
             </TouchableOpacity>
-         </Modal>
-    )
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    );
   }
   const deleteChat = async () => {
      const res = await deleteApi({
