@@ -59,7 +59,6 @@ export default async function post({url,data,token}: Props) {
                 }
               return error.response;
           } else {  
-            console.log(error);
             if(error.message=="Network Error")
             {
               Alert.alert("Thông báo","Kết nối mạng yếu, vui lòng thử lại sau !" )

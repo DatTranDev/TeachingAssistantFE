@@ -45,7 +45,6 @@ export default function Timetable({}: Props) {
     return date.getDate();
   };
   const handleDay = (day: any) => {
-
     const num = Number(day)
     setDaySelect(num);
   }
@@ -83,8 +82,13 @@ export default function Timetable({}: Props) {
     }, [])
   );
   useEffect(()=>{
-    setListSub(data.filter(item=>item.dayOfWeek==daySelect))
-  },[daySelect])
+    let realday=daySelect;
+    if(daySelect==0)
+    {
+      realday=7
+    }
+    setListSub(data.filter(item=>item.dayOfWeek==realday))
+  },[daySelect,data])
   
   return (
     <SafeAreaView className='flex-1'>
@@ -94,9 +98,9 @@ export default function Timetable({}: Props) {
 
       </View>
       <View className='mb-2 mt-4'>
-        <TouchableOpacity onPress={getSub}>
+        <View className='ml-[2px]'>
           <Text className='text-xl font-msemibold'>Tháng {month}</Text>
-        </TouchableOpacity>
+        </View>
 
         <View className='bg-white flex-row justify-around px-2 pt-1 pb-1 mt-1'>
           {dayOfWeek.map((day, index) => {
@@ -135,7 +139,7 @@ export default function Timetable({}: Props) {
             </View>
             <View className='flex-row items-center mt-[4px]'>
               <MaterialCommunityIcons name="clock-time-eight-outline" size={22} color="black" />
-              <Text className='text-base ml-3 font-mregular'>Thứ {item.dayOfWeek==7?'CN':item.dayOfWeek+1}, {item.start} - {item.end}</Text>
+              <Text className='text-base ml-3 font-mregular'>{item.dayOfWeek==7?'Chủ nhật':'Thứ ' + (item.dayOfWeek+1)}, {item.start} - {item.end}</Text>
             </View>
             <View className='flex-row items-center mt-[2px]  ml-[1px]'>
               <MaterialIcons name="meeting-room" size={22} color="black" />

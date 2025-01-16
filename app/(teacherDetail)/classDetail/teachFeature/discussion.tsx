@@ -31,7 +31,6 @@ import Feather from "@expo/vector-icons/Feather";
 import { Entypo, EvilIcons, FontAwesome6, Ionicons } from "@expo/vector-icons";
 import { localHost } from "@/utils/localhost";
 import ButtonCustom from "@/components/ui/ButtonCustom";
-import Post from "@/components/student/chat/post";
 import { colors } from "@/constants/colors";
 import { icons } from "@/constants/icons";
 import * as ImagePicker from "expo-image-picker";
