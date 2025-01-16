@@ -207,7 +207,7 @@ export default function DetailDocument({}: Props) {
           >
 
             { !(documents.length > 0)?
-            <Text className="text-center text-lg font-msemibold mt-[50%]">Không có tài liệu nào</Text>
+            <Text className="text-center text-md text-gray-400 font-mregular mt-[10%]">Không có tài liệu nào</Text>
             :
             documents.map((item, index) => (
               <View

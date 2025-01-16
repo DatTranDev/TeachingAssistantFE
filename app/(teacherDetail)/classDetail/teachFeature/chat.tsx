@@ -494,9 +494,9 @@ export default function Chat() {
   const handleCamera = async () => {
     let image;
     let result = await ImagePicker.launchCameraAsync({
-      cameraType: ImagePicker.CameraType.front,
-      allowsEditing: true,
-      quality: 0.3,
+      cameraType: ImagePicker.CameraType.back,
+      allowsEditing: false,
+      quality: 0.2,
     });
     if (!result.canceled) {
       setUploading(true);
@@ -630,5 +630,3 @@ export default function Chat() {
     </KeyboardAvoidingView>
   );
 }
-
-// registerRootComponent(ScreenChatRoom);

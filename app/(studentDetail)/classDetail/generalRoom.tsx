@@ -381,7 +381,6 @@ export default function GeneralRoom() {
   };
 
   const uploadImage = async (imageUri: string, name: string) => {
-    console.log(imageUri);
     const formData = new FormData();
     const extension = imageUri.split(".").pop();
     if (extension) {
@@ -404,7 +403,6 @@ export default function GeneralRoom() {
       if (response) {
         if (response.status == 200) {
           const json = await response.data;
-          console.log(json);
           return json.image;
         } else {
           Alert.alert("Thông báo", "Không thể gửi");
@@ -413,19 +411,17 @@ export default function GeneralRoom() {
       }
       return false;
     } catch (error) {
-      Alert.alert("Alert", "Unable to send photo");
-      return false;
-    } finally {
+      Alert.alert("Thông báo", "Không thể gửi");
       return false;
     }
   };
   const handleChooseImage = async () => {
     let image = [];
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsMultipleSelection: false,
       allowsEditing: false,
-      quality: 0.5,
+      quality: 0.4,
     });
     if (!result.canceled) {
       setUploading(true);
@@ -451,9 +447,9 @@ export default function GeneralRoom() {
   const handleCamera = async () => {
     let image;
     let result = await ImagePicker.launchCameraAsync({
-      cameraType: ImagePicker.CameraType.front,
-      allowsEditing: true,
-      quality: 0.3,
+      cameraType: ImagePicker.CameraType.back,
+      allowsEditing: false,
+      quality: 0.2,
     });
     if (!result.canceled) {
       setUploading(true);

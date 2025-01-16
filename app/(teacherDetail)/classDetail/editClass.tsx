@@ -155,6 +155,7 @@ export default function EditClass({
       }
       setLoading(false)
       Alert.alert('Thành công', 'Chỉnh sửa thành công');
+      router.replace('/(teacher)/teach')
     }
     catch(e:any){
       Alert.alert('Thông báo', 'Đã xảy ra lỗi: ', e.message)
