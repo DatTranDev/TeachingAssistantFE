@@ -35,6 +35,7 @@ export default function DetailReview({ }: Props) {
     return;
   }
   const [data, setData] = useState([])
+  const [checked, setChecked] = useState(false)
   const [loading, setLoading] = useState(false)
   const [visible, setVisible] = useState(false);
   const { accessToken, user } = authContext;
@@ -73,6 +74,9 @@ export default function DetailReview({ }: Props) {
       setData(res.data.reviews)
       // Tính trung bình các thuộc tính
       if (res.data.reviews.length > 0) {
+        if (res.data.reviews.find((item: any) => item.studentId == user?.id)) {
+          setChecked(true)
+        }
         const avg = {
           understandPercent: res.data.reviews.reduce((sum: number, item: any) => sum + Number(item.understandPercent), 0) / res.data.reviews.length,
           usefulPercent: res.data.reviews.reduce((sum: number, item: any) => sum + Number(item.usefulPercent), 0) / res.data.reviews.length,
@@ -320,7 +324,7 @@ export default function DetailReview({ }: Props) {
           :
             data.map((item: any, index: number) => (
               item.thinking.trim() &&
-              <View
+              <View  
                 key={index}
                 className='bg-white w-[84%] mx-auto px-4 py-2 rounded-[10px] border-[1px] border-gray_line mb-2 rounded-tl-[4px] rounded-br-[4px]'>
                 <Text className='text-base'>{item.thinking}</Text>
@@ -328,7 +332,8 @@ export default function DetailReview({ }: Props) {
             ))}
         </ScrollView>
         <ButtonCustom
-          content='Đánh giá buổi học'
+          isDisabled={checked}
+          content={checked ? 'Đã đánh giá' : 'Đánh giá buổi học'}
           otherStyle='my-3 w-[84%]'
           handle={() => setVisible(true)}
         />
