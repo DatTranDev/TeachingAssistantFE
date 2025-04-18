@@ -1,50 +1,47 @@
-# Welcome to your Expo app 👋
+# Teaching Assistant
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This is an Expo project designed to help lecturers and students manage classroom activities effectively. It utilizes JWT for authentication, Firebase for media storage and push notifications, WebSocket for real-time communication, Postman for API testing and documentation, and MongoDB for data storage.
 
-## Get started
+## 🔧 Technologies Used
 
-1. Install dependencies
+- **Expo**
+- **Express.js**
+- **Firebase**
+- **WebSocket**
+- **MongoDB**
+- **Postman**
 
-   ```bash
-   npm install
-   ```
+## 🚀 Key Features
 
-2. Start the app
+### Role-based Authentication
+- Login/Registration with role selection (Lecturer or Student)
 
-   ```bash
-    npx expo start
-   ```
+### Smart Attendance
+- Automatic attendance based on student GPS location
 
-In the output, you'll find options to open the app in a
+### Anonymous Q&A
+- Students can submit anonymous questions  
+- Lecturers receive real-time notifications and can respond instantly
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Real-time Interaction
+- Lecturers can randomly select students to answer  
+- WebSocket-powered communication for immediate updates
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Visual Statistics
+- Attendance and feedback are automatically summarized into visual statistics
 
-## Get a fresh project
+## 📦 Installation
 
-When you're ready, run:
+1. Clone the repository
+2. Create a `google-services.json` file from your Firebase project and put it in `android/app`
+3. Install dependencies using `npm install`
+4. Run the project with `npx expo start`
 
-```bash
-npm run reset-project
-```
+## 📥 APK Download
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+You can download the mobile app APK from the link below:
 
-## Learn more
+[Install APK](https://drive.google.com/file/d/1Zjc40ntRcGHRqd_4H7RIh6JjEf2EVQdS/view?usp=sharing)
+[Backend Code](https://github.com/DatTranDev/TeachingAssistantBE)
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+> **Note:** As we are using a free server, the startup time may take up to 1 minute. Thank you for your patience!
