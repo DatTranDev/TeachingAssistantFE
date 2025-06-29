@@ -4,7 +4,7 @@ import { SafeAreaView, TouchableOpacity, View, Text } from "react-native";
 import { useRouter } from "expo-router";
 import { ScrollView } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { Attend } from "./listRoom";
+import { Attend } from "./discussion/listRoom";
 import { AuthContext } from "@/context/AuthContext";
 import { localHost } from "@/utils/localhost";
 import get from "@/utils/get";

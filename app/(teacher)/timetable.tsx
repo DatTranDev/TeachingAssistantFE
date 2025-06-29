@@ -23,7 +23,8 @@ export type ClassSession = {
   start:string,
   end:string,
   dayOfWeek:number,
-  joinCode:string
+  joinCode:string,
+  maxAbsences:number,
 }
 export default function Timetable({}: Props) {
   const authContext = useContext(AuthContext);

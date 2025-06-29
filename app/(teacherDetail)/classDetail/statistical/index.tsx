@@ -24,6 +24,18 @@ export default function Statistical({}: Props) {
       params: { code, name, subjectId },
     });
   };
+  const interaction = () => {
+    router.push({
+      pathname: `/(teacherDetail)/classDetail/statistical/interaction`,
+      params: { code, name, subjectId },
+    });
+  }
+  const absence = () => {
+    router.push({
+      pathname: `/(teacherDetail)/classDetail/statistical/absence`,
+      params: { code, name, subjectId },
+    });
+  }
   return (
     <SafeAreaView>
       <View className=" shadow-md  pb-[1.5%] bg-blue_primary flex-row  pt-[12%] px-[4%] items-center ">
@@ -54,6 +66,28 @@ export default function Statistical({}: Props) {
           <Foundation name="clipboard-pencil" size={24} color="black" />
           <Text className="text-base font-msemibold ml-4 mr-auto">
             Tổng hợp đánh giá
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={interaction}
+          className="flex-row items-center bg-white w-[94%] mx-auto px-[7%] py-4 rounded-2xl mt-3"
+        >
+          <MaterialCommunityIcons
+            name="account-multiple-check"
+            size={24}
+            color="black"
+          />
+          <Text className="text-base font-msemibold ml-4 mr-auto">
+            Thống kê tương tác
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={absence}
+          className="flex-row items-center bg-white w-[94%] mx-auto px-[7%] py-4 rounded-2xl mt-3"
+        >
+          <FontAwesome5 name="user-times" size={18} color="black" />
+          <Text className="text-base font-msemibold ml-4 mr-auto">
+            Thống kê vắng mặt
           </Text>
         </TouchableOpacity>
       </View>

@@ -60,8 +60,7 @@ export default function ForgotPassword({}: Props) {
                 router.push({
                   pathname: '/(auth)/forgotPassword/verify', // Chuyển sang màn hình success
                   params: {
-                   email,
-                   userCode:result.userCode,
+                   email
                   },
                 });
               }

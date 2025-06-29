@@ -28,6 +28,7 @@ export default function AddClass({}: Props) {
   const router=useRouter()
   const [name, setName] = React.useState('');
   const [code, setCode] = React.useState('');
+  const [maxAbsences, setMaxAbsences] = React.useState(3);
   const [numberOfSesion, setNumberOfSesion] = React.useState(1);
   const [sessions, setSessions] = React.useState<Session[]>([
     { dayOfWeek: 1, room: '', start: 'Tiết 1', end: '2' },
@@ -96,6 +97,7 @@ export default function AddClass({}: Props) {
       code,
       hostId: user?.id,
       sessions,
+      maxAbsences,
     };
     console.log(data);
     const url = `${localHost}/api/v1/subject/add`;
@@ -140,7 +142,7 @@ export default function AddClass({}: Props) {
   }, [numberOfSesion]);
 
   return (
-      <SafeAreaView className='flex-1'>
+      <SafeAreaView className='relative flex-1'>
         <Loading loading={loading} />
         <View className=' shadow-md bg-blue_primary flex-row pt-[12%] px-[4%] pb-[3.5%] items-center '>
           <TouchableOpacity onPress={router.back}>
@@ -176,8 +178,21 @@ export default function AddClass({}: Props) {
                   <Picker.Item label="3 buổi" value={3} />
             </Picker>
           </View>
+          <Text className="text-[16px] font-msemibold text-gray_primary mb-2">Số buổi vắng tối đa</Text>
+          <View className="mx-auto p-0 bg-white w-[100%] border-[1px] rounded-2xl border-gray-300 mb-2">
+            <Picker 
+                style={{padding: 0, margin: 0}}
+                selectedValue={maxAbsences}
+                onValueChange={(a)=>setMaxAbsences(a)} >
+                  <Picker.Item label="1 buổi" value={1} />
+                  <Picker.Item label="2 buổi" value={2} />
+                  <Picker.Item label="3 buổi" value={3} />
+                  <Picker.Item label="4 buổi" value={4} />
+                  <Picker.Item label="5 buổi" value={5} />
+            </Picker>
+          </View>
 
-          <ScrollView className='flex-grow h-[45%]'  keyboardShouldPersistTaps="handled">
+          <ScrollView className='flex-grow h-[30%]'  keyboardShouldPersistTaps="handled">
             {sessions.map((session, index) => (
               //For each session
               <View key={index}>
@@ -262,13 +277,13 @@ export default function AddClass({}: Props) {
             ))
             }
           </ScrollView>
+        </View>
           <ButtonCustom 
-            otherStyle='mt-5'
+            otherStyle='mt-5 absolute bottom-4 self-center'
             content='Tạo lớp học'
             handle={handleSubmit}
             >
           </ButtonCustom>
-        </View>
          
       </SafeAreaView>
   )

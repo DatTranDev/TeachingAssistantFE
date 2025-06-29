@@ -14,25 +14,46 @@ type Props = {}
 
 export default function Verify({ }: Props) {
    
-    let{email,userCode}= useLocalSearchParams();
+    let{email}= useLocalSearchParams();
     const [code, setCode] = useState('');
     const [loading,setLoading]= useState(false)
     const router = useRouter();
-    const [check,setCheck]= useState(userCode)
     const sendCode = async () => {
-        if(code==check)
-        {
-            router.push({
-                pathname: '/(auth)/forgotPassword/changePassword', // Chuyển sang màn hình success
-                params: {
-                 email
-                },
-              });
+        const url = `${localHost}/api/v1/service/verifyCode`;
+        const data = {
+            email,
+            code
         }
-        else{
-            Alert.alert("Thông báo","Vui lòng kiểm tra lại mã xác nhận")
+        setLoading(true)
+        const response = await postNoAuth({ url, data })
+        try {
+            if (response) {
+                if (response.status == 400) {
+                    const message = response.data
+                    if (message == "Invalid code") {
+                        Alert.alert('Thông báo', 'Mã xác nhận không hợp lệ')
+                    } else {
+                        Alert.alert('Thông báo', 'Mã xác nhận đã hết hạn, vui lòng thử lại')
+                    }
+                }
+                if (response.status == 404) {
+                    Alert.alert("Thông báo", "Email chưa được tạo tài khoản")
+                }
+                if (response.status == 200) {
+                    router.push({
+                        pathname: '/(auth)/forgotPassword/changePassword',
+                        params: {
+                            email
+                        }
+                    })
+                }
+            }
+        } catch {
+            Alert.alert('Thông báo', 'Đã xảy ra lỗi, vui lòng thử lại sau')
         }
-       
+        finally {
+            setLoading(false)
+        }
     }
     const sendMail= async()=>{
         const url =`${localHost}/api/v1/service/sendEmail`
@@ -61,10 +82,12 @@ export default function Verify({ }: Props) {
               if(response.status==200)
               {
                 const result = await response.data;
-               
-                setCheck(result.userCode);
                 
                 Alert.alert('Thông báo','Đã gửi lại email')
+              }
+              if(response.status==429)
+              {
+                Alert.alert('Thông báo','Code đã được gửi, vui lòng kiểm tra email(cả mục spam)')
               }
             }
           }catch{

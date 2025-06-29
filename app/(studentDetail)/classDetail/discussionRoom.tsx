@@ -51,13 +51,16 @@ export type Discussion = {
       avatar: string;
       id: string;
    };
+   upvotes: string[];
+   downvotes: string[];
    isResolved: boolean;
    reactions: Reaction[];
+   replyOf?: string;
 };
 export type Reaction = {
    type: number;
    id: string;
-   discussionId?: string|string[];
+   discussionId?: string | string[];
    userId: {
       id: string;
       name: string;
@@ -79,7 +82,7 @@ export default function DiscussionRoom() {
    const { user, accessToken } = authContext;
    const { cAttendId, sessionNumber, date, subjectId } = useLocalSearchParams();
    const scrollViewRef = useRef<ScrollView>(null);
-   const [PostList, setPostList] = useState<Discussion[]>([]);
+   const [postList, setPostList] = useState<Discussion[]>([]);
    const [isLoading, setLoading] = useState(true);
    const [isUploading, setUploading] = useState(false);
    const isFocused = useIsFocused();
@@ -124,8 +127,8 @@ export default function DiscussionRoom() {
 
    const renderPost = () => {
       const list: JSX.Element[] = [];
-      const totalMessages = PostList.length;
-
+      const tempPostList: any[] = [];
+      const totalMessages = postList.length;
       if (totalMessages == 0) {
          return (
             <Text
@@ -139,7 +142,7 @@ export default function DiscussionRoom() {
       let numberAnonymous = 0;
       for (let i = start; i < totalMessages; i++) {
          let sender = "";
-         const currentPost = PostList[i];
+         const currentPost = postList[i];
          const time = new Date(currentPost.createdAt);
          let nameAnonymous = "";
          sender = currentPost.creator.id === user?.id ? "My message" : "";
@@ -157,8 +160,8 @@ export default function DiscussionRoom() {
             nameAnonymous = `${currentPost.creator.name}- ${currentPost.creator.userCode}`;
          }
          // Hiển thị ngày nếu cần
-         if (i > 0) {
-            const previousPostTime = new Date(PostList[i - 1].createdAt);
+         if (i > 0 && postList[i].replyOf == null) {
+            const previousPostTime = new Date(postList[i - 1].createdAt);
             if (previousPostTime.getDate() !== time.getDate()) {
                list.push(
                   <Text
@@ -169,25 +172,68 @@ export default function DiscussionRoom() {
                );
             }
          }
+         tempPostList.push({
+            handleDeletePost: handleDeletePost,
+            key: currentPost.id,
+            Content: currentPost.content,
+            Time: time,
+            Creator: currentPost.creator,
+            Title: currentPost.title,
+            CAttendId: cAttendId,
+            Id: currentPost.id,
+            Images: currentPost.images,
+            nameAnonymous: nameAnonymous,
+            isResolved: currentPost.isResolved,
+            reactions: currentPost.reactions || [],
+            myId: user?.id || null,
+            replyOf: currentPost.replyOf || null,
+            upvotes: currentPost.upvotes || [],
+            downvotes: currentPost.downvotes || []
+         });
+
+      }
+      tempPostList.sort((a: any, b: any) => new Date(a.Time).getTime() - new Date(b.Time).getTime())
+      const listFilter = tempPostList.map((item) => {
+         if (!item.replyOf) {
+            const comments = tempPostList.filter(post => post.replyOf === item.Id).map(post => ({
+               id: post.Id,
+               content: post.Content,
+               createdAt: formatTimePost(post.Time),
+               nameAnonymous: post.nameAnonymous,
+               creator: post.Creator,
+               upvotes: post.upvotes || [],
+               downvotes: post.downvotes || []
+            }));
+            return {
+               ...item,
+               Time: formatTimePost(item.Time),
+               comments: comments
+            }
+         }
+      }).filter(item => item)
+      listFilter.forEach(item => {
          list.push(
             <DiscussionPost
                handleDeletePost={handleDeletePost}
-               key={currentPost.id}
-               Content={currentPost.content}
-               Time={formatTimePost(time)}
-               Creator={currentPost.creator}
-               Title={currentPost.title}
-               CAttendId={cAttendId}
-               Id={currentPost.id}
-               Images={currentPost.images}
-               nameAnonymous={nameAnonymous}
-               isResolved={currentPost.isResolved}
-               reactions={currentPost.reactions}
+               key={item.key}
+               Content={item.Content}
+               Time={item.Time}
+               Creator={item.Creator}
+               Title={item.Title}
+               CAttendId={item.CAttendId}
+               Id={item.Id}
+               Images={item.Images}
+               nameAnonymous={item.nameAnonymous}
+               isResolved={item.isResolved}
+               reactions={item.reactions}
                myId={user?.id || null}
+               comments={item.comments}
+               addComment={addComment}
+               upvotes={item.upvotes || []}
+               downvotes={item.downvotes || []}
             />
          );
-      }
-
+      })
       return list;
    };
 
@@ -231,7 +277,9 @@ export default function DiscussionRoom() {
          content: `${contentPost}`,
          images: urlDownload,
          isResolved: false,
-         reactions: []
+         reactions: [],
+         upvotes: [],
+         downvotes: []
       };
 
       if (user) {
@@ -240,18 +288,18 @@ export default function DiscussionRoom() {
          if (response) {
             if (response.status == 201) {
                discussion.id = response.data.discussion.id;
-               if(socketContext?.socket){
+               if (socketContext?.socket) {
                   const dataMsg = {
-                    title: `Câu hỏi mới`,//Tên môn học
-                    body:  `${titlePost}`,//Nội dung tin nhắn
-                    type: 'message',//Loại tin nhắn
-                    senderId: user.id,//ID người gửi
-                    sender: "Ẩn danh",//Tên người gửi
-                    subject: `Câu hỏi mới`,//Tên môn học
-                    room: ""//Phòng học
+                     title: `Câu hỏi mới`,//Tên môn học
+                     body: `${titlePost}`,//Nội dung tin nhắn
+                     type: 'message',//Loại tin nhắn
+                     senderId: user.id,//ID người gửi
+                     sender: "Ẩn danh",//Tên người gửi
+                     subject: `Câu hỏi mới`,//Tên môn học
+                     room: ""//Phòng học
                   }
-                  socketContext.socket.emit('sendMessageToSubject', {subjectID:cAttendId, message:discussion, dataMsg:dataMsg});
-                }
+                  socketContext.socket.emit('sendMessageToSubject', { subjectID: cAttendId, message: discussion, dataMsg: dataMsg });
+               }
                setPostList(prevList => [...prevList, discussion]);
                closeModal();
             } else {
@@ -316,44 +364,75 @@ export default function DiscussionRoom() {
       loadPost();
    }, []);
    //Connect to socket
-  useEffect(() => {
-  if (socketContext) {
-    console.log('socket student: ', socketContext.socket.id);
-    const { socket } = socketContext;
-    if (socket) {
-      socket.emit('joinSubject', { userID: user?.id,subjectID: cAttendId });
-      socket.on('receiveSubjectMessage', (message: Discussion) => {
-        if(message.creator.id!=user?.id)
-          setPostList((prevList) => [...prevList, message]);
-        scrollViewRef.current?.scrollToEnd({ animated: true });
-      });
-      socket.on('receiveResolve', (messageID: string) => {
-         setPostList((prevList) =>
-           prevList.map((message) => {
-             if (message.id === messageID) {
-               return { ...message, isResolved: true };
-             }
-             return message;
-           })
-         );
-       });
-       socket.on('receiveDeleteMessage', (messageID: string) => {  
-         setPostList((prevList) => prevList.filter((message) => message.id !== messageID));
-       });
-    }
-  }
-  return () => {
-    if (socketContext) {
-      const { socket } = socketContext;
-      if (socket) {
-        socket.emit('leaveSubject', { userID: user?.id,subjectID: cAttendId });
-        socket.off('receiveSubjectMessage');
-         socket.off('receiveResolve');
-         socket.off('receiveDelete=Message');
+   useEffect(() => {
+      if (socketContext) {
+         console.log('socket student: ', socketContext.socket.id);
+         const { socket } = socketContext;
+         if (socket) {
+            socket.emit('joinSubject', { userID: user?.id, subjectID: cAttendId });
+            socket.on('receiveSubjectMessage', (message: Discussion) => {
+               if (message.creator.id != user?.id)
+                  setPostList((prevList) => [...prevList, message]);
+               scrollViewRef.current?.scrollToEnd({ animated: true });
+            });
+            socket.on('receiveResolve', (messageID: string) => {
+               setPostList((prevList) =>
+                  prevList.map((message) => {
+                     if (message.id === messageID) {
+                        return { ...message, isResolved: true };
+                     }
+                     return message;
+                  })
+               );
+            });
+            socket.on('receiveDeleteMessage', (messageID: string) => {
+               setPostList((prevList) => prevList.filter((message) => message.id !== messageID));
+            });
+            socket.on('receiveReply', (reply: Discussion) => {
+               if (reply.creator.id != user?.id) {
+                  setPostList((postList) => [...postList, reply]);
+               }
+            });
+            socket.on('receiveVote', (data: any) => {
+               if (data.userId != user?.id) {
+                  setPostList((prevList) => prevList.map((item: Discussion) => {
+                     if (item.id == data.discussionId) {
+                        if (data.type == 'upvote') {
+                           const check = item.upvotes.find((userId: any) => userId === data.userId);
+                           return {
+                              ...item,
+                              upvotes: check ? item.upvotes.filter((userId: any) => userId !== data.userId) : [...item.upvotes, data.userId],
+                              downvotes: item.downvotes.filter((userId: any) => userId !== data.userId)
+                           };
+                        } else if (data.type == 'downvote') {
+                           const check = item.downvotes.find((userId: any) => userId === data.userId);
+                           return {
+                              ...item,
+                              downvotes: check ? item.downvotes.filter((userId: any) => userId !== data.userId) : [...item.downvotes, data.userId],
+                              upvotes: item.upvotes.filter((userId: any) => userId !== data.userId)
+                           };
+                        }
+                     }
+                     return { ...item, upvotes: item.upvotes, downvotes: item.downvotes };
+                  }));
+               }
+            });
+         }
       }
-    }
-  };
-  }, [socketContext]);
+      return () => {
+         if (socketContext) {
+            const { socket } = socketContext;
+            if (socket) {
+               socket.emit('leaveSubject', { userID: user?.id, subjectID: cAttendId });
+               socket.off('receiveSubjectMessage');
+               socket.off('receiveResolve');
+               socket.off('receiveDelete=Message');
+               socket.off('receiveReply');
+               socket.off('receiveVote');
+            }
+         }
+      };
+   }, [socketContext]);
    const closeModal = () => {
       setContentPost("");
       setTitlePost("");
@@ -382,7 +461,34 @@ export default function DiscussionRoom() {
       const newImages = selectedImages.filter((_, i) => i !== index);
       setSelectedImages(newImages);
    };
-
+   const addComment = async (item: Discussion) => {
+      const commentData = {
+         ...item, creator: {
+            name: `${user?.name}`,
+            userCode: `${user?.userCode}`,
+            role: `${user?.role}`,
+            avatar: `${user?.avatar}`,
+            id: `${user?.id}`
+         }
+      };
+      setPostList([...postList, {
+         ...item, creator: {
+            name: `${user?.name}`,
+            userCode: `${user?.userCode}`,
+            role: `${user?.role}`,
+            avatar: `${user?.avatar}`,
+            id: `${user?.id}`
+         }
+      }])
+      if (socketContext?.socket) {
+         console.log("socketContext.socket: ", subjectId);
+         const { socket } = socketContext;
+         socket.emit("sendReply", {
+            subjectID: cAttendId,
+            message: commentData
+         });
+      }
+   }
    return (
       <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
          <Modal visible={visible} className="flex-1" transparent={true} animationType="fade">

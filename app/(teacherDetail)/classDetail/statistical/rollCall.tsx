@@ -103,7 +103,7 @@ export default function RollCall({}: Props) {
   };
   const goToDetailRollCall = (item: DetailRollCall) => {
     router.push({
-      pathname: "/classDetail/teachFeature/rollCall",
+      pathname: "/classDetail/teachFeature/attendance/rollCall",
       params: {
         attendId: item.attendId,
         sessionNumber: item.sessionNumber,
@@ -140,38 +140,38 @@ export default function RollCall({}: Props) {
     }
   };
    
-    const extractFileName = (url: string): string | null => {
-      const regex = /files%2F([^?]*)/; // Tìm phần sau 'files%2F' cho đến trước dấu '?'
-      const match = url.match(regex);
-      if (match && match[1]) {
-        const fileName = decodeURIComponent(match[1]); // Giải mã các ký tự đặc biệt
-        return fileName.replace(/_\d+$/, ""); // Loại bỏ phần '_<số>' ở cuối
+  const extractFileName = (url: string): string | null => {
+    const regex = /files%2F([^?]*)/; // Tìm phần sau 'files%2F' cho đến trước dấu '?'
+    const match = url.match(regex);
+    if (match && match[1]) {
+      const fileName = decodeURIComponent(match[1]); // Giải mã các ký tự đặc biệt
+      return fileName.replace(/_\d+$/, ""); // Loại bỏ phần '_<số>' ở cuối
+    }
+    return null;
+  };
+  const downloadAndShareFile = async (url:string) => {
+    try {
+      console.log(url)
+      const fileName = extractFileName(url); // Hàm lấy tên tệp từ URL
+      if(fileName){
+        const fileUri = `${FileSystem.documentDirectory}${fileName}`;    
+      setLoading(true); // Đặt trạng thái loading
+      // Tải tệp
+      const downloadResumable = FileSystem.createDownloadResumable(url, fileUri);
+      const result = await downloadResumable.downloadAsync();
+  
+      if (result && result.uri) {
+        await Sharing.shareAsync(result.uri);
+      } else {
+        Alert.alert('Lỗi', 'Không thể tải tài liệu');
       }
-      return null;
-    };
-    const downloadAndShareFile = async (url:string) => {
-      try {
-        console.log(url)
-        const fileName = extractFileName(url); // Hàm lấy tên tệp từ URL
-        if(fileName){
-          const fileUri = `${FileSystem.documentDirectory}${fileName}`;    
-        setLoading(true); // Đặt trạng thái loading
-        // Tải tệp
-        const downloadResumable = FileSystem.createDownloadResumable(url, fileUri);
-        const result = await downloadResumable.downloadAsync();
-    
-        if (result && result.uri) {
-          await Sharing.shareAsync(result.uri);
-        } else {
-          Alert.alert('Lỗi', 'Không thể tải tài liệu');
-        }
-      }
-      } catch (error) {
-        Alert.alert('Lỗi', 'Đã xảy ra lỗi khi tải tài liệu');
-      } finally {
-        setLoading(false); // Đảm bảo cập nhật trạng thái loading
-      }
-    };
+    }
+    } catch (error) {
+      Alert.alert('Lỗi', 'Đã xảy ra lỗi khi tải tài liệu');
+    } finally {
+      setLoading(false); // Đảm bảo cập nhật trạng thái loading
+    }
+  };
 
 
   useFocusEffect(

@@ -238,7 +238,10 @@ export default function GeneralRoom() {
             );
             if (formatName) {
               list.push(
-                <Text key={`${formatName.number}${i}`} className="mr-auto ml-9 -mb-[2px] mt-1">
+                <Text
+                  key={`${formatName.number}${i}`}
+                  className="mr-auto ml-9 -mb-[2px] mt-1"
+                >
                   Ẩn danh {formatName.number}
                 </Text>
               );
@@ -251,7 +254,10 @@ export default function GeneralRoom() {
                 number: numberName,
               });
               list.push(
-                <Text key={`${numberName}${i}`} className="mr-auto ml-9 -mb-[2px] mt-1">
+                <Text
+                  key={`${numberName}${i}`}
+                  className="mr-auto ml-9 -mb-[2px] mt-1"
+                >
                   Ẩn danh {numberName}
                 </Text>
               );
@@ -465,7 +471,6 @@ export default function GeneralRoom() {
         setMessage("");
       }
       setUploading(false);
-
     }
   };
 
@@ -535,9 +540,9 @@ export default function GeneralRoom() {
             }}
             ref={scrollViewRef}
             onScroll={({ nativeEvent }) => {
-              if (nativeEvent.contentOffset.y <= 0) {
-                handleLoadMore();
-              }
+              // if (nativeEvent.contentOffset.y <= 0.5) {
+              //   handleLoadMore();
+              // }
             }}
             scrollEventThrottle={16}
             refreshControl={

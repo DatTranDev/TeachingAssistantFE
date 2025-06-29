@@ -50,6 +50,32 @@ export default function TeacherLayout() {
         }}
       />
       <Tabs.Screen
+        name="notification"
+        options={{
+          title: "Thông báo",
+          tabBarIcon: ({ color, focused }) => (
+            <>
+              <View>
+                <Ionicons
+                  name="notifications-sharp"
+                  size={24}
+                  color={focused ? colors.blue_primary : colors.gray_primary}
+                  style={{ marginRight: "auto", marginLeft: "auto" }}
+                />
+                <Text
+                  className="text-gray_primary ml-auto mr-auto text-xs"
+                  style={{
+                    color: focused ? colors.blue_primary : colors.gray_primary,
+                  }}
+                >
+                  Thông báo
+                </Text>
+              </View>
+            </>
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: 'Cá nhân',

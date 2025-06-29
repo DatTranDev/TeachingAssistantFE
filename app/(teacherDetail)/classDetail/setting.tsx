@@ -30,7 +30,7 @@ end: string;
 };
 
 export default function Tetting({}: Props) {
-  const { code,name,subjectId, joinCode } = useLocalSearchParams();
+  const { code,name,subjectId, joinCode, maxAbsences } = useLocalSearchParams();
   const [modalVisible, setModalVisible] = React.useState(false);
   const [toogle, setToogle] = React.useState(false);
 

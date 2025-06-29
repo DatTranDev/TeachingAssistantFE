@@ -46,6 +46,7 @@ export default function EditClass({
   const parseData = typeof data === 'string'?JSON.parse(data):data;
   const [name, setName] = React.useState(parseData.subject.name);
   const [code, setCode] = React.useState(parseData.subject.code);
+  const [maxAbsences, setMaxAbsences] = React.useState(parseData.subject.maxAbsences);
   const [numberOfSesion, setNumberOfSesion] = React.useState(parseData.classSessions.length);
   const [sessions, setSessions] = React.useState<Session[]>(parseData.classSessions);
   const [loading, setLoading] = React.useState(false);
@@ -146,7 +147,8 @@ export default function EditClass({
           url: `${localHost}/api/v1/subject/update/${parseData.subject.id}`,
           data: {
             name: name,
-            code: code
+            code: code,
+            maxAbsences: maxAbsences,
           },
           token: accessToken
         })
@@ -182,7 +184,7 @@ export default function EditClass({
   }, [numberOfSesion]);
 
   return (
-      <SafeAreaView className='flex-1'>
+      <SafeAreaView className='flex-1 relative'>
         <Loading loading={loading} />
         <View className=' shadow-md bg-blue_primary flex-row pt-[12%] px-[4%] pb-[3.5%] items-center '>
           <TouchableOpacity onPress={router.back}>
@@ -220,7 +222,21 @@ export default function EditClass({
             </Picker>
           </View>
 
-          <ScrollView className='flex-grow h-[45%]'  keyboardShouldPersistTaps="handled">
+          <Text className="text-[16px] font-msemibold text-gray_primary mb-2">Số buổi vắng tối đa</Text>
+                    <View className="mx-auto p-0 bg-white w-[100%] border-[1px] rounded-2xl border-gray-300 mb-2">
+                      <Picker 
+                          style={{padding: 0, margin: 0}}
+                          selectedValue={maxAbsences}
+                          onValueChange={(a)=>setMaxAbsences(a)} >
+                            <Picker.Item label="1 buổi" value={1} />
+                            <Picker.Item label="2 buổi" value={2} />
+                            <Picker.Item label="3 buổi" value={3} />
+                            <Picker.Item label="4 buổi" value={4} />
+                            <Picker.Item label="5 buổi" value={5} />
+                      </Picker>
+                    </View>
+
+          <ScrollView className='flex-grow h-[30%]'  keyboardShouldPersistTaps="handled">
             {sessions.map((session, index) => (
               //For each session
               <View key={index}>
@@ -305,13 +321,13 @@ export default function EditClass({
             ))
             }
           </ScrollView>
+        </View>
           <ButtonCustom 
-            otherStyle='mt-5'
+            otherStyle='mt-5 absolute bottom-4 self-center'
             content='Chỉnh sửa'
             handle={handleSubmit}
             >
           </ButtonCustom>
-        </View>
          
       </SafeAreaView>
   )

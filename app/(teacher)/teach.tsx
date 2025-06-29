@@ -26,6 +26,7 @@ export type Subject= {
    name:string,
    times:Time[],
    hostName:string,
+   maxAbsences:number,
    code:string,
    joinCode?:string
 }
@@ -50,6 +51,7 @@ export default function Classes(props: Props) {
         subjectId:sub.id,
         name:sub.name,
         code:sub.code,
+        maxAbsences:sub.maxAbsences,
         joinCode:sub.joinCode,
       },
     });
@@ -97,7 +99,8 @@ export default function Classes(props: Props) {
         start: item.start,
         end: item.end,
         dayOfWeek: item.dayOfWeek,
-        joinCode: item.subject.joinCode
+        joinCode: item.subject.joinCode,
+        maxAbsences: item.subject.maxAbsences
       }));
       setData(formattedData);
       const listSubject = formattedData.reduce((acc: Subject[], item: ClassSession) => {
@@ -115,6 +118,7 @@ export default function Classes(props: Props) {
             code: item.code,
             hostName: item.hostName,
             joinCode: item.joinCode,
+            maxAbsences: item.maxAbsences,
             times: [{
               numberOfWeek: item.dayOfWeek, 
               start: item.start,

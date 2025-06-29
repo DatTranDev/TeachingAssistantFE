@@ -65,7 +65,6 @@ export default function StudentList({}: Props) {
       });
       if (res) {
         if (res.status == 200) {
-          console.log(res.data);
           setIsActive(res.data.cAttend.isActive);
           if (res.data.cAttend.isActive) {
             const url2 = `${localHost}/api/v1/cAttend/attendStudents/${attendId}`;

@@ -27,5 +27,6 @@ export const colors = {
   },
   gray_primary:'#676767',
   blue_primary:'#82BFF6',
-  text_gray:'#1F2937'
+  text_gray:'#1F2937',
+  orange:'#F8AB15'
 };

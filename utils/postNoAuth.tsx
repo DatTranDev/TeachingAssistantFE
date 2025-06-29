@@ -27,6 +27,7 @@ export default function postNoAuth({url,data,token}: Props) {
         }
         catch (error: unknown) {
           // Kiểm tra xem lỗi có phải là một đối tượng và có thuộc tính `response`
+          console.log(error)
           if (axios.isAxiosError(error)) {
             if (error.response) {
               return error.response;

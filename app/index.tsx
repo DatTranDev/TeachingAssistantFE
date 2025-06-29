@@ -6,7 +6,18 @@ import messaging from '@react-native-firebase/messaging';
 import { PermissionsAndroid } from 'react-native'
 import { AuthContext } from '@/context/AuthContext';
 type Props = {}
-
+type AppMessage = {
+    data: {
+        type: string;
+        subject?: string;
+        room?: string;
+        sender?: string;
+    };
+    notification: {
+        title: string;
+        body?: string;
+    };
+}
 export default function index(){
     const authContext = useContext(AuthContext);
     if(!authContext)
@@ -29,11 +40,19 @@ export default function index(){
             });
             messaging().onMessage(async (remoteMessage) => {
                 console.log('Message handled in the foreground!', remoteMessage);
-                if(authContext?.user?.role=='student' && remoteMessage.data?.type=='attendance')
+                if(authContext?.user?.role=='student')
                     if(remoteMessage.data?.type=='attendance' && remoteMessage.data?.sender!=user?.id)
                     {
                         Alert.alert('Điểm danh ngay', `Môn học: ${remoteMessage.data?.subject}\nPhòng: ${remoteMessage.data?.room}`);
+                        return;
                     }
+                    else
+                    if(remoteMessage.data?.type!='message' && remoteMessage.data?.sender!=user?.id)
+                    {
+                        Alert.alert(`${remoteMessage.notification?.title}`, remoteMessage.notification?.body);
+                        return;
+                    }
+                
             });
             
         };

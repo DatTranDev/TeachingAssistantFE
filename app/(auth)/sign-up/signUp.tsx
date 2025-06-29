@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import InputLayout from '@/components/ui/inputLayout';
 import Feather from '@expo/vector-icons/Feather';
-import { Picker } from '@react-native-picker/picker';
 import ButtonCustom from '@/components/ui/ButtonCustom';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { colors } from '@/constants/colors';
@@ -26,7 +25,6 @@ import { uploadImage } from '@/utils/uploadImgae';
 type Props = {};
 
 export default function SignUp({}: Props) {
-  const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const [confirm, setConfirm] = useState('');
   const [visible, setVisible] = useState(true);
@@ -46,27 +44,28 @@ export default function SignUp({}: Props) {
 
   const register = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (email == '' || pass == '' || confirm == '') {
+    if ( pass == '' || confirm == '') {
       Alert.alert(
         'Thông báo',
-        'Vui lòng nhập đầy đủ email và mật khẩu để đăng kí'
+        'Vui lòng nhập đầy đủ mật khẩu để đăng kí'
       );
       return;
     }
-     if (!emailRegex.test(email)) {
-       Alert.alert("Thông báo", "Email không hợp lệ");
-       return;
-     }
     if (pass != confirm) {
       Alert.alert('Thông báo', 'Xác nhận mật khẩu sai');
     } else {
       setLoading(true);
-      const image = await uploadImage(info.avatar);
+      let image=''
+      if(!info.avatar)
+      {
+        image = await uploadImage(info.avatar);
+      }
+      
       if (image) {
         const url = `${localHost}/api/v1/user/register`;
         const data = {
           name: info.name,
-          email: email,
+          email: info.email,
           password: pass,
           role: info.role,
           avatar: image,
@@ -112,15 +111,6 @@ export default function SignUp({}: Props) {
           <Text className='text-blue_primary text-[28px] font-msemibold mt-[30%] ml-[8%]'>
             Tạo tài khoản
           </Text>
-          <InputLayout
-            style='w-[85%] mt-[10%]'
-            title='Email'
-            placeHorder='example@gmail.com'
-            value={email}
-            handle={e => {
-              setEmail(e);
-            }}
-          />
           {/* Mật khẩu */}
           <View className={` ml-auto mr-auto w-[85%] mt-4 pb-1`}>
             <Text className='text-[16px] font-msemibold text-gray_primary mb-2'>
